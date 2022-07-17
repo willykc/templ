@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4b52d49444b29224ba96589aa9aec7ee
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: 'The input is:
+
+    {{text | Padding}}'
+  parsingErrors: []

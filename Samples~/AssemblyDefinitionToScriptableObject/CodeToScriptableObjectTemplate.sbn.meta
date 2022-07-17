@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: de1e0f5d967300c49b318758ea5b3907
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!114 &11400000\nMonoBehaviour:\n 
+    m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance:
+    {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 0}\n  m_Enabled:
+    1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 63d8acd5734d4a14cae559b86ad6f638,
+    type: 3}\n  m_Name: {{OutputAssetPath | GetFileNameWithoutExtension}}\n  m_EditorClassIdentifier:
+    \n  list: {{if (assembly | GetSubclassesOf 'Willykc.Templ.Samples.BaseWindow')
+    | array.size == 0}}[]{{end}}\n  {{~ for type in assembly | GetSubclassesOf 'Willykc.Templ.Samples.BaseWindow'
+    ~}}\n    - {{type.name}}\n  {{~ end ~}}\n"
+  parsingErrors: []

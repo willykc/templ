@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: c93a243ec8ce243439063d1681ddb4d8
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!1 &7516010442868298354\nGameObject:\n 
+    m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance:
+    {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  serializedVersion: 6\n  m_Component:\n 
+    - component: {fileID: 5205173121959835420}\n{{~ for type in assembly | GetSubclassesOf
+    'Willykc.Templ.Samples.BaseAnimation' ~}}\n  - component: {fileID: {{type | GetTypeFileId}}}\n{{~
+    end ~}}\n  m_Layer: 0\n  m_Name: {{OutputAssetPath | GetFileNameWithoutExtension}}\n 
+    m_TagString: Untagged\n  m_Icon: {fileID: 0}\n  m_NavMeshLayer: 0\n  m_StaticEditorFlags:
+    0\n  m_IsActive: 1\n--- !u!4 &5205173121959835420\nTransform:\n  m_ObjectHideFlags:
+    0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n 
+    m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 7516010442868298354}\n 
+    m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\n  m_LocalPosition: {x: 0, y: 0, z:
+    0}\n  m_LocalScale: {x: 1, y: 1, z: 1}\n  m_ConstrainProportionsScale: 0\n  m_Children:
+    []\n  m_Father: {fileID: 0}\n  m_RootOrder: 0\n  m_LocalEulerAnglesHint: {x:
+    0, y: 0, z: 0}\n{{~ for type in assembly | GetSubclassesOf 'Willykc.Templ.Samples.BaseAnimation'
+    ~}}\n--- !u!114 &{{type | GetTypeFileId}}\nMonoBehaviour:\n  m_ObjectHideFlags:
+    0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n 
+    m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 7516010442868298354}\n 
+    m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: {{type
+    | GetTypeGuid}}, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n{{~ end ~}}\n"
+  parsingErrors: []

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a82406792f69d0b4bad506b4d160ac1c
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "// WARNING: This is auto-generated code, please do not modify manually.\nnamespace
+    Willykc.Templ.Samples\n{\n    public enum {{OutputAssetPath | GetFileNameWithoutExtension}}
+    {\n{{~ for window in scriptableObject.window_list ~}}\n        {{window}},\n{{~
+    end ~}}\n    }\n}\n"
+  parsingErrors: []

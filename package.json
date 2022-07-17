@@ -1,0 +1,64 @@
+{
+  "name": "com.willykc.templ",
+  "version": "0.1.0-preview",
+  "displayName": "Templ",
+  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Extensible design allows custom inputs and template functions.",
+  "keywords": [
+    "template",
+    "code",
+    "generation",
+    "automatic"
+  ],
+  "author": {
+    "name": "Willy A. Kuster",
+    "email": "willykc@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/willykc/templ.git"
+  },
+  "dependencies": {
+    "org.nuget.scriban": "5.4.6"
+  },
+  "unity": "2020.3",
+  "documentationUrl": "https://github.com/willykc/templ/blob/main/README.md",
+  "changelogUrl": "https://github.com/willykc/templ/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/willykc/templ/blob/main/LICENSE",
+  "samples": [
+    {
+      "displayName": "Scriptable Object to XML",
+      "description": "Contains sample template and scriptable object for CML output",
+      "path": "Samples~/ScriptableObjectToXML"
+    },
+    {
+      "displayName": "Scriptable Object to Code",
+      "description": "Contains sample template and scriptable object for C# output",
+      "path": "Samples~/ScriptableObjectToCode"
+    },
+    {
+      "displayName": "Scriptable Object to Scriptable Object",
+      "description": "Contains sample template and scriptable object for a differenct scriptable object output",
+      "path": "Samples~/ScriptableObjectToScriptableObject"
+    },
+    {
+      "displayName": "Assembly Definition to Code",
+      "description": "Contains sample template and assembly definition for C# output",
+      "path": "Samples~/AssemblyDefinitionToCode"
+    },
+    {
+      "displayName": "Assembly Definition to Scriptable Object",
+      "description": "Contains sample template and assembly definition for a scriptable object output",
+      "path": "Samples~/AssemblyDefinitionToScriptableObject"
+    },
+    {
+      "displayName": "Assembly Definition to Prefab",
+      "description": "Contains sample template and assembly definition for a prefab output",
+      "path": "Samples~/AssemblyDefinitionToPrefab"
+    },
+    {
+      "displayName": "Extensions",
+      "description": "Contains sample custom entry and custom functions for a text template",
+      "path": "Samples~/Extensions"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+// WARNING: This is auto-generated code, please do not modify manually.
+namespace Willykc.Templ.Samples
+{
+    public enum {{OutputAssetPath | GetFileNameWithoutExtension}} {
+{{~ for window in scriptableObject.window_list ~}}
+        {{window}},
+{{~ end ~}}
+    }
+}

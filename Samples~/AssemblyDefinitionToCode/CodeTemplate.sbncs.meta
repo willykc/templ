@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 22823886397d68e4d818b67af00825f4
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "// WARNING: This is auto-generated code, please do not modify manually.\nusing
+    System;\nusing System.Collections.Generic;\n\nnamespace Willykc.Templ.Samples\n{\n   
+    public static class {{OutputAssetPath | GetFileNameWithoutExtension}}\n    {\n       
+    public static readonly Dictionary<string, Type> InitializerTypes = new Dictionary<string,
+    Type>() {\n{{~ for type in assembly | GetTypesWithAttribute 'Willykc.Templ.Samples.Initializer'
+    ~}}\n            {\"{{ (type | GetAttribute 'Willykc.Templ.Samples.Initializer').id
+    }}\", typeof({{ type.name }})},\n{{~ end ~}}\n        };\n    }\n}\n"
+  parsingErrors: []

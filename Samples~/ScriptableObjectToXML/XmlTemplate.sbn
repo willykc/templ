@@ -1,0 +1,5 @@
+<{{scriptableObject.group_name}}>
+{{~ for item in scriptableObject.elements ~}}
+    <Item value="{{item}}" />
+{{~ end ~}}
+</{{scriptableObject.group_name}}>

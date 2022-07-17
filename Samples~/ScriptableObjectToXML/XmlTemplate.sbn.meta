@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 643aab5355564784dac5f96c9f9af825
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "<{{scriptableObject.group_name}}>\n{{~ for item in scriptableObject.elements
+    ~}}\n    <Item value=\"{{item}}\" />\n{{~ end ~}}\n</{{scriptableObject.group_name}}>"
+  parsingErrors: []
