@@ -19,9 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Tests.Mocks
 {
-    public static class TemplFunctions
+    [TemplFunctions]
+    public static class TemplFunctionsConflictMock
     {
         public static void GetType(string name) { }
     }

@@ -119,7 +119,7 @@ namespace Willykc.Templ.Editor
 
         internal void FlagChangedEntry(TemplEntry entry)
         {
-            if(entry == null)
+            if (entry == null)
             {
                 return;
             }
@@ -156,11 +156,9 @@ namespace Willykc.Templ.Editor
 
         private List<Type> GetTemplateFunctions() =>
             typeCache
-            .Where(t => t.Namespace == typeof(TemplFunctions).Namespace &&
-            t.Name == nameof(TemplFunctions) &&
+            .Where(t => Attribute.GetCustomAttribute(t, typeof(TemplFunctionsAttribute)) != null &&
             t.IsAbstract &&
-            t.IsSealed &&
-            t != typeof(TemplFunctions))
+            t.IsSealed)
             .ToList();
 
         private string[] GetFunctionNameConflicts() =>

@@ -44,12 +44,10 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeSetUp]
         public void BeforeAll()
         {
-#pragma warning disable CS0436 // Type conflicts with imported type
             typeCache = new Type[]
             {
-                typeof(TemplFunctions)
+                typeof(TemplFunctionsConflictMock)
             };
-#pragma warning restore CS0436 // Type conflicts with imported type
             settings = AssetDatabase.LoadAssetAtPath<TemplSettings>(TestSettingsPath);
             firstEntryMock = settings.Entries[0] as EntryMock;
         }

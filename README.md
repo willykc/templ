@@ -68,7 +68,7 @@ Input field must extend `UnityEngine.Object` type. The name of the input field w
 
 ### Custom template functions
 
-To add custom template functions, define a static class named `TemplFunctions` under the namespace `Willykc.Templ.Editor`. Every static method declared in this class will be exposed to Scriban when rendering templates.
+To add custom template functions, define a static class and apply `[TemplFunctions]` attribute to it. Every static method declared in this class will be exposed to Scriban when rendering templates.
 
 Templ includes by default a number of [custom template functions](Editor/TemplFunctions.cs). Templ will log an error when custom template function names collide, and will not render any template until custom template function name duplicates are removed.
 

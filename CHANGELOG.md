@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Declare custom functions using TemplFunctionAttribute on static classes
+
 ## [0.1.0-preview] - 2022-07-16
 
 ### Added
