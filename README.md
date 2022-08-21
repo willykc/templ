@@ -1,5 +1,7 @@
 # Templ
 
+[![openupm](https://img.shields.io/npm/v/com.willykc.templ?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.willykc.templ/)
+
 Integrates [Scriban](https://github.com/scriban/scriban/) template engine with Unity editor.
 
 * Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.
