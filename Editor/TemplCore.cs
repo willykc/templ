@@ -33,7 +33,7 @@ namespace Willykc.Templ.Editor
     internal sealed class TemplCore
     {
         private const string TemplChangedKey = "templ.changed";
-        private const string TemplDelayedKey = "templ.delayed";
+        private const string TemplDeferredKey = "templ.deferred";
 
         private readonly IAssetDatabase assetDatabase;
         private readonly IFile file;
@@ -74,7 +74,7 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        internal void OnAssetsChanged(AssetChanges changes)
+        internal void OnAssetsChanged(AssetsPaths changes)
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -86,8 +86,8 @@ namespace Willykc.Templ.Editor
                 return;
             }
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
-                .Where(e => e.ShouldRender(changes));
-            FlagDelayedEntries(entriesToRender, changes);
+                .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)));
+            FlagDeferredEntries(entriesToRender, changes);
             RenderEagerEntries(entriesToRender, changes);
         }
 
@@ -97,15 +97,15 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
-            var delayed = sessionState.GetString(TemplDelayedKey);
-            if (string.IsNullOrWhiteSpace(delayed))
+            var deferred = sessionState.GetString(TemplDeferredKey);
+            if (string.IsNullOrWhiteSpace(deferred))
             {
                 return;
             }
-            var delayedEntries = settingsProvider.GetSettings().ValidEntries
-                .Where(e => delayed.Contains(e.guid));
-            RenderEntries(delayedEntries);
-            sessionState.EraseString(TemplDelayedKey);
+            var deferredEntries = settingsProvider.GetSettings().ValidEntries
+                .Where(e => deferred.Contains(e.guid));
+            RenderEntries(deferredEntries);
+            sessionState.EraseString(TemplDeferredKey);
         }
 
         internal void OnWillDeleteAsset(string path)
@@ -172,7 +172,7 @@ namespace Willykc.Templ.Editor
             .Select(g => g.Key)
             .ToArray();
 
-        private bool IsSettingsChanged(AssetChanges changes)
+        private bool IsSettingsChanged(AssetsPaths changes)
         {
             var settingsPath = assetDatabase.GetAssetPath(settingsProvider.GetSettings());
             return changes.importedAssets.Contains(settingsPath);
@@ -191,36 +191,38 @@ namespace Willykc.Templ.Editor
             sessionState.EraseString(TemplChangedKey);
         }
 
-        private void FlagDelayedEntries(IEnumerable<TemplEntry> entries, AssetChanges changes)
+        private void FlagDeferredEntries(IEnumerable<TemplEntry> entries, AssetsPaths changes)
         {
-            var delayed = entries
-                .Where(e => e.DelayRender && !e.IsTemplateChanged(changes))
+            var deferred = entries
+                .Where(e => e.Deferred &&
+                DecomposeChanges(changes, e).All(c => !e.IsTemplateChanged(c)))
                 .Select(e => e.guid);
-            var delayedFlags = string.Concat(delayed);
-            if (!string.IsNullOrWhiteSpace(delayedFlags))
+            var deferredFlags = string.Concat(deferred);
+            if (!string.IsNullOrWhiteSpace(deferredFlags))
             {
-                sessionState.SetString(TemplDelayedKey, delayedFlags);
+                sessionState.SetString(TemplDeferredKey, deferredFlags);
             }
         }
 
         private void FlagInputDeletedEntries(string path)
         {
-            var delayed = settingsProvider.GetSettings().ValidEntries
-                .Where(e => e.WillDeleteInput(path))
+            var deferred = settingsProvider.GetSettings().ValidEntries
+                .Where(e => e.ShouldRender(new AssetChange(ChangeType.Delete, path)))
                 .Select(e => e.guid);
-            var delayedFlags = string.Concat(delayed);
-            if (!string.IsNullOrWhiteSpace(delayedFlags))
+            var deferredFlags = string.Concat(deferred);
+            if (!string.IsNullOrWhiteSpace(deferredFlags))
             {
-                sessionState.SetString(TemplDelayedKey, delayedFlags);
+                sessionState.SetString(TemplDeferredKey, deferredFlags);
             }
         }
 
         private void RenderEagerEntries(
             IEnumerable<TemplEntry> entries,
-            AssetChanges changes)
+            AssetsPaths changes)
         {
             var entriesToRenderNow = entries
-                .Where(e => !e.DelayRender || e.IsTemplateChanged(changes));
+                .Where(e => !e.Deferred ||
+                DecomposeChanges(changes, e).Any(c => e.IsTemplateChanged(c)));
             RenderEntries(entriesToRenderNow);
         }
 
@@ -291,11 +293,29 @@ namespace Willykc.Templ.Editor
             var scriptObject = new ScriptObject();
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
-            scriptObject.Add(entry.InputFieldName, entry.InputValue);
+            scriptObject.Add(entry.InputFieldName, entry.TheInputValue);
             scriptObject.Add(nameof(entry.OutputAssetPath), entry.OutputAssetPath);
             var context = new TemplateContext();
             context.PushGlobal(scriptObject);
             return context;
+        }
+
+        private static AssetChange[] DecomposeChanges(AssetsPaths changes, TemplEntry entry)
+        {
+            var imported = entry.DeclaresChangeType(ChangeType.Import)
+                ? changes.importedAssets.Select(p => new AssetChange(ChangeType.Import, p))
+                : new AssetChange[0];
+            var moved = entry.DeclaresChangeType(ChangeType.Move)
+                ? changes.movedAssets.Select((p, i) =>
+                new AssetChange(ChangeType.Move, p, changes.movedFromAssetPaths[i]))
+                : new AssetChange[0];
+            var deleted = entry.DeclaresChangeType(ChangeType.Delete)
+                ? changes.deletedAssets.Select(p => new AssetChange(ChangeType.Delete, p))
+                : new AssetChange[0];
+            return imported
+                .Union(moved)
+                .Union(deleted)
+                .ToArray();
         }
     }
 }

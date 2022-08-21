@@ -62,9 +62,11 @@ The sample **Extensions** contains a custom entry type that takes as input a **T
 
 ### Custom Entry
 
-To add a custom entry, extend and implement the `TemplEntry` abstract class. The custom entry class must not be abstract, and containing assembly name must not start with `Unity`.
+To add a custom entry, extend and implement the `TemplEntry` abstract class. Apply `[TemplEntryInfo]` attribute and specify `ChangeTypes` and `Deferred` property values. The `ChangeTypes` property controls which type of changes should the entry respond to: `Import`, `Move` and/or `Delete`. The `Deferred` property controls whether template is rendered before or after assembly reloads. The custom entry class must not be abstract. Containing assembly name must not start with `Unity`.
 
-Input field must extend `UnityEngine.Object` type. The name of the input field will be exposed to the templates as is. The `DelayRender` property controls whether template is rendered before or after assembly reloads. The `IsInputChanged` and `WillDeleteInput` methods determine if input asset has changed or is about to be deleted respectively.
+Apply `[TemplInput]` attribute to desired input field. Selected input field must be public and extend `UnityEngine.Object` type.
+
+The `IsInputChanged` method must determine if input asset has changed or is about to be deleted.
 
 ### Custom template functions
 

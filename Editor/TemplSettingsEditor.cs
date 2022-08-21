@@ -82,7 +82,7 @@ namespace Willykc.Templ.Editor
         private void OnEnable()
         {
             entryTypes = TypeCache
-                .Where(t => t.IsSubclassOf(typeof(TemplEntry)) && !t.IsAbstract)
+                .Where(IsEntryType)
                 .ToArray();
             settings = serializedObject.targetObject as TemplSettings;
             list = new ReorderableList(serializedObject,
@@ -182,8 +182,9 @@ namespace Willykc.Templ.Editor
             var index = list.serializedProperty.arraySize;
             list.serializedProperty.arraySize++;
             list.index = index;
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
-            element.managedReferenceValue = Activator.CreateInstance(target as Type);
+            var element = list.serializedProperty.GetArrayElementAtIndex(index); 
+            var newInstance = Activator.CreateInstance(target as Type);
+            element.managedReferenceValue = newInstance;
             serializedObject.ApplyModifiedProperties();
             OnChange();
         }
@@ -235,6 +236,12 @@ namespace Willykc.Templ.Editor
                 : TemplSettings.CreateNewSettings();
             Selection.activeObject = settings;
         }
+
+        private static bool IsEntryType(Type type) =>
+            type.IsSubclassOf(typeof(TemplEntry)) && !type.IsAbstract &&
+            type.IsDefined(typeof(TemplEntryInfoAttribute), false) &&
+            (type.GetFields().SingleOrDefault(f => f.IsDefined(typeof(TemplInputAttribute), false))
+            ?.FieldType.IsSubclassOf(typeof(UnityEngine.Object)) ?? false);
 
         private static void DrawHeaderLine(Rect rect) =>
             EditorGUI.LabelField(new Rect(

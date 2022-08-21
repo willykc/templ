@@ -19,28 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    [TemplEntryInfo(ChangeType.Import)]
     internal sealed class ScriptableObjectEntry : TemplEntry
     {
+        [TemplInput]
         public ScriptableObject scriptableObject;
 
-        public override string InputFieldName => nameof(scriptableObject);
-        public override bool IsValidInput =>
+        protected override bool IsValidInputField =>
             scriptableObject &&
             !(scriptableObject is ScribanAsset) &&
             !(scriptableObject is TemplSettings);
-        public override object InputValue => scriptableObject;
-        public override bool DelayRender => false;
 
-        public override bool IsInputChanged(AssetChanges changes) =>
-            IsValidInput &&
-            changes.importedAssets.Contains(AssetDatabase.GetAssetPath(scriptableObject));
+        protected override object InputValue => scriptableObject;
 
-        public override bool WillDeleteInput(string path) => false;
+        protected override bool IsInputChanged(AssetChange change) =>
+            change.currentPath == AssetDatabase.GetAssetPath(scriptableObject);
+
     }
 }

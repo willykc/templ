@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,21 +5,17 @@ namespace Willykc.Templ.Samples
 {
     using Editor;
 
+    [TemplEntryInfo(ChangeType.Import)]
     public class TextEntry : TemplEntry
     {
+        [TemplInput]
         public TextAsset text;
 
-        public override string InputFieldName => nameof(text);
+        protected override bool IsValidInputField => text;
 
-        public override bool IsValidInput => text;
+        protected override object InputValue => text.text;
 
-        public override object InputValue => text.text;
-
-        public override bool DelayRender => false;
-
-        public override bool IsInputChanged(AssetChanges changes) =>
-            IsValidInput && changes.importedAssets.Contains(AssetDatabase.GetAssetPath(text));
-
-        public override bool WillDeleteInput(string path) => false;
+        protected override bool IsInputChanged(AssetChange change) =>
+            change.currentPath == AssetDatabase.GetAssetPath(text);
     }
 }

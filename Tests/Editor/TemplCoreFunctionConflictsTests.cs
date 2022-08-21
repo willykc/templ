@@ -38,7 +38,7 @@ namespace Willykc.Templ.Editor.Tests
         private SettingsProviderMock settingsProviderMock;
         private Type[] typeCache;
         private TemplSettings settings;
-        private AssetChanges changes;
+        private AssetsPaths changes;
         private EntryMock firstEntryMock;
 
         [OneTimeSetUp]
@@ -55,7 +55,7 @@ namespace Willykc.Templ.Editor.Tests
         [SetUp]
         public void BeforeEach()
         {
-            changes = new AssetChanges(new string[0], new string[0], new string[0], new string[0]);
+            changes = new AssetsPaths(new string[0], new string[0], new string[0], new string[0]);
 
             subject = new TemplCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
@@ -139,7 +139,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldLogError()
         {
             // Setup
-            firstEntryMock.willDelete = true;
+            firstEntryMock.inputChanged = true;
             loggerMock.Clear();
 
             // Act
@@ -153,7 +153,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldNotFlagEntries()
         {
             // Setup
-            firstEntryMock.willDelete = true;
+            firstEntryMock.inputChanged = true;
 
             // Act
             subject.OnWillDeleteAsset(string.Empty);

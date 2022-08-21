@@ -21,14 +21,14 @@
  */
 namespace Willykc.Templ.Editor
 {
-    public struct AssetChanges
+    internal struct AssetsPaths
     {
-        public string[] importedAssets;
-        public string[] deletedAssets;
-        public string[] movedAssets;
-        public string[] movedFromAssetPaths;
+        internal string[] importedAssets;
+        internal string[] deletedAssets;
+        internal string[] movedAssets;
+        internal string[] movedFromAssetPaths;
 
-        public AssetChanges(
+        internal AssetsPaths(
             string[] importedAssets,
             string[] deletedAssets,
             string[] movedAssets,
