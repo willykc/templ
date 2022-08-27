@@ -68,7 +68,11 @@ To add a custom entry, extend and implement the `TemplEntry` abstract class. App
 
 Apply `[TemplInput]` attribute to desired input field. Selected input field must be public and extend `UnityEngine.Object` type.
 
-The `IsInputChanged` method must determine if input asset has changed or is about to be deleted.
+Override the `InputField` getter to provide a custom value to Scriban.
+
+Override the `IsValidInputField` getter to customize how to determine if input field is valid.
+
+Override the `IsInputChanged` method to customize how to determine if input asset has changed or is about to be deleted.
 
 ### Custom template functions
 

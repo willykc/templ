@@ -25,13 +25,14 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
     [Serializable]
     public abstract class TemplEntry
     {
-        private string inputFieldName;
+        private FieldInfo inputField;
         private bool? deferred;
         private ChangeType? changeTypes;
 
@@ -45,8 +46,12 @@ namespace Willykc.Templ.Editor
         [NonSerialized]
         internal string fullPathCache;
 
-        private ChangeType ChangeTypes => changeTypes ??=
-            GetType().GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+        private ChangeType ChangeTypes => changeTypes ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+
+        private FieldInfo InputField => inputField ??= GetType()
+            .GetFields()
+            .Single(f => f.IsDefined(typeof(TemplInputAttribute)));
 
         internal bool IsValid =>
             IsValidInput &&
@@ -67,16 +72,10 @@ namespace Willykc.Templ.Editor
 
         internal bool IsValidInput => IsValidInputField;
 
-        internal string InputFieldName => inputFieldName ??= GetType()
-            .GetFields()
-            .Single(f => f.IsDefined(typeof(TemplInputAttribute))).Name;
+        internal string InputFieldName => InputField.Name;
 
         internal virtual bool Deferred => deferred ??=
             GetType().GetCustomAttribute<TemplEntryInfoAttribute>().Deferred;
-
-        protected abstract bool IsValidInputField { get; }
-
-        protected abstract object InputValue { get; }
 
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
@@ -90,6 +89,13 @@ namespace Willykc.Templ.Editor
 
         internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
 
-        protected abstract bool IsInputChanged(AssetChange change);
+        protected virtual bool IsInputChanged(AssetChange change) =>
+            InputValue is UnityObject asset &&
+            change.currentPath == AssetDatabase.GetAssetPath(asset);
+
+        protected virtual bool IsValidInputField => InputValue as UnityObject;
+
+        protected virtual object InputValue => InputField.GetValue(this);
+
     }
 }

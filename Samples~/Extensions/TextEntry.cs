@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 
 namespace Willykc.Templ.Samples
@@ -11,11 +10,5 @@ namespace Willykc.Templ.Samples
         [TemplInput]
         public TextAsset text;
 
-        protected override bool IsValidInputField => text;
-
-        protected override object InputValue => text.text;
-
-        protected override bool IsInputChanged(AssetChange change) =>
-            change.currentPath == AssetDatabase.GetAssetPath(text);
     }
 }

@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor
@@ -34,11 +33,6 @@ namespace Willykc.Templ.Editor
             scriptableObject &&
             !(scriptableObject is ScribanAsset) &&
             !(scriptableObject is TemplSettings);
-
-        protected override object InputValue => scriptableObject;
-
-        protected override bool IsInputChanged(AssetChange change) =>
-            change.currentPath == AssetDatabase.GetAssetPath(scriptableObject);
 
     }
 }
