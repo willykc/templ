@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,25 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
+
 namespace Willykc.Templ.Editor
 {
-    public struct AssetChanges
+    [Flags]
+    public enum ChangeType
     {
-        public string[] importedAssets;
-        public string[] deletedAssets;
-        public string[] movedAssets;
-        public string[] movedFromAssetPaths;
-
-        public AssetChanges(
-            string[] importedAssets,
-            string[] deletedAssets,
-            string[] movedAssets,
-            string[] movedFromAssetPaths)
-        {
-            this.importedAssets = importedAssets;
-            this.deletedAssets = deletedAssets;
-            this.movedAssets = movedAssets;
-            this.movedFromAssetPaths = movedFromAssetPaths;
-        }
+        None = 0,
+        Import = 1,
+        Move = 2,
+        Delete = 4,
+        All = 7
     }
 }

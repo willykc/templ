@@ -1,6 +1,6 @@
 {
   "name": "com.willykc.templ",
-  "version": "0.1.0-preview",
+  "version": "0.1.1-preview",
   "displayName": "Templ",
   "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Extensible design allows custom inputs and template functions.",
   "keywords": [

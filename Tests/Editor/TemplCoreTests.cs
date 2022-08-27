@@ -52,7 +52,7 @@ namespace Willykc.Templ.Editor.Tests
         private SettingsProviderMock settingsProviderMock;
         private Type[] typeCache;
         private TemplSettings settings;
-        private AssetChanges changes;
+        private AssetsPaths changes;
         private EntryMock firstEntryMock;
         private EntryMock secondEntryMock;
         private ScribanAsset testErrorTemplate;
@@ -76,7 +76,11 @@ namespace Willykc.Templ.Editor.Tests
         [SetUp]
         public void BeforeEach()
         {
-            changes = new AssetChanges(new string[0], new string[0], new string[0], new string[0]);
+            changes = new AssetsPaths(
+                new[] { string.Empty },
+                new string[0],
+                new string[0],
+                new string[0]);
 
             subject = new TemplCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
@@ -139,11 +143,11 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenInputChangeWithDelayedEntry_WhenAssetsChange_ThenEntryShouldNotRender()
+        public void GivenInputChangeWithDeferredEntry_WhenAssetsChange_ThenEntryShouldNotRender()
         {
             // Setup
             firstEntryMock.inputChanged = true;
-            firstEntryMock.delay = true;
+            firstEntryMock.defer = true;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -153,11 +157,11 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenInputChangeWithDelayedEntry_WhenAssetsChange_ThenShouldFlagEntry()
+        public void GivenInputChangeWithDeferredEntry_WhenAssetsChange_ThenShouldFlagEntry()
         {
             // Setup
             firstEntryMock.inputChanged = true;
-            firstEntryMock.delay = true;
+            firstEntryMock.defer = true;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -167,11 +171,11 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenTemplateChangeWithDelayedEntry_WhenAssetsChange_ThenEntryShouldRender()
+        public void GivenTemplateChangeWithDeferredEntry_WhenAssetsChange_ThenEntryShouldRender()
         {
             // Setup
             firstEntryMock.templateChanged = true;
-            firstEntryMock.delay = true;
+            firstEntryMock.defer = true;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -182,11 +186,11 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenTemplateChangeWithDelayedEntry_WhenAssetsChange_ThenShouldNotFlagEntry()
+        public void GivenTemplateChangeWithDeferredEntry_WhenAssetsChange_ThenShouldNotFlagEntry()
         {
             // Setup
             firstEntryMock.templateChanged = true;
-            firstEntryMock.delay = true;
+            firstEntryMock.defer = true;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -276,7 +280,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenDeleteFlagEntry_WhenAssetDeleted_ThenShouldFlagEntry()
         {
             // Setup
-            secondEntryMock.willDelete = true;
+            secondEntryMock.inputChanged = true;
 
             // Act
             subject.OnWillDeleteAsset(string.Empty);

@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -39,6 +40,10 @@ namespace Willykc.Templ.Editor
         private const int MaxFilenameLength = 64;
         private const string Header = "Templ Entries";
         private const string ButtonText = "Force Render Templates";
+        private const float Half = .5f;
+        private const int ValidInputFieldCount = 1;
+        private const int Spacing = 2;
+        private const int Double = 2;
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
@@ -49,7 +54,7 @@ namespace Willykc.Templ.Editor
         private static readonly Color InvalidColor = new Color(1, .3f, .3f, 1);
         private static readonly Color ValidColor = Color.white;
         private static readonly float Line = EditorGUIUtility.singleLineHeight;
-        private static readonly float DoubleLine = EditorGUIUtility.singleLineHeight * 2;
+        private static readonly float DoubleLine = EditorGUIUtility.singleLineHeight * Double;
 
         private ReorderableList list;
         private string[] fullPathDuplicates;
@@ -82,13 +87,13 @@ namespace Willykc.Templ.Editor
         private void OnEnable()
         {
             entryTypes = TypeCache
-                .Where(t => t.IsSubclassOf(typeof(TemplEntry)) && !t.IsAbstract)
+                .Where(IsEntryType)
                 .ToArray();
             settings = serializedObject.targetObject as TemplSettings;
             list = new ReorderableList(serializedObject,
                 serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower()),
                 true, true, true, true);
-            list.elementHeight = (DoubleLine * 2) + 2 + Padding;
+            list.elementHeight = (DoubleLine * Double) + Spacing + Padding;
             list.drawElementCallback += OnDrawElement;
             list.drawHeaderCallback += OnDrawHeader;
             list.onAddDropdownCallback += OnAddDropdown;
@@ -132,14 +137,14 @@ namespace Willykc.Templ.Editor
             DrawPropertyField(new Rect(
                 rect.x,
                 rect.y,
-                (rect.width / 2) - Padding,
+                (rect.width * Half) - Padding,
                 Line),
                 element.FindPropertyRelative(entry.InputFieldName),
                 _ => entry.IsValidInput);
             DrawPropertyField(new Rect(
-                rect.x + (rect.width / 2) + Padding,
+                rect.x + (rect.width * Half) + Padding,
                 rect.y,
-                (rect.width / 2) - Padding,
+                (rect.width * Half) - Padding,
                 Line),
                 element.FindPropertyRelative(nameof(TemplEntry.directory)),
                 p => NotNullReference(p));
@@ -149,15 +154,15 @@ namespace Willykc.Templ.Editor
         {
             DrawPropertyField(new Rect(
                 rect.x,
-                rect.y + 2 + DoubleLine,
-                (rect.width / 2) - Padding,
+                rect.y + Spacing + DoubleLine,
+                (rect.width * Half) - Padding,
                 Line),
                 element.FindPropertyRelative(nameof(TemplEntry.template)),
                 p => NotNullReference(p) && IsValidTemplate(p));
             DrawPropertyField(new Rect(
-                rect.x + (rect.width / 2) + Padding,
-                rect.y + 2 + DoubleLine,
-                (rect.width / 2) - Padding,
+                rect.x + (rect.width * Half) + Padding,
+                rect.y + Spacing + DoubleLine,
+                (rect.width * Half) - Padding,
                 Line),
                 element.FindPropertyRelative(nameof(TemplEntry.filename)),
                 p => ValidFilename(p, entry));
@@ -235,6 +240,15 @@ namespace Willykc.Templ.Editor
                 : TemplSettings.CreateNewSettings();
             Selection.activeObject = settings;
         }
+
+        private static bool IsEntryType(Type type) =>
+            type.IsSubclassOf(typeof(TemplEntry)) && !type.IsAbstract &&
+            type.IsDefined(typeof(TemplEntryInfoAttribute), false) &&
+            type.GetFields().Count(IsValidInputField) == ValidInputFieldCount;
+
+        private static bool IsValidInputField(FieldInfo field) =>
+            field.IsDefined(typeof(TemplInputAttribute), false) &&
+            field.FieldType.IsSubclassOf(typeof(UnityEngine.Object));
 
         private static void DrawHeaderLine(Rect rect) =>
             EditorGUI.LabelField(new Rect(
