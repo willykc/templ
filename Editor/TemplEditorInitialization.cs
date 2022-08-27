@@ -66,6 +66,7 @@ namespace Willykc.Templ.Editor
             .ToArray();
 
         private static bool IsCandidate(Assembly assembly) =>
+            !assembly.IsDynamic &&
             assembly.Location.StartsWith(currentDir ??= Directory.GetCurrentDirectory()) &&
             !assembly.FullName.StartsWith(UnityName) &&
             !assembly.FullName.StartsWith(UniTaskName) &&

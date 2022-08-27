@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor
             string[] movedAssets,
             string[] movedFromAssetPaths)
         {
-            Core.OnAssetsChanged(new AssetChanges(
+            Core.OnAssetsChanged(new AssetsPaths(
                 importedAssets,
                 deletedAssets,
                 movedAssets,

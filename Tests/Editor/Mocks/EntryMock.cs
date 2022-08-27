@@ -23,41 +23,37 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
+    [TemplEntryInfo(ChangeType.All)]
     internal sealed class EntryMock : TemplEntry
     {
+        [TemplInput]
         public TextAsset text;
         [SerializeField]
         internal bool valid = true;
-        internal bool delay;
+        internal bool defer;
         internal bool inputChanged;
-        internal bool willDelete;
         internal bool templateChanged;
         internal string outputAssetPath;
-
-        public override string InputFieldName => nameof(text);
-
-        public override bool IsValidInput => valid;
-
-        public override object InputValue => text.text;
-
-        public override bool DelayRender => delay;
-
-        public override bool IsInputChanged(AssetChanges changes) => inputChanged;
-
-        public override bool WillDeleteInput(string path) => willDelete;
-
-        internal override bool IsTemplateChanged(AssetChanges changes) => templateChanged;
 
         internal override string OutputAssetPath => string.IsNullOrWhiteSpace(outputAssetPath)
             ? filename
             : outputAssetPath;
 
+        internal override bool Deferred => defer;
+
+        protected override bool IsValidInputField => valid;
+
+        protected override object InputValue => text.text;
+
+        internal override bool IsTemplateChanged(AssetChange change) => templateChanged;
+
+        protected override bool IsInputChanged(AssetChange change) => inputChanged;
+
         internal void Clear()
         {
             valid = true;
-            delay = default;
+            defer = default;
             inputChanged = default;
-            willDelete = default;
             templateChanged = default;
             outputAssetPath = default;
         }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,26 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor;
-using UnityEngine;
-
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Tests.Mocks
 {
-    [TemplEntryInfo(ChangeType.Import)]
-    internal sealed class ScriptableObjectEntry : TemplEntry
+    [TemplFunctions]
+    public static class TemplFunctionsConflictMock
     {
-        [TemplInput]
-        public ScriptableObject scriptableObject;
-
-        protected override bool IsValidInputField =>
-            scriptableObject &&
-            !(scriptableObject is ScribanAsset) &&
-            !(scriptableObject is TemplSettings);
-
-        protected override object InputValue => scriptableObject;
-
-        protected override bool IsInputChanged(AssetChange change) =>
-            change.currentPath == AssetDatabase.GetAssetPath(scriptableObject);
-
+        public static void GetType(string name) { }
     }
 }

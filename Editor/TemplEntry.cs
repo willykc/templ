@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,6 +31,10 @@ namespace Willykc.Templ.Editor
     [Serializable]
     public abstract class TemplEntry
     {
+        private string inputFieldName;
+        private bool? deferred;
+        private ChangeType? changeTypes;
+
         public ScribanAsset template;
         public DefaultAsset directory;
         public string filename;
@@ -39,6 +44,9 @@ namespace Willykc.Templ.Editor
 
         [NonSerialized]
         internal string fullPathCache;
+
+        private ChangeType ChangeTypes => changeTypes ??=
+            GetType().GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
 
         internal bool IsValid =>
             IsValidInput &&
@@ -55,22 +63,33 @@ namespace Willykc.Templ.Editor
             ? Path.GetFullPath(OutputAssetPath)
             : string.Empty;
 
-        internal bool ShouldRender(AssetChanges changes) =>
-            (IsInputChanged(changes) || IsTemplateChanged(changes)) &&
-            !changes.importedAssets.Contains(OutputAssetPath);
+        internal object TheInputValue => InputValue;
+
+        internal bool IsValidInput => IsValidInputField;
+
+        internal string InputFieldName => inputFieldName ??= GetType()
+            .GetFields()
+            .Single(f => f.IsDefined(typeof(TemplInputAttribute))).Name;
+
+        internal virtual bool Deferred => deferred ??=
+            GetType().GetCustomAttribute<TemplEntryInfoAttribute>().Deferred;
+
+        protected abstract bool IsValidInputField { get; }
+
+        protected abstract object InputValue { get; }
 
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
 
-        internal virtual bool IsTemplateChanged(AssetChanges changes) =>
-            changes.importedAssets.Contains(AssetDatabase.GetAssetPath(template));
+        internal bool ShouldRender(AssetChange change) =>
+            (IsInputChanged(change) || IsTemplateChanged(change)) &&
+            change.currentPath != OutputAssetPath;
 
-        public abstract string InputFieldName { get; }
-        public abstract bool IsValidInput { get; }
-        public abstract object InputValue { get; }
-        public abstract bool DelayRender { get; }
+        internal virtual bool IsTemplateChanged(AssetChange change) =>
+            change.currentPath == AssetDatabase.GetAssetPath(template);
 
-        public abstract bool IsInputChanged(AssetChanges changes);
-        public abstract bool WillDeleteInput(string path);
+        internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
+
+        protected abstract bool IsInputChanged(AssetChange change);
     }
 }

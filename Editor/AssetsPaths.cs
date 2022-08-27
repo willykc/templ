@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,26 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor;
-using UnityEngine;
-
 namespace Willykc.Templ.Editor
 {
-    [TemplEntryInfo(ChangeType.Import)]
-    internal sealed class ScriptableObjectEntry : TemplEntry
+    internal struct AssetsPaths
     {
-        [TemplInput]
-        public ScriptableObject scriptableObject;
+        internal string[] importedAssets;
+        internal string[] deletedAssets;
+        internal string[] movedAssets;
+        internal string[] movedFromAssetPaths;
 
-        protected override bool IsValidInputField =>
-            scriptableObject &&
-            !(scriptableObject is ScribanAsset) &&
-            !(scriptableObject is TemplSettings);
-
-        protected override object InputValue => scriptableObject;
-
-        protected override bool IsInputChanged(AssetChange change) =>
-            change.currentPath == AssetDatabase.GetAssetPath(scriptableObject);
-
+        internal AssetsPaths(
+            string[] importedAssets,
+            string[] deletedAssets,
+            string[] movedAssets,
+            string[] movedFromAssetPaths)
+        {
+            this.importedAssets = importedAssets;
+            this.deletedAssets = deletedAssets;
+            this.movedAssets = movedAssets;
+            this.movedFromAssetPaths = movedFromAssetPaths;
+        }
     }
 }

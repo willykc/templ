@@ -28,45 +28,30 @@ using Assembly = System.Reflection.Assembly;
 
 namespace Willykc.Templ.Editor
 {
+    [TemplEntryInfo(ChangeType.All, deferred: true)]
     internal sealed class AssemblyDefinitionEntry : TemplEntry
     {
         private const string AssemblyReferenceExtension = ".asmref";
         private const string ScriptExtension = ".cs";
 
+        [TemplInput]
         public AssemblyDefinitionAsset assembly;
 
-        public override string InputFieldName => nameof(assembly);
-        public override bool IsValidInput => assembly;
-        public override object InputValue => Assembly.Load(GetAssemblyDefinition().name);
-        public override bool DelayRender => true;
+        protected override bool IsValidInputField => assembly;
 
-        public override bool IsInputChanged(AssetChanges changes) =>
-            IsValidInput &&
-            (IsAssemblyScriptChanged(changes) || IsAssemblyReferenceChanged(changes));
+        protected override object InputValue => Assembly.Load(GetAssemblyDefinition().name);
 
-        public override bool WillDeleteInput(string path)
-        {
-            if (!path.ToLowerInvariant().EndsWith(AssemblyReferenceExtension))
-            {
-                return false;
-            }
-            var asmref = GetAssemblyDefinitionReference(path);
-            return IsReference(asmref);
-        }
+        protected override bool IsInputChanged(AssetChange change) =>
+            IsAssemblyScriptChanged(change) || IsAssemblyReferenceChanged(change);
 
-        private bool IsAssemblyScriptChanged(AssetChanges changes) =>
-            changes.importedAssets
-            .Union(changes.deletedAssets)
-            .Union(changes.movedAssets)
-            .Union(changes.movedFromAssetPaths)
+        private bool IsAssemblyScriptChanged(AssetChange change) =>
+            new[] { change.currentPath, change.previousPath }
             .Where(a => a.ToLowerInvariant().EndsWith(ScriptExtension))
             .Select(CompilationPipeline.GetAssemblyDefinitionFilePathFromScriptPath)
             .Contains(AssetDatabase.GetAssetPath(assembly));
 
-        private bool IsAssemblyReferenceChanged(AssetChanges changes) =>
-            changes.importedAssets
-            .Union(changes.movedAssets)
-            .Union(changes.movedFromAssetPaths)
+        private bool IsAssemblyReferenceChanged(AssetChange change) =>
+            new[] { change.currentPath, change.previousPath }
             .Where(a => a.ToLowerInvariant().EndsWith(AssemblyReferenceExtension))
             .Select(a => GetAssemblyDefinitionReference(a))
             .Any(IsReference);
@@ -74,7 +59,8 @@ namespace Willykc.Templ.Editor
         private bool IsReference(AssemblyDefinitionReference asmref)
         {
             var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(assembly));
-            return asmref.reference.Contains(guid) || asmref.reference == assembly.name;
+            return !string.IsNullOrEmpty(asmref.reference) &&
+                (asmref.reference.Contains(guid) || asmref.reference == assembly.name);
         }
 
         private AssemblyDefinition GetAssemblyDefinition() =>
@@ -82,8 +68,10 @@ namespace Willykc.Templ.Editor
 
         private static AssemblyDefinitionReference GetAssemblyDefinitionReference(string path)
         {
-            var json = AssetDatabase.LoadAssetAtPath<AssemblyDefinitionReferenceAsset>(path).text;
-            return JsonUtility.FromJson<AssemblyDefinitionReference>(json);
+            var json = AssetDatabase.LoadAssetAtPath<AssemblyDefinitionReferenceAsset>(path)?.text;
+            return json != null
+                ? JsonUtility.FromJson<AssemblyDefinitionReference>(json)
+                : default;
         }
 
         private struct AssemblyDefinition

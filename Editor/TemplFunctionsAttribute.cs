@@ -19,10 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
+
 namespace Willykc.Templ.Editor
 {
-    public static class TemplFunctions
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public sealed class TemplFunctionsAttribute : Attribute
     {
-        public static void GetType(string name) { }
     }
 }
