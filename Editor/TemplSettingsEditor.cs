@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -38,12 +39,14 @@ namespace Willykc.Templ.Editor
         internal const string MenuName = "Window/Templ/Settings";
         private const int Padding = 5;
         private const int MaxFilenameLength = 64;
-        private const string Header = "Templ Entries";
-        private const string ButtonText = "Force Render Templates";
-        private const float Half = .5f;
         private const int ValidInputFieldCount = 1;
         private const int Spacing = 2;
         private const int Double = 2;
+        private const float Half = .5f;
+        private const string Header = "Templ Entries";
+        private const string ForceRenderButtonText = "Force Render Templates";
+        private const string LiveTitle = "Live";
+        private const string ScaffoldsTitle = "Scaffolds";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
@@ -61,10 +64,29 @@ namespace Willykc.Templ.Editor
         private TemplSettings settings;
         private bool isValid;
         private Type[] entryTypes;
+        private SerializedProperty entriesProperty;
+        private SerializedProperty scaffoldsProperty;
+        private TemplScaffoldsTreeView scaffoldsTreeView;
+
+        [SerializeField]
+        private TreeViewState treeViewState;
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            if (Foldout(entriesProperty, LiveTitle))
+            {
+                DrawLiveTemplEntries();
+            }
+            GUILayout.Space(Padding);
+            if (Foldout(scaffoldsProperty, ScaffoldsTitle))
+            {
+                DrawTemplScaffolds();
+            }
+        }
+
+        private void DrawLiveTemplEntries()
+        {
             EditorGUI.BeginChangeCheck();
             list.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
@@ -73,7 +95,8 @@ namespace Willykc.Templ.Editor
                 OnChange();
             }
             GUI.enabled = settings.Entries.Count > 0;
-            if (GUILayout.Button(ButtonText))
+            GUILayout.Space(Padding);
+            if (GUILayout.Button(ForceRenderButtonText))
             {
                 Core.RenderAllValidEntries();
             }
@@ -84,14 +107,20 @@ namespace Willykc.Templ.Editor
             }
         }
 
+        private void DrawTemplScaffolds() => scaffoldsTreeView
+            .OnGUI(GUILayoutUtility.GetRect(0, 1000, 0, scaffoldsTreeView.totalHeight));
+
         private void OnEnable()
         {
             entryTypes = TypeCache
                 .Where(IsEntryType)
                 .ToArray();
+            entriesProperty =
+                serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
+            scaffoldsProperty =
+                serializedObject.FindProperty(nameof(TemplSettings.Scaffold).ToLower());
             settings = serializedObject.targetObject as TemplSettings;
-            list = new ReorderableList(serializedObject,
-                serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower()),
+            list = new ReorderableList(serializedObject, entriesProperty,
                 true, true, true, true);
             list.elementHeight = (DoubleLine * Double) + Spacing + Padding;
             list.drawElementCallback += OnDrawElement;
@@ -99,6 +128,7 @@ namespace Willykc.Templ.Editor
             list.onAddDropdownCallback += OnAddDropdown;
             Undo.undoRedoPerformed += OnChange;
             settings.OnReset += OnChange;
+            scaffoldsTreeView = new TemplScaffoldsTreeView(treeViewState ??= new TreeViewState());
             OnChange();
         }
 
@@ -265,5 +295,8 @@ namespace Willykc.Templ.Editor
 
         private static string Capitalize(string input) =>
             char.ToUpper(input[0]) + input.Substring(1);
+
+        private static bool Foldout(SerializedProperty property, string name) =>
+            property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, name);
     }
 }

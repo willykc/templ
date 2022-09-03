@@ -39,12 +39,16 @@ namespace Willykc.Templ.Editor
         [SerializeReference]
         private List<TemplEntry> entries = new List<TemplEntry>();
 
+        [SerializeField]
+        private string scaffold;
+
         internal event Action OnReset;
 
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
 
         internal IReadOnlyList<TemplEntry> Entries => entries;
+        internal string Scaffold => scaffold;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?

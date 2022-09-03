@@ -28,6 +28,7 @@ namespace Willykc.Templ.Editor
     {
         private const int Width = 500;
         private const int Height = 200;
+        private const float Half = 0.5f;
         private const string ProceedButtonName = "Proceed";
         private const string QuitButtonName = "X";
 
@@ -42,8 +43,8 @@ namespace Willykc.Templ.Editor
             ConsentPopup window = CreateInstance<ConsentPopup>();
             Rect main = EditorGUIUtility.GetMainWindowPosition();
             Rect pos = new Rect(0, 0, Width, Height);
-            float centerWidth = (main.width - pos.width) * 0.5f;
-            float centerHeight = (main.height - pos.height) * 0.5f;
+            float centerWidth = (main.width - pos.width) * Half;
+            float centerHeight = (main.height - pos.height) * Half;
             pos.x = main.x + centerWidth;
             pos.y = main.y + centerHeight;
             window.position = pos;
@@ -54,7 +55,7 @@ namespace Willykc.Templ.Editor
         {
             if (GUI.Button(new Rect(position.width - 40, 10, 30, 25), QuitButtonName))
             {
-                this.Close();
+                Close();
             }
             GUILayout.Space(60);
             var style = new GUIStyle(EditorStyles.wordWrappedLabel)
@@ -68,7 +69,7 @@ namespace Willykc.Templ.Editor
             if (GUILayout.Button(ProceedButtonName))
             {
                 Selection.activeObject = TemplSettings.CreateNewSettings();
-                this.Close();
+                Close();
             }
         }
     }
