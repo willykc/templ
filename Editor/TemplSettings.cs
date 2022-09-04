@@ -28,6 +28,9 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using ILogger = Abstraction.ILogger;
+    using Logger = Abstraction.Logger;
+
     internal sealed class TemplSettings : ScriptableObject
     {
         internal const string DefaultConfigFolder = "Assets/Editor/TemplData";
@@ -36,19 +39,30 @@ namespace Willykc.Templ.Editor
 
         private static TemplSettings instance;
 
+        private readonly ILogger log;
+
+        internal TemplSettings()
+        {
+            log = Logger.Instance;
+        }
+
         [SerializeReference]
         private List<TemplEntry> entries = new List<TemplEntry>();
 
-        [SerializeField]
-        private string scaffold;
+        [SerializeReference]
+        private List<TemplScaffold> scaffolds = new List<TemplScaffold>();
 
-        internal event Action OnReset;
+        [SerializeField]
+        private int scaffoldNodeCount;
+
+        internal event Action FullReset;
+        internal event Action ScaffoldChange;
 
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
 
         internal IReadOnlyList<TemplEntry> Entries => entries;
-        internal string Scaffold => scaffold;
+        internal IReadOnlyList<TemplScaffold> Scaffolds => scaffolds;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?
@@ -60,6 +74,71 @@ namespace Willykc.Templ.Editor
             ?? new TemplEntry[] { };
 
         internal bool HasInvalidEntries => Entries.Count != ValidEntries.Count;
+
+        private void Reset()
+        {
+            FullReset?.Invoke();
+            entries.Clear();
+            scaffolds.Clear();
+        }
+
+        internal void CreateNewScaffold()
+        {
+            scaffolds.Add(new TemplScaffold()
+            {
+                id = ++scaffoldNodeCount,
+                name = $"scaffold{scaffoldNodeCount}"
+            });
+            ScaffoldChange?.Invoke();
+        }
+
+        internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if(node.parent != null)
+                {
+                    node.parent.children.Remove(node);
+                }
+                else if(node is TemplScaffold scaffold)
+                {
+                    scaffolds.Remove(scaffold);
+                }
+                else
+                {
+                    log.Error($"Could not remove scaffold node {node.name}");
+                }
+            }
+            ScaffoldChange?.Invoke();
+        }
+
+        internal void AddFileNode(TemplScaffoldNode[] nodes)
+        {
+            foreach (var node in nodes)
+            {
+                node.children.Add(new TemplScaffoldFile()
+                {
+                    id = ++scaffoldNodeCount,
+                    name = $"file{scaffoldNodeCount}",
+                    parent = node
+                });
+            }
+            ScaffoldChange?.Invoke();
+        }
+
+        internal void AddDirectoryNode(TemplScaffoldNode[] nodes)
+        {
+            foreach (var node in nodes)
+            {
+                node.children.Add(new TemplScaffoldDirectory()
+                {
+                    id = ++scaffoldNodeCount,
+                    name = $"dir{scaffoldNodeCount}",
+                    parent = node
+                });
+            }
+            ScaffoldChange?.Invoke();
+        }
 
         internal static TemplSettings CreateNewSettings()
         {
@@ -75,12 +154,6 @@ namespace Willykc.Templ.Editor
             AssetDatabase.SaveAssets();
             EditorBuildSettings.AddConfigObject(DefaultConfigObjectName, settings, true);
             return settings;
-        }
-
-        private void Reset()
-        {
-            OnReset?.Invoke();
-            entries.Clear();
         }
 
         private static TemplSettings GetSettings() =>

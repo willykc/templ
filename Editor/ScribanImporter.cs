@@ -49,7 +49,7 @@ namespace Willykc.Templ.Editor
 
         private readonly ILogger log;
 
-        public ScribanImporter()
+        internal ScribanImporter()
         {
             log = Logger.Instance;
         }

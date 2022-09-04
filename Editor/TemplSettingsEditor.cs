@@ -42,11 +42,20 @@ namespace Willykc.Templ.Editor
         private const int ValidInputFieldCount = 1;
         private const int Spacing = 2;
         private const int Double = 2;
+        private const int MaxScaffoldsWidth = 1000;
+        private const int NewButtonWidth = 40;
+        private const int DirectoryButtonWidth = 20;
+        private const int FileButtonWidth = 20;
+        private const int RemoveButtonWidth = 20;
         private const float Half = .5f;
         private const string Header = "Templ Entries";
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveTitle = "Live";
         private const string ScaffoldsTitle = "Scaffolds";
+        private const string NewButtonText = "New";
+        private const string DirectoryButtonText = "D";
+        private const string FileButtonText = "F";
+        private const string RemoveButtonText = "X";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
@@ -66,7 +75,7 @@ namespace Willykc.Templ.Editor
         private Type[] entryTypes;
         private SerializedProperty entriesProperty;
         private SerializedProperty scaffoldsProperty;
-        private TemplScaffoldsTreeView scaffoldsTreeView;
+        private TemplScaffoldTreeView scaffoldsTreeView;
 
         [SerializeField]
         private TreeViewState treeViewState;
@@ -107,8 +116,42 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private void DrawTemplScaffolds() => scaffoldsTreeView
-            .OnGUI(GUILayoutUtility.GetRect(0, 1000, 0, scaffoldsTreeView.totalHeight));
+        private void DrawTemplScaffolds() {
+            var rect = GUILayoutUtility.GetRect(0, Line);
+            rect = new Rect(rect.x, rect.y, NewButtonWidth, rect.height - Spacing);
+            if (GUI.Button(rect, NewButtonText))
+            {
+                Undo.RecordObject(settings, "Add Scaffold");
+                settings.CreateNewScaffold();
+                EditorUtility.SetDirty(settings);
+            }
+            rect = new Rect(rect.x + NewButtonWidth, rect.y, DirectoryButtonWidth, rect.height);
+            if (GUI.Button(rect, DirectoryButtonText))
+            {
+                Undo.RecordObject(settings, "Add Directory Node");
+                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+                settings.AddDirectoryNode(selectedNodes);
+                EditorUtility.SetDirty(settings);
+            }
+            rect = new Rect(rect.x + DirectoryButtonWidth, rect.y, FileButtonWidth, rect.height);
+            if (GUI.Button(rect, FileButtonText))
+            {
+                Undo.RecordObject(settings, "Add File Node");
+                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+                settings.AddFileNode(selectedNodes);
+                EditorUtility.SetDirty(settings);
+            }
+            rect = new Rect(rect.x + FileButtonWidth, rect.y, RemoveButtonWidth, rect.height);
+            if (GUI.Button(rect, RemoveButtonText))
+            {
+                Undo.RecordObject(settings, "Remove Scaffold Node");
+                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+                settings.RemoveScaffoldNodes(selectedNodes);
+                EditorUtility.SetDirty(settings);
+            }
+            rect = GUILayoutUtility.GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
+            scaffoldsTreeView.OnGUI(rect);
+        }
 
         private void OnEnable()
         {
@@ -118,17 +161,21 @@ namespace Willykc.Templ.Editor
             entriesProperty =
                 serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
             scaffoldsProperty =
-                serializedObject.FindProperty(nameof(TemplSettings.Scaffold).ToLower());
+                serializedObject.FindProperty(nameof(TemplSettings.Scaffolds).ToLower());
             settings = serializedObject.targetObject as TemplSettings;
             list = new ReorderableList(serializedObject, entriesProperty,
-                true, true, true, true);
-            list.elementHeight = (DoubleLine * Double) + Spacing + Padding;
+                true, true, true, true)
+            {
+                elementHeight = (DoubleLine * Double) + Spacing + Padding
+            };
             list.drawElementCallback += OnDrawElement;
             list.drawHeaderCallback += OnDrawHeader;
             list.onAddDropdownCallback += OnAddDropdown;
             Undo.undoRedoPerformed += OnChange;
-            settings.OnReset += OnChange;
-            scaffoldsTreeView = new TemplScaffoldsTreeView(treeViewState ??= new TreeViewState());
+            settings.FullReset += OnChange;
+            scaffoldsTreeView = new TemplScaffoldTreeView(
+                treeViewState ??= new TreeViewState(),
+                settings);
             OnChange();
         }
 
@@ -138,7 +185,7 @@ namespace Willykc.Templ.Editor
             list.drawHeaderCallback -= OnDrawHeader;
             list.onAddDropdownCallback -= OnAddDropdown;
             Undo.undoRedoPerformed -= OnChange;
-            settings.OnReset -= OnChange;
+            settings.FullReset -= OnChange;
         }
 
         private void OnChange()
