@@ -33,6 +33,8 @@ namespace Willykc.Templ.Editor
 
         private readonly TemplSettings settings;
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
+        private readonly Dictionary<TemplScaffoldNode, int> ids =
+            new Dictionary<TemplScaffoldNode, int>();
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState, TemplSettings settings)
             : base(treeViewState)
@@ -67,12 +69,13 @@ namespace Willykc.Templ.Editor
         {
             foreach (var child in children)
             {
-                var item = new TemplScaffoldTreeViewItem(child.id, depth, child);
+                var id = GetId(child);
+                var item = new TemplScaffoldTreeViewItem(id, depth, child);
                 rows.Add(item);
 
                 if (child.children.Count > 0)
                 {
-                    if (IsExpanded(child.id))
+                    if (IsExpanded(id))
                     {
                         AddChildrenRecursive(child.children, depth + 1, rows);
                     }
@@ -82,6 +85,17 @@ namespace Willykc.Templ.Editor
                     }
                 }
             }
+        }
+
+        private int GetId(TemplScaffoldNode node)
+        {
+            if(!ids.TryGetValue(node, out var id))
+            {
+                var last = ids.LastOrDefault();
+                id = last.Value + 1;
+                ids.Add(node, id);
+            }
+            return id;
         }
 
         internal TemplScaffoldNode[] GetNodeSelection() => rows

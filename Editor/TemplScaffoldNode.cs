@@ -29,7 +29,6 @@ namespace Willykc.Templ.Editor
     [Serializable]
     internal abstract class TemplScaffoldNode
     {
-        public int id;
         public string name;
         [SerializeReference]
         public List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();

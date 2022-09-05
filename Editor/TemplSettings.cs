@@ -52,9 +52,6 @@ namespace Willykc.Templ.Editor
         [SerializeReference]
         private List<TemplScaffold> scaffolds = new List<TemplScaffold>();
 
-        [SerializeField]
-        private int scaffoldNodeCount;
-
         internal event Action FullReset;
         internal event Action ScaffoldChange;
 
@@ -86,8 +83,7 @@ namespace Willykc.Templ.Editor
         {
             scaffolds.Add(new TemplScaffold()
             {
-                id = ++scaffoldNodeCount,
-                name = $"scaffold{scaffoldNodeCount}"
+                name = $"scaffold"
             });
             ScaffoldChange?.Invoke();
         }
@@ -118,8 +114,7 @@ namespace Willykc.Templ.Editor
             {
                 node.children.Add(new TemplScaffoldFile()
                 {
-                    id = ++scaffoldNodeCount,
-                    name = $"file{scaffoldNodeCount}",
+                    name = $"file",
                     parent = node
                 });
             }
@@ -132,8 +127,7 @@ namespace Willykc.Templ.Editor
             {
                 node.children.Add(new TemplScaffoldDirectory()
                 {
-                    id = ++scaffoldNodeCount,
-                    name = $"dir{scaffoldNodeCount}",
+                    name = $"dir",
                     parent = node
                 });
             }
