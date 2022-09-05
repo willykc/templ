@@ -121,36 +121,34 @@ namespace Willykc.Templ.Editor
             rect = new Rect(rect.x, rect.y, NewButtonWidth, rect.height - Spacing);
             if (GUI.Button(rect, NewButtonText))
             {
-                Undo.RecordObject(settings, "Add Scaffold");
-                settings.CreateNewScaffold();
-                EditorUtility.SetDirty(settings);
+                ScaffoldAction(_ => settings.CreateNewScaffold(),
+                nameof(settings.CreateNewScaffold));
             }
             rect = new Rect(rect.x + NewButtonWidth, rect.y, DirectoryButtonWidth, rect.height);
             if (GUI.Button(rect, DirectoryButtonText))
             {
-                Undo.RecordObject(settings, "Add Directory Node");
-                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
-                settings.AddDirectoryNode(selectedNodes);
-                EditorUtility.SetDirty(settings);
+                ScaffoldAction(settings.AddDirectoryNode, nameof(settings.AddDirectoryNode));
             }
             rect = new Rect(rect.x + DirectoryButtonWidth, rect.y, FileButtonWidth, rect.height);
             if (GUI.Button(rect, FileButtonText))
             {
-                Undo.RecordObject(settings, "Add File Node");
-                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
-                settings.AddFileNode(selectedNodes);
-                EditorUtility.SetDirty(settings);
+                ScaffoldAction(settings.AddFileNode, nameof(settings.AddFileNode));
             }
             rect = new Rect(rect.x + FileButtonWidth, rect.y, RemoveButtonWidth, rect.height);
             if (GUI.Button(rect, RemoveButtonText))
             {
-                Undo.RecordObject(settings, "Remove Scaffold Node");
-                var selectedNodes = scaffoldsTreeView.GetNodeSelection();
-                settings.RemoveScaffoldNodes(selectedNodes);
-                EditorUtility.SetDirty(settings);
+                ScaffoldAction(settings.RemoveScaffoldNodes, nameof(settings.RemoveScaffoldNodes));
             }
             rect = GUILayoutUtility.GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
             scaffoldsTreeView.OnGUI(rect);
+        }
+
+        private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
+        {
+            Undo.RecordObject(settings, name);
+            var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+            action(selectedNodes);
+            EditorUtility.SetDirty(settings);
         }
 
         private void OnEnable()
@@ -192,6 +190,7 @@ namespace Willykc.Templ.Editor
         {
             CollectDuplicates();
             CheckValidity();
+            scaffoldsTreeView.Reload();
         }
 
         private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)

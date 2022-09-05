@@ -22,12 +22,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 
 namespace Willykc.Templ.Editor
 {
     internal class TemplScaffoldTreeView : TreeView
     {
+        private const string RootName = "Root";
+
         private readonly TemplSettings settings;
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
 
@@ -47,7 +50,7 @@ namespace Willykc.Templ.Editor
         }
 
         protected override TreeViewItem BuildRoot() =>
-            new TreeViewItem() { id = 0, depth = -1, displayName = "Root" };
+            new TreeViewItem() { id = 0, depth = -1, displayName = RootName };
 
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
