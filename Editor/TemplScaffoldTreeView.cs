@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -30,6 +31,8 @@ namespace Willykc.Templ.Editor
     internal class TemplScaffoldTreeView : TreeView
     {
         private const string RootName = "Root";
+        private const string GUIFieldName = "m_GUI";
+        private const string UseHorizontalScrollFieldName = "m_UseHorizontalScroll";
 
         private readonly TemplSettings settings;
         private readonly Texture2D scaffoldIcon;
@@ -55,7 +58,27 @@ namespace Willykc.Templ.Editor
             settings.ScaffoldChange += Reload;
             settings.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
+            UseHorizontalScroll = true;
             Reload();
+        }
+
+        private bool UseHorizontalScroll
+        {
+            set
+            {
+                var guiFieldInfo = typeof(TreeView)
+                    .GetField(GUIFieldName,
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                object gui = guiFieldInfo?.GetValue(this);
+                var useHorizontalScrollFieldInfo = gui?.GetType()
+                    .GetField(UseHorizontalScrollFieldName,
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                if (useHorizontalScrollFieldInfo == null)
+                {
+                    throw new InvalidOperationException("TreeView internals changed");
+                }
+                useHorizontalScrollFieldInfo.SetValue(gui, value);
+            }
         }
 
         internal TemplScaffoldNode[] GetNodeSelection() => rows
