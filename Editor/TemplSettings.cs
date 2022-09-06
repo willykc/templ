@@ -83,28 +83,8 @@ namespace Willykc.Templ.Editor
         {
             scaffolds.Add(new TemplScaffold()
             {
-                name = $"scaffold"
+                name = "scaffold"
             });
-            ScaffoldChange?.Invoke();
-        }
-
-        internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
-        {
-            foreach (var node in nodes)
-            {
-                if(node.parent != null)
-                {
-                    node.parent.children.Remove(node);
-                }
-                else if(node is TemplScaffold scaffold)
-                {
-                    scaffolds.Remove(scaffold);
-                }
-                else
-                {
-                    log.Error($"Could not remove scaffold node {node.name}");
-                }
-            }
             ScaffoldChange?.Invoke();
         }
 
@@ -112,11 +92,7 @@ namespace Willykc.Templ.Editor
         {
             foreach (var node in nodes)
             {
-                node.children.Add(new TemplScaffoldFile()
-                {
-                    name = $"file",
-                    parent = node
-                });
+                AddNode<TemplScaffoldFile>(node, "file");
             }
             ScaffoldChange?.Invoke();
         }
@@ -125,11 +101,16 @@ namespace Willykc.Templ.Editor
         {
             foreach (var node in nodes)
             {
-                node.children.Add(new TemplScaffoldDirectory()
-                {
-                    name = $"dir",
-                    parent = node
-                });
+                AddNode<TemplScaffoldDirectory>(node, "dir");
+            }
+            ScaffoldChange?.Invoke();
+        }
+
+        internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
+        {
+            foreach (var node in nodes)
+            {
+                RemoveNode(node);
             }
             ScaffoldChange?.Invoke();
         }
@@ -148,6 +129,37 @@ namespace Willykc.Templ.Editor
             AssetDatabase.SaveAssets();
             EditorBuildSettings.AddConfigObject(DefaultConfigObjectName, settings, true);
             return settings;
+        }
+
+        private void RemoveNode(TemplScaffoldNode node)
+        {
+            if (node.parent != null)
+            {
+                node.parent.children.Remove(node);
+            }
+            else if (node is TemplScaffold scaffold)
+            {
+                scaffolds.Remove(scaffold);
+            }
+            else
+            {
+                log.Error($"Could not remove scaffold node {node.name}");
+            }
+        }
+
+        private static void AddNode<T>(TemplScaffoldNode node, string name)
+            where T : TemplScaffoldNode, new()
+        {
+            var current = node;
+            if (node is TemplScaffoldFile)
+            {
+                current = node.parent;
+            }
+            current.children.Add(new T()
+            {
+                name = name,
+                parent = current
+            });
         }
 
         private static TemplSettings GetSettings() =>
