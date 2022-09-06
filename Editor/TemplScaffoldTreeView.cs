@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
@@ -31,19 +32,38 @@ namespace Willykc.Templ.Editor
         private const string RootName = "Root";
 
         private readonly TemplSettings settings;
+        private readonly Texture2D scaffoldIcon;
+        private readonly Texture2D folderIcon;
+        private readonly Texture2D fileIcon;
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
         private readonly Dictionary<TemplScaffoldNode, int> ids =
             new Dictionary<TemplScaffoldNode, int>();
 
-        internal TemplScaffoldTreeView(TreeViewState treeViewState, TemplSettings settings)
+        internal TemplScaffoldTreeView(TreeViewState treeViewState,
+            TemplSettings settings,
+            Texture2D scaffoldIcon,
+            Texture2D folderIcon,
+            Texture2D fileIcon)
             : base(treeViewState)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.settings = settings
+                ? settings
+                : throw new ArgumentNullException(nameof(settings));
+            this.scaffoldIcon = scaffoldIcon;
+            this.folderIcon = folderIcon;
+            this.fileIcon = fileIcon;
             settings.ScaffoldChange += Reload;
             settings.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
             Reload();
         }
+
+        internal TemplScaffoldNode[] GetNodeSelection() => rows
+            .Where(r => GetSelection()
+            .Contains(r.id))
+            .Cast<TemplScaffoldTreeViewItem>()
+            .Select(r => r.Node)
+            .ToArray();
 
         protected override void RowGUI(RowGUIArgs args)
         {
@@ -69,7 +89,11 @@ namespace Willykc.Templ.Editor
             foreach (var child in children)
             {
                 var id = GetId(child);
-                var item = new TemplScaffoldTreeViewItem(id, depth, child);
+                var icon = GetIcon(child);
+                var item = new TemplScaffoldTreeViewItem(id, depth, child)
+                {
+                    icon = icon
+                };
                 rows.Add(item);
 
                 if (child.children.Count > 0)
@@ -97,11 +121,21 @@ namespace Willykc.Templ.Editor
             return id;
         }
 
-        internal TemplScaffoldNode[] GetNodeSelection() => rows
-            .Where(r => GetSelection()
-            .Contains(r.id))
-            .Cast<TemplScaffoldTreeViewItem>()
-            .Select(r => r.Node)
-            .ToArray();
+        private Texture2D GetIcon(TemplScaffoldNode node)
+        {
+            if (node is TemplScaffold)
+            {
+                return scaffoldIcon;
+            }
+            if (node is TemplScaffoldDirectory)
+            {
+                return folderIcon;
+            }
+            if(node is TemplScaffoldFile)
+            {
+                return fileIcon;
+            }
+            return null;
+        }
     }
 }

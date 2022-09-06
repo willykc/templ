@@ -44,18 +44,23 @@ namespace Willykc.Templ.Editor
         private const int Double = 2;
         private const int MaxScaffoldsWidth = 1000;
         private const int NewButtonWidth = 40;
-        private const int DirectoryButtonWidth = 20;
-        private const int FileButtonWidth = 20;
-        private const int RemoveButtonWidth = 20;
+        private const int DirectoryButtonWidth = 30;
+        private const int FileButtonWidth = 30;
+        private const int RemoveButtonWidth = 30;
         private const float Half = .5f;
         private const string Header = "Templ Entries";
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveTitle = "Live";
         private const string ScaffoldsTitle = "Scaffolds";
         private const string NewButtonText = "New";
-        private const string DirectoryButtonText = "D";
-        private const string FileButtonText = "F";
-        private const string RemoveButtonText = "X";
+        private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
+        private const string FolderIconName = "Folder Icon";
+        private const string DeleteIconName = "Toolbar Minus";
+        private const string ScaffoldIconName = "d_VerticalLayoutGroup Icon";
+        private const string ScaffoldTooltip = "Create New Scaffold";
+        private const string FolderTooltip = "Add Directory";
+        private const string FileTooltip = "Add Template";
+        private const string DeleteTooltip = "Delete";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
@@ -67,6 +72,11 @@ namespace Willykc.Templ.Editor
         private static readonly Color ValidColor = Color.white;
         private static readonly float Line = EditorGUIUtility.singleLineHeight;
         private static readonly float DoubleLine = EditorGUIUtility.singleLineHeight * Double;
+
+        private static Texture2D FolderIcon;
+        private static Texture2D FileIcon;
+        private static Texture2D DeleteIcon;
+        private static Texture2D ScaffoldIcon;
 
         private ReorderableList list;
         private string[] fullPathDuplicates;
@@ -117,25 +127,30 @@ namespace Willykc.Templ.Editor
         }
 
         private void DrawTemplScaffolds() {
-            var rect = GUILayoutUtility.GetRect(0, Line);
+            var rect = GUILayoutUtility.GetRect(0, Line + Padding);
+            var totalWidth = rect.width;
             rect = new Rect(rect.x, rect.y, NewButtonWidth, rect.height - Spacing);
-            if (GUI.Button(rect, NewButtonText))
+            if (GUI.Button(rect, new GUIContent(NewButtonText, ScaffoldTooltip)))
             {
                 ScaffoldAction(_ => settings.CreateNewScaffold(),
                 nameof(settings.CreateNewScaffold));
             }
-            rect = new Rect(rect.x + NewButtonWidth, rect.y, DirectoryButtonWidth, rect.height);
-            if (GUI.Button(rect, DirectoryButtonText))
+            rect = new Rect(
+                totalWidth - FileButtonWidth - RemoveButtonWidth - (Padding * Double) - Spacing,
+                rect.y,
+                DirectoryButtonWidth,
+                rect.height);
+            if (GUI.Button(rect, new GUIContent(FolderIcon, FolderTooltip)))
             {
                 ScaffoldAction(settings.AddDirectoryNode, nameof(settings.AddDirectoryNode));
             }
             rect = new Rect(rect.x + DirectoryButtonWidth, rect.y, FileButtonWidth, rect.height);
-            if (GUI.Button(rect, FileButtonText))
+            if (GUI.Button(rect, new GUIContent(FileIcon, FileTooltip)))
             {
                 ScaffoldAction(settings.AddFileNode, nameof(settings.AddFileNode));
             }
             rect = new Rect(rect.x + FileButtonWidth, rect.y, RemoveButtonWidth, rect.height);
-            if (GUI.Button(rect, RemoveButtonText))
+            if (GUI.Button(rect, new GUIContent(DeleteIcon, DeleteTooltip)))
             {
                 ScaffoldAction(settings.RemoveScaffoldNodes, nameof(settings.RemoveScaffoldNodes));
             }
@@ -153,6 +168,7 @@ namespace Willykc.Templ.Editor
 
         private void OnEnable()
         {
+            LoadIcons();
             entryTypes = TypeCache
                 .Where(IsEntryType)
                 .ToArray();
@@ -173,7 +189,7 @@ namespace Willykc.Templ.Editor
             settings.FullReset += OnChange;
             scaffoldsTreeView = new TemplScaffoldTreeView(
                 treeViewState ??= new TreeViewState(),
-                settings);
+                settings, ScaffoldIcon, FolderIcon, FileIcon);
             OnChange();
         }
 
@@ -184,6 +200,22 @@ namespace Willykc.Templ.Editor
             list.onAddDropdownCallback -= OnAddDropdown;
             Undo.undoRedoPerformed -= OnChange;
             settings.FullReset -= OnChange;
+        }
+
+        private void LoadIcons()
+        {
+            ScaffoldIcon = ScaffoldIcon
+                ? ScaffoldIcon
+                : EditorGUIUtility.FindTexture(ScaffoldIconName);
+            FolderIcon = FolderIcon
+                ? FolderIcon
+                : EditorGUIUtility.FindTexture(FolderIconName);
+            FileIcon = FileIcon
+                ? FileIcon
+                : AssetDatabase.LoadAssetAtPath<Texture2D>(ScribanIconPath);
+            DeleteIcon = DeleteIcon
+                ? DeleteIcon
+                : EditorGUIUtility.FindTexture(DeleteIconName);
         }
 
         private void OnChange()
