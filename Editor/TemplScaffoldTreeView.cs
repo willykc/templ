@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ namespace Willykc.Templ.Editor
         private readonly Texture2D folderIcon;
         private readonly Texture2D fileIcon;
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
-        private readonly Dictionary<TemplScaffoldNode, int> ids =
+        private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState,
@@ -55,7 +56,7 @@ namespace Willykc.Templ.Editor
             this.scaffoldIcon = scaffoldIcon;
             this.folderIcon = folderIcon;
             this.fileIcon = fileIcon;
-            settings.ScaffoldChange += Reload;
+            settings.ScaffoldChange += OnScaffoldChange;
             settings.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
             UseHorizontalScroll = true;
@@ -93,6 +94,20 @@ namespace Willykc.Templ.Editor
             base.RowGUI(args);
         }
 
+        protected override IList<int> GetAncestors(int id)
+        {
+            var node = nodeIDs.First(kvp => kvp.Value == id).Key;
+            var parentID = GetId(node);
+            var parentIDs = new List<int>() { parentID };
+            while (node.parent != null)
+            {
+                node = node.parent;
+                parentID = GetId(node);
+                parentIDs.Add(parentID);
+            }
+            return parentIDs;
+        }
+
         protected override TreeViewItem BuildRoot() =>
             new TreeViewItem() { id = 0, depth = -1, displayName = RootName };
 
@@ -102,6 +117,13 @@ namespace Willykc.Templ.Editor
             AddChildrenRecursive(settings.Scaffolds, 0, rows);
             SetupParentsAndChildrenFromDepths(root, rows);
             return rows;
+        }
+
+        private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes)
+        {
+            var selectedIDs = nodes.Select(n => GetId(n)).ToList();
+            Reload();
+            SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
         }
 
         private void AddChildrenRecursive(
@@ -135,11 +157,11 @@ namespace Willykc.Templ.Editor
 
         private int GetId(TemplScaffoldNode node)
         {
-            if(!ids.TryGetValue(node, out var id))
+            if(!nodeIDs.TryGetValue(node, out var id))
             {
-                var last = ids.LastOrDefault();
+                var last = nodeIDs.LastOrDefault();
                 id = last.Value + 1;
-                ids.Add(node, id);
+                nodeIDs.Add(node, id);
             }
             return id;
         }

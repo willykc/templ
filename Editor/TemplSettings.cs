@@ -37,6 +37,8 @@ namespace Willykc.Templ.Editor
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
 
+        private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
+
         private static TemplSettings instance;
 
         private readonly ILogger log;
@@ -53,7 +55,7 @@ namespace Willykc.Templ.Editor
         private List<TemplScaffold> scaffolds = new List<TemplScaffold>();
 
         internal event Action FullReset;
-        internal event Action ScaffoldChange;
+        internal event Action<IReadOnlyList<TemplScaffoldNode>> ScaffoldChange;
 
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
@@ -81,38 +83,33 @@ namespace Willykc.Templ.Editor
 
         internal void CreateNewScaffold()
         {
-            scaffolds.Add(new TemplScaffold()
+            var newScaffold = new TemplScaffold()
             {
                 name = "scaffold"
-            });
-            ScaffoldChange?.Invoke();
+            };
+            scaffolds.Add(newScaffold);
+            ScaffoldChange?.Invoke(scaffolds.FindAll(s => s == newScaffold));
         }
 
         internal void AddFileNode(TemplScaffoldNode[] nodes)
         {
-            foreach (var node in nodes)
-            {
-                AddNode<TemplScaffoldFile>(node, "file");
-            }
-            ScaffoldChange?.Invoke();
+            var newNodes = nodes.Select(n => AddNode<TemplScaffoldFile>(n, "file")).ToList();
+            ScaffoldChange?.Invoke(newNodes);
         }
 
         internal void AddDirectoryNode(TemplScaffoldNode[] nodes)
         {
-            foreach (var node in nodes)
-            {
-                AddNode<TemplScaffoldDirectory>(node, "dir");
-            }
-            ScaffoldChange?.Invoke();
+            var newNodes = nodes.Select(n => AddNode<TemplScaffoldDirectory>(n, "dir")).ToList();
+            ScaffoldChange?.Invoke(newNodes);
         }
 
         internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
         {
-            foreach (var node in nodes)
+            foreach(var node in nodes)
             {
                 RemoveNode(node);
             }
-            ScaffoldChange?.Invoke();
+            ScaffoldChange?.Invoke(EmptyList);
         }
 
         internal static TemplSettings CreateNewSettings()
@@ -147,7 +144,7 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private static void AddNode<T>(TemplScaffoldNode node, string name)
+        private static TemplScaffoldNode AddNode<T>(TemplScaffoldNode node, string name)
             where T : TemplScaffoldNode, new()
         {
             var current = node;
@@ -155,11 +152,13 @@ namespace Willykc.Templ.Editor
             {
                 current = node.parent;
             }
-            current.children.Add(new T()
+            var newNode = new T()
             {
                 name = name,
                 parent = current
-            });
+            };
+            current.children.Add(newNode);
+            return newNode;
         }
 
         private static TemplSettings GetSettings() =>

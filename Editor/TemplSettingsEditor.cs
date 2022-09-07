@@ -61,6 +61,7 @@ namespace Willykc.Templ.Editor
         private const string FolderTooltip = "Add Directory";
         private const string FileTooltip = "Add Template";
         private const string DeleteTooltip = "Delete";
+        private const string SessionStateKeyPrefix = "TemplScaffold";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
@@ -86,9 +87,6 @@ namespace Willykc.Templ.Editor
         private SerializedProperty entriesProperty;
         private SerializedProperty scaffoldsProperty;
         private TemplScaffoldTreeView scaffoldsTreeView;
-
-        [SerializeField]
-        private TreeViewState treeViewState;
 
         public override void OnInspectorGUI()
         {
@@ -187,9 +185,7 @@ namespace Willykc.Templ.Editor
             list.onAddDropdownCallback += OnAddDropdown;
             Undo.undoRedoPerformed += OnChange;
             settings.FullReset += OnChange;
-            scaffoldsTreeView = new TemplScaffoldTreeView(
-                treeViewState ??= new TreeViewState(),
-                settings, ScaffoldIcon, FolderIcon, FileIcon);
+            InitializeTreeView();
             OnChange();
         }
 
@@ -200,6 +196,8 @@ namespace Willykc.Templ.Editor
             list.onAddDropdownCallback -= OnAddDropdown;
             Undo.undoRedoPerformed -= OnChange;
             settings.FullReset -= OnChange;
+            SessionState.SetString(SessionStateKeyPrefix + settings.GetInstanceID(),
+                JsonUtility.ToJson(scaffoldsTreeView.state));
         }
 
         private void LoadIcons()
@@ -216,6 +214,18 @@ namespace Willykc.Templ.Editor
             DeleteIcon = DeleteIcon
                 ? DeleteIcon
                 : EditorGUIUtility.FindTexture(DeleteIconName);
+        }
+
+        private void InitializeTreeView()
+        {
+            var treeViewState = new TreeViewState();
+            var jsonState = SessionState
+                .GetString(SessionStateKeyPrefix + settings.GetInstanceID(), "");
+            if (!string.IsNullOrEmpty(jsonState))
+                JsonUtility.FromJsonOverwrite(jsonState, treeViewState);
+            scaffoldsTreeView = new TemplScaffoldTreeView(
+                treeViewState,
+                settings, ScaffoldIcon, FolderIcon, FileIcon);
         }
 
         private void OnChange()
