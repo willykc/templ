@@ -91,25 +91,73 @@ namespace Willykc.Templ.Editor
             ScaffoldChange?.Invoke(scaffolds.FindAll(s => s == newScaffold));
         }
 
-        internal void AddFileNode(TemplScaffoldNode[] nodes)
+        internal void AddScaffoldFileNode(TemplScaffoldNode[] nodes)
         {
+            nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             var newNodes = nodes.Select(n => AddNode<TemplScaffoldFile>(n, "file")).ToList();
             ScaffoldChange?.Invoke(newNodes);
         }
 
-        internal void AddDirectoryNode(TemplScaffoldNode[] nodes)
+        internal void AddScaffoldDirectoryNode(TemplScaffoldNode[] nodes)
         {
+            nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             var newNodes = nodes.Select(n => AddNode<TemplScaffoldDirectory>(n, "dir")).ToList();
             ScaffoldChange?.Invoke(newNodes);
         }
 
         internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
         {
-            foreach(var node in nodes)
+            nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
+            foreach (var node in nodes)
             {
                 RemoveNode(node);
             }
             ScaffoldChange?.Invoke(EmptyList);
+        }
+
+        internal void MoveScaffoldNodes(
+            TemplScaffoldNode parent,
+            int insertIndex,
+            TemplScaffoldNode[] draggedNodes)
+        {
+            if (parent == null || draggedNodes == null || draggedNodes.Length == 0)
+            {
+                return;
+            }
+
+            if (insertIndex < 0)
+            {
+                throw new ArgumentException($"Invalid input: {nameof(insertIndex)} " +
+                    "must not be negative");
+            }
+
+            var scaffoldIsDragged = draggedNodes
+                .Any(n => n is TemplScaffold);
+            if (scaffoldIsDragged)
+            {
+                throw new InvalidOperationException("Scaffold nodes can not be reparented");
+            }
+
+            if (parent is TemplScaffoldFile)
+            {
+                throw new InvalidOperationException("Scaffold File nodes can not be parent nodes");
+            }
+
+            if (insertIndex > 0)
+            {
+                insertIndex -= parent.children
+                    .GetRange(0, insertIndex)
+                    .Count(draggedNodes.Contains);
+            }
+
+            foreach (var node in draggedNodes)
+            {
+                node.parent.children.Remove(node);
+                node.parent = parent;
+            }
+
+            parent.children.InsertRange(insertIndex, draggedNodes);
+            ScaffoldChange?.Invoke(draggedNodes);
         }
 
         internal static TemplSettings CreateNewSettings()

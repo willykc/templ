@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -102,6 +103,46 @@ namespace Willykc.Templ.Editor
             }
         }
 
+        private void OnEnable()
+        {
+            LoadIcons();
+            entryTypes = TypeCache
+                .Where(IsEntryType)
+                .ToArray();
+            entriesProperty =
+                serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
+            scaffoldsProperty =
+                serializedObject.FindProperty(nameof(TemplSettings.Scaffolds).ToLower());
+            settings = serializedObject.targetObject as TemplSettings;
+            list = new ReorderableList(serializedObject, entriesProperty,
+                true, true, true, true)
+            {
+                elementHeight = (DoubleLine * Double) + Spacing + Padding
+            };
+            InitializeTreeView();
+            list.drawElementCallback += OnDrawElement;
+            list.drawHeaderCallback += OnDrawHeader;
+            list.onAddDropdownCallback += OnAddDropdown;
+            Undo.undoRedoPerformed += OnChange;
+            settings.FullReset += OnChange;
+            settings.ScaffoldChange += OnScaffoldChange;
+            scaffoldsTreeView.BeforeDrop += OnBeforeScaffoldDrop;
+            OnChange();
+        }
+
+        private void OnDisable()
+        {
+            list.drawElementCallback -= OnDrawElement;
+            list.drawHeaderCallback -= OnDrawHeader;
+            list.onAddDropdownCallback -= OnAddDropdown;
+            Undo.undoRedoPerformed -= OnChange;
+            settings.FullReset -= OnChange;
+            settings.ScaffoldChange -= OnScaffoldChange;
+            scaffoldsTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
+            SessionState.SetString(SessionStateKeyPrefix + settings.GetInstanceID(),
+                JsonUtility.ToJson(scaffoldsTreeView.state));
+        }
+
         private void DrawLiveTemplEntries()
         {
             EditorGUI.BeginChangeCheck();
@@ -124,7 +165,8 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private void DrawTemplScaffolds() {
+        private void DrawTemplScaffolds()
+        {
             var rect = GUILayoutUtility.GetRect(0, Line + Padding);
             var totalWidth = rect.width;
             rect = new Rect(rect.x, rect.y, NewButtonWidth, rect.height - Spacing);
@@ -140,12 +182,12 @@ namespace Willykc.Templ.Editor
                 rect.height);
             if (GUI.Button(rect, new GUIContent(FolderIcon, FolderTooltip)))
             {
-                ScaffoldAction(settings.AddDirectoryNode, nameof(settings.AddDirectoryNode));
+                ScaffoldAction(settings.AddScaffoldDirectoryNode, nameof(settings.AddScaffoldDirectoryNode));
             }
             rect = new Rect(rect.x + DirectoryButtonWidth, rect.y, FileButtonWidth, rect.height);
             if (GUI.Button(rect, new GUIContent(FileIcon, FileTooltip)))
             {
-                ScaffoldAction(settings.AddFileNode, nameof(settings.AddFileNode));
+                ScaffoldAction(settings.AddScaffoldFileNode, nameof(settings.AddScaffoldFileNode));
             }
             rect = new Rect(rect.x + FileButtonWidth, rect.y, RemoveButtonWidth, rect.height);
             if (GUI.Button(rect, new GUIContent(DeleteIcon, DeleteTooltip)))
@@ -154,50 +196,6 @@ namespace Willykc.Templ.Editor
             }
             rect = GUILayoutUtility.GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
             scaffoldsTreeView.OnGUI(rect);
-        }
-
-        private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
-        {
-            Undo.RecordObject(settings, name);
-            var selectedNodes = scaffoldsTreeView.GetNodeSelection();
-            action(selectedNodes);
-            EditorUtility.SetDirty(settings);
-        }
-
-        private void OnEnable()
-        {
-            LoadIcons();
-            entryTypes = TypeCache
-                .Where(IsEntryType)
-                .ToArray();
-            entriesProperty =
-                serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
-            scaffoldsProperty =
-                serializedObject.FindProperty(nameof(TemplSettings.Scaffolds).ToLower());
-            settings = serializedObject.targetObject as TemplSettings;
-            list = new ReorderableList(serializedObject, entriesProperty,
-                true, true, true, true)
-            {
-                elementHeight = (DoubleLine * Double) + Spacing + Padding
-            };
-            list.drawElementCallback += OnDrawElement;
-            list.drawHeaderCallback += OnDrawHeader;
-            list.onAddDropdownCallback += OnAddDropdown;
-            Undo.undoRedoPerformed += OnChange;
-            settings.FullReset += OnChange;
-            InitializeTreeView();
-            OnChange();
-        }
-
-        private void OnDisable()
-        {
-            list.drawElementCallback -= OnDrawElement;
-            list.drawHeaderCallback -= OnDrawHeader;
-            list.onAddDropdownCallback -= OnAddDropdown;
-            Undo.undoRedoPerformed -= OnChange;
-            settings.FullReset -= OnChange;
-            SessionState.SetString(SessionStateKeyPrefix + settings.GetInstanceID(),
-                JsonUtility.ToJson(scaffoldsTreeView.state));
         }
 
         private void LoadIcons()
@@ -227,6 +225,19 @@ namespace Willykc.Templ.Editor
                 treeViewState,
                 settings, ScaffoldIcon, FolderIcon, FileIcon);
         }
+
+        private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
+        {
+            Undo.RecordObject(settings, name);
+            var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+            action(selectedNodes);
+        }
+
+        private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes) =>
+            EditorUtility.SetDirty(settings);
+
+        private void OnBeforeScaffoldDrop() =>
+            Undo.RecordObject(settings, nameof(settings.MoveScaffoldNodes));
 
         private void OnChange()
         {

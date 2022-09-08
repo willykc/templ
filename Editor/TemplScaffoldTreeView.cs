@@ -34,6 +34,8 @@ namespace Willykc.Templ.Editor
         private const string RootName = "Root";
         private const string GUIFieldName = "m_GUI";
         private const string UseHorizontalScrollFieldName = "m_UseHorizontalScroll";
+        private const string GenericDragID = "GenericDragColumnDragging";
+        private const string MultipleDragTitle = "< Multiple >";
 
         private readonly TemplSettings settings;
         private readonly Texture2D scaffoldIcon;
@@ -42,6 +44,9 @@ namespace Willykc.Templ.Editor
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
+
+        internal event Action BeforeDrop;
+        internal event Action AfterDrop;
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState,
             TemplSettings settings,
@@ -60,7 +65,6 @@ namespace Willykc.Templ.Editor
             settings.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
             UseHorizontalScroll = true;
-            Reload();
         }
 
         private bool UseHorizontalScroll
@@ -119,9 +123,99 @@ namespace Willykc.Templ.Editor
             return rows;
         }
 
+        protected override bool CanStartDrag(CanStartDragArgs args) => true;
+
+        protected override void SetupDragAndDrop(SetupDragAndDropArgs args)
+        {
+            if (hasSearch)
+            {
+                return;
+            }
+
+            DragAndDrop.PrepareStartDrag();
+            var draggedRows = GetRows()
+                .Where(item => args.draggedItemIDs.Contains(item.id))
+                .ToList();
+            DragAndDrop.SetGenericData(GenericDragID, draggedRows);
+            DragAndDrop.objectReferences = new UnityEngine.Object[] { };
+            string title = draggedRows.Count == 1
+                ? draggedRows[0].displayName
+                : MultipleDragTitle;
+            DragAndDrop.StartDrag(title);
+        }
+
+        protected override DragAndDropVisualMode HandleDragAndDrop(DragAndDropArgs args)
+        {
+            var genericData = DragAndDrop.GetGenericData(GenericDragID);
+            if (!(genericData is List<TreeViewItem> draggedItems))
+            {
+                return DragAndDropVisualMode.None;
+            }
+
+            switch (args.dragAndDropPosition)
+            {
+                case DragAndDropPosition.UponItem:
+                case DragAndDropPosition.BetweenItems:
+                    {
+                        var parentItem = args.parentItem as TemplScaffoldTreeViewItem;
+                        var validDrag = IsValidDrag(parentItem, draggedItems);
+                        var insertIndex = Mathf.Clamp(args.insertAtIndex, 0, args.insertAtIndex);
+                        if (args.performDrop && validDrag)
+                        {
+                            OnDropItemsAtIndex(draggedItems, parentItem.Node, insertIndex);
+                        }
+                        return validDrag
+                            ? DragAndDropVisualMode.Move
+                            : DragAndDropVisualMode.None;
+                    }
+                default:
+                    return DragAndDropVisualMode.None;
+            }
+        }
+
+        private void OnDropItemsAtIndex(
+            List<TreeViewItem> draggedItems,
+            TemplScaffoldNode parent,
+            int insertIndex)
+        {
+            BeforeDrop?.Invoke();
+
+            var draggedNodes = draggedItems
+                .Cast<TemplScaffoldTreeViewItem>()
+                .Select(i => i.Node)
+                .ToArray();
+
+            settings.MoveScaffoldNodes(parent, insertIndex, draggedNodes);
+
+            AfterDrop?.Invoke();
+        }
+
+
+        private bool IsValidDrag(TemplScaffoldTreeViewItem parent, List<TreeViewItem> draggedItems)
+        {
+            var scaffoldIsDragged = draggedItems
+                .Cast<TemplScaffoldTreeViewItem>()
+                .Select(i => i.Node)
+                .Any(n => n is TemplScaffold);
+            if (parent == null || parent.Node is TemplScaffoldFile || scaffoldIsDragged)
+            {
+                return false;
+            }
+            TreeViewItem currentParent = parent;
+            while (currentParent != null)
+            {
+                if (draggedItems.Contains(currentParent))
+                {
+                    return false;
+                }
+                currentParent = currentParent.parent;
+            }
+            return true;
+        }
+
         private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes)
         {
-            var selectedIDs = nodes.Select(n => GetId(n)).ToList();
+            var selectedIDs = nodes.Select(n => GetId(n)).ToArray();
             Reload();
             SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
         }
@@ -131,7 +225,7 @@ namespace Willykc.Templ.Editor
             int depth,
             List<TreeViewItem> rows)
         {
-            foreach (var child in children)
+            foreach (var child in children.OrderBy(n => n.GetType().Name))
             {
                 var id = GetId(child);
                 var icon = GetIcon(child);
