@@ -225,7 +225,7 @@ namespace Willykc.Templ.Editor.Scaffold
             int depth,
             List<TreeViewItem> rows)
         {
-            foreach (var child in children.OrderBy(n => n.GetType().Name))
+            foreach (var child in children)
             {
                 var id = GetId(child);
                 var icon = GetIcon(child);
