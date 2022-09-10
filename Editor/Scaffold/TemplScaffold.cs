@@ -27,5 +27,10 @@ namespace Willykc.Templ.Editor.Scaffold
     internal sealed class TemplScaffold : TemplScaffoldNode
     {
         public string input;
+
+        protected override TemplScaffoldNode DoClone() => new TemplScaffold()
+        {
+            input = input
+        };
     }
 }

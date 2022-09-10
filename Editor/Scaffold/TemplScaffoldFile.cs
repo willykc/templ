@@ -27,5 +27,10 @@ namespace Willykc.Templ.Editor.Scaffold
     internal sealed class TemplScaffoldFile : TemplScaffoldNode
     {
         public ScribanAsset template;
+
+        protected override TemplScaffoldNode DoClone() => new TemplScaffoldFile()
+        {
+            template = template
+        };
     }
 }

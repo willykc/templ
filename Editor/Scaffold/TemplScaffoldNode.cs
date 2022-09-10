@@ -34,5 +34,25 @@ namespace Willykc.Templ.Editor.Scaffold
         public List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();
         [SerializeReference]
         public TemplScaffoldNode parent;
+
+        internal TemplScaffoldNode Clone()
+        {
+            var clone = CloneRecursive(this, parent);
+            parent?.children.Add(clone);
+            return clone;
+        }
+
+        protected abstract TemplScaffoldNode DoClone();
+
+        private TemplScaffoldNode CloneRecursive(
+            TemplScaffoldNode original,
+            TemplScaffoldNode parent)
+        {
+            var clone = DoClone();
+            clone.name = original.name;
+            clone.parent = parent;
+            clone.children.AddRange(original.children.Select(c => c.CloneRecursive(c, clone)));
+            return clone;
+        }
     }
 }

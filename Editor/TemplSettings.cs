@@ -83,7 +83,7 @@ namespace Willykc.Templ.Editor
             scaffolds.Clear();
         }
 
-        internal void CreateNewScaffold()
+        internal void CreateScaffold()
         {
             var newScaffold = new TemplScaffold()
             {
@@ -160,6 +160,17 @@ namespace Willykc.Templ.Editor
 
             parent.children.InsertRange(insertIndex, draggedNodes);
             ScaffoldChange?.Invoke(draggedNodes);
+        }
+
+        internal void CloneScaffoldNodes(TemplScaffoldNode[] nodes)
+        {
+            if (nodes == null || nodes.Length == 0)
+            {
+                return;
+            }
+            var clones = nodes.Select(n => n.Clone()).ToList();
+            scaffolds.AddRange(clones.OfType<TemplScaffold>());
+            ScaffoldChange?.Invoke(clones);
         }
 
         internal static TemplSettings CreateNewSettings()
