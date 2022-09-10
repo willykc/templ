@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,20 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    [TemplEntryInfo(ChangeType.Import)]
-    internal sealed class ScriptableObjectEntry : TemplEntry
+    [Serializable]
+    internal sealed class TemplScaffold : TemplScaffoldNode
     {
-        [TemplInput]
-        public ScriptableObject scriptableObject;
-
-        protected override bool IsValidInputField =>
-            scriptableObject &&
-            !(scriptableObject is ScribanAsset) &&
-            !(scriptableObject is TemplSettings);
-
+        public string input;
     }
 }

@@ -21,7 +21,7 @@
  */
 using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
     [Serializable]
     internal sealed class TemplScaffoldFile : TemplScaffoldNode

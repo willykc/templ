@@ -19,20 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor.IMGUI.Controls;
-
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
-    internal sealed class TemplScaffoldTreeViewItem : TreeViewItem
+    public struct AssetChange
     {
-        internal TemplScaffoldNode Node { get; }
+        private const string Empty = "";
 
-        internal TemplScaffoldTreeViewItem(
-            int id,
-            int depth,
-            TemplScaffoldNode node) : base(id, depth, node.name)
+        public ChangeType type;
+        public string currentPath;
+        public string previousPath;
+
+        internal AssetChange(
+            ChangeType changeType,
+            string currentPath,
+            string previousPath = Empty)
         {
-            Node = node;
+            this.type = changeType;
+            this.currentPath = currentPath
+                ?? throw new System.ArgumentNullException(nameof(currentPath));
+            this.previousPath = previousPath
+                ?? throw new System.ArgumentNullException(nameof(previousPath));
         }
     }
 }

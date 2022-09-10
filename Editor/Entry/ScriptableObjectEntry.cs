@@ -19,17 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System;
+using UnityEngine;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
-    [Flags]
-    public enum ChangeType
+    [TemplEntryInfo(ChangeType.Import)]
+    internal sealed class ScriptableObjectEntry : TemplEntry
     {
-        None = 0,
-        Import = 1,
-        Move = 2,
-        Delete = 4,
-        All = 7
+        [TemplInput]
+        public ScriptableObject scriptableObject;
+
+        protected override bool IsValidInputField =>
+            scriptableObject &&
+            !(scriptableObject is ScribanAsset) &&
+            !(scriptableObject is TemplSettings);
+
     }
 }

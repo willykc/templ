@@ -29,6 +29,7 @@ using UnityObject = UnityEngine.Object;
 namespace Willykc.Templ.Editor
 {
     using Abstraction;
+    using Entry;
 
     internal sealed class TemplCore
     {

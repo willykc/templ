@@ -26,7 +26,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using Assembly = System.Reflection.Assembly;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
     [TemplEntryInfo(ChangeType.All, deferred: true)]
     internal sealed class AssemblyDefinitionEntry : TemplEntry

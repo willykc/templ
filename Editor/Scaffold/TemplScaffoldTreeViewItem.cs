@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,20 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+using UnityEditor.IMGUI.Controls;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    [Serializable]
-    internal abstract class TemplScaffoldNode
+    internal sealed class TemplScaffoldTreeViewItem : TreeViewItem
     {
-        public string name;
-        [SerializeReference]
-        public List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();
-        [SerializeReference]
-        public TemplScaffoldNode parent;
+        internal TemplScaffoldNode Node { get; }
+
+        internal TemplScaffoldTreeViewItem(
+            int id,
+            int depth,
+            TemplScaffoldNode node) : base(id, depth, node.name)
+        {
+            Node = node;
+        }
     }
 }

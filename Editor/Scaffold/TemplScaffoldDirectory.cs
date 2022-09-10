@@ -21,20 +21,10 @@
  */
 using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public sealed class TemplEntryInfoAttribute : Attribute
+    [Serializable]
+    internal sealed class TemplScaffoldDirectory : TemplScaffoldNode
     {
-        internal ChangeType ChangeTypes { get; }
-        internal bool Deferred { get; }
-
-        public TemplEntryInfoAttribute(
-            ChangeType changeTypes,
-            bool deferred = false)
-        {
-            ChangeTypes = changeTypes;
-            Deferred = deferred;
-        }
     }
 }

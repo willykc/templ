@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,26 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace Willykc.Templ.Editor.Scaffold
 {
-    public struct AssetChange
+    [Serializable]
+    internal abstract class TemplScaffoldNode
     {
-        private const string Empty = "";
-
-        public ChangeType type;
-        public string currentPath;
-        public string previousPath;
-
-        internal AssetChange(
-            ChangeType changeType,
-            string currentPath,
-            string previousPath = Empty)
-        {
-            this.type = changeType;
-            this.currentPath = currentPath
-                ?? throw new System.ArgumentNullException(nameof(currentPath));
-            this.previousPath = previousPath
-                ?? throw new System.ArgumentNullException(nameof(previousPath));
-        }
+        public string name;
+        [SerializeReference]
+        public List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();
+        [SerializeReference]
+        public TemplScaffoldNode parent;
     }
 }

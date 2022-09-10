@@ -27,7 +27,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
     internal class TemplScaffoldTreeView : TreeView
     {

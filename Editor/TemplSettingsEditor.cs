@@ -31,6 +31,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using Entry;
+    using Scaffold;
     using static TemplEditorInitialization;
     using static TemplProcessor;
 

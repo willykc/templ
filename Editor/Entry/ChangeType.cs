@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,10 +21,15 @@
  */
 using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class TemplInputAttribute : Attribute
+    [Flags]
+    public enum ChangeType
     {
+        None = 0,
+        Import = 1,
+        Move = 2,
+        Delete = 4,
+        All = 7
     }
 }

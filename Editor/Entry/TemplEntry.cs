@@ -27,7 +27,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
     [Serializable]
     public abstract class TemplEntry

@@ -23,6 +23,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
+    using Entry;
+
     [TemplEntryInfo(ChangeType.All)]
     internal sealed class EntryMock : TemplEntry
     {

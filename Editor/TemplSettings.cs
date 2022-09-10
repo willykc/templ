@@ -28,6 +28,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using Entry;
+    using Scaffold;
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
 

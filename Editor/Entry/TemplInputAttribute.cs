@@ -21,11 +21,10 @@
  */
 using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
-    [Serializable]
-    internal sealed class TemplScaffold : TemplScaffoldNode
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class TemplInputAttribute : Attribute
     {
-        public string input;
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Willykc.Templ.Samples
 {
-    using Editor;
+    using Editor.Entry;
 
     [TemplEntryInfo(ChangeType.Import)]
     public class TextEntry : TemplEntry
