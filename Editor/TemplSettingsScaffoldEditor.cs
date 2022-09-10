@@ -32,26 +32,36 @@ namespace Willykc.Templ.Editor
     internal partial class TemplSettingsEditor
     {
         private const int MaxScaffoldsWidth = 1000;
-        private const int NewButtonWidth = 40;
-        private const int DirectoryButtonWidth = 30;
-        private const int FileButtonWidth = 30;
-        private const int RemoveButtonWidth = 30;
+        private const int ToolbarButtonWidth = 30;
+        private const int ToolbarButtonTopPadding = 1;
         private const string ScaffoldsTitle = "Scaffolds";
-        private const string NewButtonText = "New";
         private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
-        private const string FolderIconName = "Folder Icon";
+        private const string DirectoryIconName = "Folder Icon";
         private const string DeleteIconName = "Toolbar Minus";
+        private const string PlusIconName = "Toolbar Plus";
         private const string ScaffoldIconName = "d_VerticalLayoutGroup Icon";
-        private const string ScaffoldTooltip = "Create New Scaffold";
-        private const string FolderTooltip = "Add Directory";
+        private const string CreateScaffoldTooltip = "Create Scaffold";
+        private const string DirectoryTooltip = "Add Directory";
         private const string FileTooltip = "Add Template";
-        private const string DeleteTooltip = "Delete";
+        private const string DeleteTooltip = "Delete Node";
         private const string SessionStateKeyPrefix = "TemplScaffold";
+        private const string MiniButtonLeftStyleName = "miniButtonLeft";
+        private const string MiniButtonRightStyleName = "miniButtonRight";
+        private const string MiniButtonStyleName = "miniButton";
 
-        private static Texture2D FolderIcon;
+        private static GUIStyle DirectoryButtonStyle;
+        private static GUIStyle FileButtonStyle;
+        private static GUIStyle MiniButtonStyle;
+        private static Texture2D PlusIcon;
+        private static Texture2D DirectoryIcon;
         private static Texture2D FileIcon;
         private static Texture2D DeleteIcon;
         private static Texture2D ScaffoldIcon;
+        private static GUIContent CreateScaffoldButtonContent;
+        private static GUIContent DirectoryButtonContent;
+        private static GUIContent FileButtonContent;
+        private static GUIContent DeleteButtonContent;
+        private static RectOffset ToolbarButtonPadding;
 
         private SerializedProperty scaffoldsProperty;
         private TemplScaffoldTreeView scaffoldsTreeView;
@@ -59,16 +69,17 @@ namespace Willykc.Templ.Editor
         private void OnEnableScaffolds()
         {
             LoadIcons();
-            scaffoldsProperty =
-                serializedObject.FindProperty(nameof(TemplSettings.Scaffolds).ToLower());
+            CreateButtonContents();
+            var scaffoldsPropertyName = nameof(TemplSettings.Scaffolds).ToLower();
+            scaffoldsProperty = serializedObject.FindProperty(scaffoldsPropertyName);
             var treeViewState = new TreeViewState();
             var jsonState = SessionState
-                .GetString(SessionStateKeyPrefix + settings.GetInstanceID(), "");
+                .GetString(SessionStateKeyPrefix + settings.GetInstanceID(), string.Empty);
             if (!string.IsNullOrEmpty(jsonState))
                 JsonUtility.FromJsonOverwrite(jsonState, treeViewState);
             scaffoldsTreeView = new TemplScaffoldTreeView(
                 treeViewState,
-                settings, ScaffoldIcon, FolderIcon, FileIcon);
+                settings, ScaffoldIcon, DirectoryIcon, FileIcon);
             settings.ScaffoldChange += OnScaffoldChange;
             scaffoldsTreeView.BeforeDrop += OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed += OnChangeScaffolds;
@@ -90,38 +101,37 @@ namespace Willykc.Templ.Editor
 
         private void DrawTemplScaffolds()
         {
+            CreateButtonStyles();
             if (!Foldout(scaffoldsProperty, ScaffoldsTitle))
             {
                 return;
             }
-            var rect = GUILayoutUtility.GetRect(0, Line + Padding);
-            var totalWidth = rect.width;
-            rect = new Rect(rect.x, rect.y, NewButtonWidth, rect.height - Spacing);
-            if (GUI.Button(rect, new GUIContent(NewButtonText, ScaffoldTooltip)))
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button(CreateScaffoldButtonContent, MiniButtonStyle))
             {
                 ScaffoldAction(_ => settings.CreateNewScaffold(),
-                nameof(settings.CreateNewScaffold));
+                    nameof(settings.CreateNewScaffold));
             }
-            rect = new Rect(
-                totalWidth - FileButtonWidth - RemoveButtonWidth - (Padding * Double) - Spacing,
-                rect.y,
-                DirectoryButtonWidth,
-                rect.height);
-            if (GUI.Button(rect, new GUIContent(FolderIcon, FolderTooltip)))
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button(DirectoryButtonContent, DirectoryButtonStyle))
             {
-                ScaffoldAction(settings.AddScaffoldDirectoryNode, nameof(settings.AddScaffoldDirectoryNode));
+                ScaffoldAction(settings.AddScaffoldDirectoryNode,
+                    nameof(settings.AddScaffoldDirectoryNode));
             }
-            rect = new Rect(rect.x + DirectoryButtonWidth, rect.y, FileButtonWidth, rect.height);
-            if (GUI.Button(rect, new GUIContent(FileIcon, FileTooltip)))
+            if (GUILayout.Button(FileButtonContent, FileButtonStyle))
             {
-                ScaffoldAction(settings.AddScaffoldFileNode, nameof(settings.AddScaffoldFileNode));
+                ScaffoldAction(settings.AddScaffoldFileNode,
+                    nameof(settings.AddScaffoldFileNode));
             }
-            rect = new Rect(rect.x + FileButtonWidth, rect.y, RemoveButtonWidth, rect.height);
-            if (GUI.Button(rect, new GUIContent(DeleteIcon, DeleteTooltip)))
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button(DeleteButtonContent, MiniButtonStyle))
             {
-                ScaffoldAction(settings.RemoveScaffoldNodes, nameof(settings.RemoveScaffoldNodes));
+                ScaffoldAction(settings.RemoveScaffoldNodes,
+                    nameof(settings.RemoveScaffoldNodes));
             }
-            rect = GUILayoutUtility.GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
+            EditorGUILayout.EndHorizontal();
+            var rect = GUILayoutUtility
+                .GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
             scaffoldsTreeView.OnGUI(rect);
         }
 
@@ -130,15 +140,46 @@ namespace Willykc.Templ.Editor
             ScaffoldIcon = ScaffoldIcon
                 ? ScaffoldIcon
                 : EditorGUIUtility.FindTexture(ScaffoldIconName);
-            FolderIcon = FolderIcon
-                ? FolderIcon
-                : EditorGUIUtility.FindTexture(FolderIconName);
+            DirectoryIcon = DirectoryIcon
+                ? DirectoryIcon
+                : EditorGUIUtility.FindTexture(DirectoryIconName);
             FileIcon = FileIcon
                 ? FileIcon
                 : AssetDatabase.LoadAssetAtPath<Texture2D>(ScribanIconPath);
             DeleteIcon = DeleteIcon
                 ? DeleteIcon
                 : EditorGUIUtility.FindTexture(DeleteIconName);
+            PlusIcon = PlusIcon
+                ? PlusIcon
+                : EditorGUIUtility.FindTexture(PlusIconName);
+        }
+
+        private void CreateButtonContents()
+        {
+            CreateScaffoldButtonContent ??= new GUIContent(PlusIcon, CreateScaffoldTooltip);
+            DirectoryButtonContent ??= new GUIContent(DirectoryIcon, DirectoryTooltip);
+            FileButtonContent ??= new GUIContent(FileIcon, FileTooltip);
+            DeleteButtonContent ??= new GUIContent(DeleteIcon, DeleteTooltip);
+        }
+
+        private void CreateButtonStyles()
+        {
+            ToolbarButtonPadding ??= new RectOffset(0, 0, ToolbarButtonTopPadding, 0);
+            DirectoryButtonStyle ??= new GUIStyle(MiniButtonLeftStyleName)
+            {
+                fixedWidth = ToolbarButtonWidth,
+                padding = ToolbarButtonPadding
+            };
+            FileButtonStyle ??= new GUIStyle(MiniButtonRightStyleName)
+            {
+                fixedWidth = ToolbarButtonWidth,
+                padding = ToolbarButtonPadding
+            };
+            MiniButtonStyle ??= new GUIStyle(MiniButtonStyleName)
+            {
+                fixedWidth = ToolbarButtonWidth,
+                padding = ToolbarButtonPadding
+            };
         }
 
         private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
