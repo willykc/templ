@@ -36,7 +36,11 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string UseHorizontalScrollFieldName = "m_UseHorizontalScroll";
         private const string GenericDragID = "GenericDragColumnDragging";
         private const string MultipleDragTitle = "< Multiple >";
-
+        private const string ChildrenPropertyName = nameof(TemplScaffoldNode.children);
+        private const string NamePropertyName = nameof(TemplScaffoldNode.name);
+        private const int IconWidth = 16;
+        private const int Space = 2;
+        private const int NamePropertyWidth = 80;
         private readonly TemplSettings settings;
         private readonly Texture2D scaffoldIcon;
         private readonly Texture2D folderIcon;
@@ -44,6 +48,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
+
+        private SerializedObject serializedSettings;
 
         internal event Action BeforeDrop;
         internal event Action AfterDrop;
@@ -95,7 +101,15 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            base.RowGUI(args);
+            var item = args.item as TemplScaffoldTreeViewItem;
+            var nameProperty = item.Property.FindPropertyRelative(NamePropertyName);
+            var rect = args.rowRect;
+            rect.x += GetContentIndent(args.item);
+            rect.width = IconWidth;
+            GUI.DrawTexture(rect, item.icon, ScaleMode.ScaleToFit);
+            rect.x += rect.width + Space;
+            rect.width = NamePropertyWidth;
+            EditorGUI.PropertyField(rect, nameProperty, GUIContent.none);
         }
 
         protected override IList<int> GetAncestors(int id)
@@ -118,7 +132,10 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             rows.Clear();
-            AddChildrenRecursive(settings.Scaffolds, 0, rows);
+            serializedSettings = new SerializedObject(settings);
+            var scaffoldsPropertyName = nameof(TemplSettings.Scaffolds).ToLower();
+            var scaffoldsProperty = serializedSettings.FindProperty(scaffoldsPropertyName);
+            AddChildrenRecursive(settings.Scaffolds, scaffoldsProperty, 0, rows);
             SetupParentsAndChildrenFromDepths(root, rows);
             return rows;
         }
@@ -173,6 +190,12 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
+        protected override void AfterRowsGUI()
+        {
+            serializedSettings?.ApplyModifiedProperties();
+            base.AfterRowsGUI();
+        }
+
         private void OnDropItemsAtIndex(
             List<TreeViewItem> draggedItems,
             TemplScaffoldNode parent,
@@ -189,7 +212,6 @@ namespace Willykc.Templ.Editor.Scaffold
 
             AfterDrop?.Invoke();
         }
-
 
         private bool IsValidDrag(TemplScaffoldTreeViewItem parent, List<TreeViewItem> draggedItems)
         {
@@ -222,14 +244,17 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void AddChildrenRecursive(
             IReadOnlyList<TemplScaffoldNode> children,
+            SerializedProperty serializedChildren,
             int depth,
             List<TreeViewItem> rows)
         {
-            foreach (var child in children)
+            for (var i = 0; i < children.Count; i++)
             {
+                var child = children[i];
+                var serializedChild = serializedChildren.GetArrayElementAtIndex(i);
                 var id = GetId(child);
                 var icon = GetIcon(child);
-                var item = new TemplScaffoldTreeViewItem(id, depth, child)
+                var item = new TemplScaffoldTreeViewItem(id, depth, child, serializedChild)
                 {
                     icon = icon
                 };
@@ -239,7 +264,10 @@ namespace Willykc.Templ.Editor.Scaffold
                 {
                     if (IsExpanded(id))
                     {
-                        AddChildrenRecursive(child.children, depth + 1, rows);
+                        var serializedGrandChildren = serializedChild
+                            .FindPropertyRelative(ChildrenPropertyName);
+                        AddChildrenRecursive(child.children, serializedGrandChildren,
+                            depth + 1, rows);
                     }
                     else
                     {

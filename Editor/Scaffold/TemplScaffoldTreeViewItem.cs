@@ -19,20 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEditor.IMGUI.Controls;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
     internal sealed class TemplScaffoldTreeViewItem : TreeViewItem
     {
+        internal SerializedProperty Property { get; }
         internal TemplScaffoldNode Node { get; }
 
         internal TemplScaffoldTreeViewItem(
             int id,
             int depth,
-            TemplScaffoldNode node) : base(id, depth, node.name)
+            TemplScaffoldNode node,
+            SerializedProperty property) : base(id, depth, node.name)
         {
             Node = node;
+            Property = property;
         }
     }
 }
