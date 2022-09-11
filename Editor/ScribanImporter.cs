@@ -44,7 +44,7 @@ namespace Willykc.Templ.Editor
     {
         private const string DefaultExtension = "sbn";
         private const string FileName = "NewScribanTemplate";
-        private const string MenuName = "Assets/Create/Scriban Template";
+        private const string MenuName = "Assets/Create/Templ/Scriban Template";
         private const string DefaultTemplate = "Hello {{variable}}!";
 
         private readonly ILogger log;
