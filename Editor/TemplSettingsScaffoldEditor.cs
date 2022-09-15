@@ -85,7 +85,7 @@ namespace Willykc.Templ.Editor
                 JsonUtility.FromJsonOverwrite(jsonState, treeViewState);
             scaffoldsTreeView = new TemplScaffoldTreeView(
                 treeViewState,
-                settings, ScaffoldIcon, DirectoryIcon, FileIcon);
+                serializedObject, ScaffoldIcon, DirectoryIcon, FileIcon);
             settings.ScaffoldChange += OnScaffoldChange;
             scaffoldsTreeView.BeforeDrop += OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed += OnChangeScaffolds;

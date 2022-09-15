@@ -43,7 +43,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const int NamePropertyWidth = 80;
         private readonly TemplSettings settings;
         private readonly Texture2D scaffoldIcon;
-        private readonly Texture2D folderIcon;
+        private readonly Texture2D directoryIcon;
         private readonly Texture2D fileIcon;
         private readonly List<TreeViewItem> rows = new List<TreeViewItem>(100);
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
@@ -55,17 +55,17 @@ namespace Willykc.Templ.Editor.Scaffold
         internal event Action AfterDrop;
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState,
-            TemplSettings settings,
+            SerializedObject serializedSettings,
             Texture2D scaffoldIcon,
-            Texture2D folderIcon,
+            Texture2D directoryIcon,
             Texture2D fileIcon)
             : base(treeViewState)
         {
-            this.settings = settings
-                ? settings
-                : throw new ArgumentNullException(nameof(settings));
+            this.serializedSettings = serializedSettings ??
+                throw new ArgumentNullException(nameof(serializedSettings));
+            this.settings = serializedSettings.targetObject as TemplSettings;
             this.scaffoldIcon = scaffoldIcon;
-            this.folderIcon = folderIcon;
+            this.directoryIcon = directoryIcon;
             this.fileIcon = fileIcon;
             settings.ScaffoldChange += OnScaffoldChange;
             settings.FullReset += Reload;
@@ -132,7 +132,7 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             rows.Clear();
-            serializedSettings = new SerializedObject(settings);
+            serializedSettings.Update();
             var scaffoldsPropertyName = nameof(TemplSettings.Scaffolds).ToLower();
             var scaffoldsProperty = serializedSettings.FindProperty(scaffoldsPropertyName);
             AddChildrenRecursive(settings.Scaffolds, scaffoldsProperty, 0, rows);
@@ -192,7 +192,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected override void AfterRowsGUI()
         {
-            serializedSettings?.ApplyModifiedProperties();
+            serializedSettings.ApplyModifiedProperties();
             base.AfterRowsGUI();
         }
 
@@ -296,7 +296,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
             if (node is TemplScaffoldDirectory)
             {
-                return folderIcon;
+                return directoryIcon;
             }
             if(node is TemplScaffoldFile)
             {
