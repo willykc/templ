@@ -26,7 +26,7 @@ After installation completes, a prompt should show up in the Unity editor. When 
 
 The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu.
 
-Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Scriban Template*.
+Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Templ/Scriban Template*.
 
 Add and configure entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). Templ includes by default two entry types: **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
