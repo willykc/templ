@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,13 +28,16 @@ namespace Willykc.Templ.Editor.Scaffold
     internal class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Create/Templ/Scaffold";
+        private const string AssetsPath = "Assets/";
+        private const string AssetExtension = ".asset";
+
         private static readonly Rect EmptyRect = new Rect();
         private static readonly Vector2 Size = new Vector2(1, 1);
 
         private GenericMenu menu;
         private TemplSettings settings;
 
-        [MenuItem(MenuName, priority = 1)]
+        [MenuItem(MenuName, priority = 2)]
         public static void Init()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
@@ -54,19 +58,22 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var menu = new GenericMenu();
 
-            foreach (var scaffold in settings.Scaffolds)
+            foreach (var scaffold in settings.Scaffolds.Distinct())
             {
-                menu.AddItem(new GUIContent(scaffold.name),
-                    false, OnScaffoldSelected, scaffold.name);
+                var path = AssetDatabase.GetAssetPath(scaffold)
+                    .Replace(AssetsPath, string.Empty)
+                    .Replace(AssetExtension, string.Empty);
+                menu.AddItem(new GUIContent(path), false, OnScaffoldSelected, scaffold);
             }
 
             menu.ShowAsContext();
             return menu;
         }
 
-        private void OnScaffoldSelected(object scaffoldName)
+        private void OnScaffoldSelected(object selection)
         {
-            Debug.Log(scaffoldName.ToString() + Selection.activeObject.name);
+            var scaffold = selection as TemplScaffold;
+            Debug.Log($"{scaffold.name} {Selection.activeObject.name}");
             this.Close();
         }
     }

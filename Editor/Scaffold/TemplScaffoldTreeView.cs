@@ -31,17 +31,18 @@ namespace Willykc.Templ.Editor.Scaffold
 {
     internal class TemplScaffoldTreeView : TreeView
     {
-        private const string RootName = "Root";
         private const string GUIFieldName = "m_GUI";
         private const string UseHorizontalScrollFieldName = "m_UseHorizontalScroll";
         private const string GenericDragID = "GenericDragColumnDragging";
         private const string MultipleDragTitle = "< Multiple >";
+        private const string RootName = nameof(TemplScaffold.Root);
         private const string ChildrenPropertyName = nameof(TemplScaffoldNode.children);
         private const string NamePropertyName = nameof(TemplScaffoldNode.name);
         private const int IconWidth = 16;
         private const int Space = 2;
         private const int NamePropertyWidth = 80;
-        private readonly TemplSettings settings;
+        private readonly TemplScaffold scaffold;
+        private readonly SerializedObject serializedObject;
         private readonly Texture2D scaffoldIcon;
         private readonly Texture2D directoryIcon;
         private readonly Texture2D fileIcon;
@@ -49,27 +50,27 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
 
-        private SerializedObject serializedSettings;
-
         internal event Action BeforeDrop;
         internal event Action AfterDrop;
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState,
-            SerializedObject serializedSettings,
+            TemplScaffold scaffold,
             Texture2D scaffoldIcon,
             Texture2D directoryIcon,
             Texture2D fileIcon)
             : base(treeViewState)
         {
-            this.serializedSettings = serializedSettings ??
-                throw new ArgumentNullException(nameof(serializedSettings));
-            this.settings = serializedSettings.targetObject as TemplSettings;
+            this.scaffold = scaffold
+                ? scaffold
+                : throw new ArgumentNullException(nameof(scaffold));
+            serializedObject = new SerializedObject(scaffold);
             this.scaffoldIcon = scaffoldIcon;
             this.directoryIcon = directoryIcon;
             this.fileIcon = fileIcon;
-            settings.ScaffoldChange += OnScaffoldChange;
-            settings.FullReset += Reload;
+            scaffold.Change += OnScaffoldChange;
+            scaffold.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
+            showBorder = true;
             UseHorizontalScroll = true;
         }
 
@@ -102,6 +103,11 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item as TemplScaffoldTreeViewItem;
+            if (item.Node is TemplScaffoldRoot)
+            {
+                base.RowGUI(args);
+                return;
+            }
             var nameProperty = item.Property.FindPropertyRelative(NamePropertyName);
             var rect = args.rowRect;
             rect.x += GetContentIndent(args.item);
@@ -132,10 +138,10 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             rows.Clear();
-            serializedSettings.Update();
-            var scaffoldsPropertyName = nameof(TemplSettings.Scaffolds).ToLower();
-            var scaffoldsProperty = serializedSettings.FindProperty(scaffoldsPropertyName);
-            AddChildrenRecursive(settings.Scaffolds, scaffoldsProperty, 0, rows);
+            serializedObject.Update();
+            var rootPropertyName = RootName.ToLower();
+            var rootProperty = serializedObject.FindProperty(rootPropertyName);
+            AddChildrenRecursive(scaffold.Root, rootProperty, 0, rows);
             SetupParentsAndChildrenFromDepths(root, rows);
             return rows;
         }
@@ -192,7 +198,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected override void AfterRowsGUI()
         {
-            serializedSettings.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
             base.AfterRowsGUI();
         }
 
@@ -208,18 +214,18 @@ namespace Willykc.Templ.Editor.Scaffold
                 .Select(i => i.Node)
                 .ToArray();
 
-            settings.MoveScaffoldNodes(parent, insertIndex, draggedNodes);
+            scaffold.MoveScaffoldNodes(parent, insertIndex, draggedNodes);
 
             AfterDrop?.Invoke();
         }
 
         private bool IsValidDrag(TemplScaffoldTreeViewItem parent, List<TreeViewItem> draggedItems)
         {
-            var scaffoldIsDragged = draggedItems
+            var isRootDragged = draggedItems
                 .Cast<TemplScaffoldTreeViewItem>()
                 .Select(i => i.Node)
-                .Any(n => n is TemplScaffold);
-            if (parent == null || parent.Node is TemplScaffoldFile || scaffoldIsDragged)
+                .Any(n => n is TemplScaffoldRoot);
+            if (parent == null || parent.Node is TemplScaffoldFile || isRootDragged)
             {
                 return false;
             }
@@ -243,43 +249,44 @@ namespace Willykc.Templ.Editor.Scaffold
         }
 
         private void AddChildrenRecursive(
-            IReadOnlyList<TemplScaffoldNode> children,
-            SerializedProperty serializedChildren,
+            TemplScaffoldNode parent,
+            SerializedProperty serializedParent,
             int depth,
             List<TreeViewItem> rows)
         {
-            for (var i = 0; i < children.Count; i++)
+            var children = parent.children;
+            var serializedChildren = serializedParent.FindPropertyRelative(ChildrenPropertyName);
+            var id = GetId(parent);
+            var icon = GetIcon(parent);
+            var item = new TemplScaffoldTreeViewItem(id, depth, parent, serializedParent)
             {
-                var child = children[i];
-                var serializedChild = serializedChildren.GetArrayElementAtIndex(i);
-                var id = GetId(child);
-                var icon = GetIcon(child);
-                var item = new TemplScaffoldTreeViewItem(id, depth, child, serializedChild)
-                {
-                    icon = icon
-                };
-                rows.Add(item);
+                icon = icon
+            };
+            rows.Add(item);
 
-                if (child.children.Count > 0)
+            if (children.Count == 0)
+            {
+                return;
+            }
+
+            if (IsExpanded(id))
+            {
+                for (var i = 0; i < children.Count; i++)
                 {
-                    if (IsExpanded(id))
-                    {
-                        var serializedGrandChildren = serializedChild
-                            .FindPropertyRelative(ChildrenPropertyName);
-                        AddChildrenRecursive(child.children, serializedGrandChildren,
-                            depth + 1, rows);
-                    }
-                    else
-                    {
-                        item.children = CreateChildListForCollapsedParent();
-                    }
+                    var child = children[i];
+                    var serializedChild = serializedChildren.GetArrayElementAtIndex(i);
+                    AddChildrenRecursive(child, serializedChild, depth + 1, rows);
                 }
+            }
+            else
+            {
+                item.children = CreateChildListForCollapsedParent();
             }
         }
 
         private int GetId(TemplScaffoldNode node)
         {
-            if(!nodeIDs.TryGetValue(node, out var id))
+            if (!nodeIDs.TryGetValue(node, out var id))
             {
                 var last = nodeIDs.LastOrDefault();
                 id = last.Value + 1;
@@ -290,7 +297,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private Texture2D GetIcon(TemplScaffoldNode node)
         {
-            if (node is TemplScaffold)
+            if (node is TemplScaffoldRoot)
             {
                 return scaffoldIcon;
             }
@@ -298,7 +305,7 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 return directoryIcon;
             }
-            if(node is TemplScaffoldFile)
+            if (node is TemplScaffoldFile)
             {
                 return fileIcon;
             }

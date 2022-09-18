@@ -19,33 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor;
-using UnityEngine;
+using System;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    internal partial class TemplSettingsEditor
+    [Serializable]
+    internal sealed class TemplScaffoldRoot : TemplScaffoldNode
     {
-        private const int MaxSize = 1000;
-        private const int MinSize = 0;
-        private const string ScaffoldsName = nameof(TemplSettings.Scaffolds);
-
-        private SerializedProperty scaffoldsProperty;
-
-        private void OnEnableScaffolds()
-        {
-            var scaffoldsPropertyName = ScaffoldsName.ToLower();
-            scaffoldsProperty = serializedObject.FindProperty(scaffoldsPropertyName);
-        }
-
-        private void OnDisableScaffolds()
-        {
-        }
-
-        private void DrawTemplScaffolds()
-        {
-            var rect = GUILayoutUtility.GetRect(MinSize, MaxSize, MinSize, MaxSize);
-            EditorGUI.PropertyField(rect, scaffoldsProperty);
-        }
+        protected override TemplScaffoldNode DoClone() =>
+            throw new InvalidOperationException("Can not clone scaffold root node");
     }
 }

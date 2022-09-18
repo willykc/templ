@@ -97,7 +97,6 @@ namespace Willykc.Templ.Editor
             }
             EditorGUI.BeginChangeCheck();
             list.DoLayoutList();
-            serializedObject.ApplyModifiedProperties();
             if (EditorGUI.EndChangeCheck())
             {
                 OnChangeEntries();
