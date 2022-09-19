@@ -25,6 +25,9 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
+    using ILogger = Abstraction.ILogger;
+    using Logger = Abstraction.Logger;
+
     internal class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Create/Templ/Scaffold";
@@ -36,6 +39,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private GenericMenu menu;
         private TemplSettings settings;
+        private ILogger log;
 
         [MenuItem(MenuName, priority = 2)]
         public static void Init()
@@ -47,10 +51,26 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnEnable()
         {
             settings = TemplSettings.Instance;
+            log = Logger.Instance;
         }
 
         private void OnGUI()
         {
+            if (!settings)
+            {
+                log.Warn("Missing settings, create them by " +
+                    $"clicking on {TemplSettingsEditor.MenuName}");
+                Close();
+                return;
+            }
+
+            if (settings.Scaffolds.Count == 0)
+            {
+                log.Warn("No scaffolds found in settings");
+                Close();
+                return;
+            }
+
             menu ??= ShowMenu();
         }
 
@@ -73,8 +93,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnScaffoldSelected(object selection)
         {
             var scaffold = selection as TemplScaffold;
-            Debug.Log($"{scaffold.name} {Selection.activeObject.name}");
-            this.Close();
+            log.Info($"{scaffold.name} scaffold deployed at {Selection.activeObject.name}");
+            Close();
         }
     }
 }
