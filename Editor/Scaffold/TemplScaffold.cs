@@ -34,7 +34,8 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const string MenuName = "Templ/Scaffold Definition";
         private const string NewPrefix = "New";
-
+        private const string DefaultFileName = "NewFile";
+        private const string DefaultDirectoryName = "NewDirectory";
         private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
 
         public string input;
@@ -67,7 +68,9 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 nodes = new[] { root };
             }
-            var newNodes = nodes.Select(n => AddNode<TemplScaffoldFile>(n, "file")).ToList();
+            var newNodes = nodes
+                .Select(n => AddNode<TemplScaffoldFile>(n, DefaultFileName))
+                .ToList();
             Change?.Invoke(newNodes);
         }
 
@@ -78,7 +81,9 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 nodes = new[] { root };
             }
-            var newNodes = nodes.Select(n => AddNode<TemplScaffoldDirectory>(n, "dir")).ToList();
+            var newNodes = nodes
+                .Select(n => AddNode<TemplScaffoldDirectory>(n, DefaultDirectoryName))
+                .ToList();
             Change?.Invoke(newNodes);
         }
 

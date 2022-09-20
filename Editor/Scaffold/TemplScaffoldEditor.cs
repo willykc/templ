@@ -36,10 +36,12 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string DirectoryIconName = "Folder Icon";
         private const string DeleteIconName = "Toolbar Minus";
         private const string CloneIconName = "BuildSettings.N3DS On";
+        private const string EditIconName = "CustomTool@2x";
         private const string DirectoryTooltip = "Add Directory";
         private const string FileTooltip = "Add Template";
         private const string DeleteTooltip = "Delete Node(s)";
         private const string CloneTooltip = "Clone Node(s)";
+        private const string EditTooltip = "Edit Node";
         private const string SessionStateKeyPrefix = "TemplScaffold";
         private const string MiniButtonLeftStyleName = "miniButtonLeft";
         private const string MiniButtonRightStyleName = "miniButtonRight";
@@ -58,27 +60,33 @@ namespace Willykc.Templ.Editor.Scaffold
         private static Texture2D CloneIcon;
         private static Texture2D DeleteIcon;
         private static Texture2D ScaffoldIcon;
+        private static Texture2D EditIcon;
         private static GUIContent DirectoryButtonContent;
         private static GUIContent FileButtonContent;
         private static GUIContent CloneButtonContent;
         private static GUIContent DeleteButtonContent;
+        private static GUIContent EditButtonContent;
         private static RectOffset ToolbarButtonPadding;
 
         private TemplScaffold scaffold;
-        private TemplScaffoldTreeView scaffoldsTreeView;
+        private TemplScaffoldTreeView scaffoldTreeView;
 
         private bool IsRootSelected =>
-            !scaffoldsTreeView.GetNodeSelection().Contains(scaffold.Root) &&
-            scaffoldsTreeView.HasSelection();
+            !scaffoldTreeView.GetNodeSelection().Contains(scaffold.Root) &&
+            scaffoldTreeView.HasSelection();
 
         public override void OnInspectorGUI()
         {
             CreateButtonStyles();
             EditorGUILayout.BeginHorizontal();
+            GUI.enabled = IsRootSelected;
+            DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
+                nameof(scaffoldTreeView.EditSelectedNode));
+            GUI.enabled = true;
             GUILayout.FlexibleSpace();
-            DrawButton(DirectoryButtonContent, LeftButtonStyle, scaffold.AddScaffoldDirectoryNode,
+            DrawButton(DirectoryButtonContent, LeftButtonStyle, AddScaffoldDirectoryNode,
                 nameof(scaffold.AddScaffoldDirectoryNode));
-            DrawButton(FileButtonContent, MidButtonStyle, scaffold.AddScaffoldFileNode,
+            DrawButton(FileButtonContent, MidButtonStyle, AddScaffoldFileNode,
                 nameof(scaffold.AddScaffoldFileNode));
             GUI.enabled = IsRootSelected;
             DrawButton(CloneButtonContent, MidButtonStyle, scaffold.CloneScaffoldNodes,
@@ -87,11 +95,22 @@ namespace Willykc.Templ.Editor.Scaffold
             DrawButton(DeleteButtonContent, RightButtonStyle, scaffold.RemoveScaffoldNodes,
                 nameof(scaffold.RemoveScaffoldNodes), KeyPress(KeyCode.Delete));
             GUI.enabled = true;
-            GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
             var rect = GUILayoutUtility
-                .GetRect(0, MaxScaffoldsWidth, 0, scaffoldsTreeView.totalHeight);
-            scaffoldsTreeView.OnGUI(rect);
+                .GetRect(0, MaxScaffoldsWidth, 0, scaffoldTreeView.totalHeight);
+            scaffoldTreeView.OnGUI(rect);
+        }
+
+        private void AddScaffoldFileNode(TemplScaffoldNode[] parents)
+        {
+            scaffold.AddScaffoldFileNode(parents);
+            scaffoldTreeView.EditSelectedNode();
+        }
+
+        private void AddScaffoldDirectoryNode(TemplScaffoldNode[] parents)
+        {
+            scaffold.AddScaffoldDirectoryNode(parents);
+            scaffoldTreeView.EditSelectedNode();
         }
 
         private void OnEnable()
@@ -104,10 +123,10 @@ namespace Willykc.Templ.Editor.Scaffold
                 .GetString(SessionStateKeyPrefix + scaffold.GetInstanceID(), string.Empty);
             if (!string.IsNullOrEmpty(jsonState))
                 JsonUtility.FromJsonOverwrite(jsonState, treeViewState);
-            scaffoldsTreeView = new TemplScaffoldTreeView(
+            scaffoldTreeView = new TemplScaffoldTreeView(
                 treeViewState,
                 scaffold, ScaffoldIcon, DirectoryIcon, FileIcon);
-            scaffoldsTreeView.BeforeDrop += OnBeforeScaffoldDrop;
+            scaffoldTreeView.BeforeDrop += OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed += OnChangeScaffolds;
             scaffold.FullReset += OnChangeScaffolds;
             OnChangeScaffolds();
@@ -115,22 +134,24 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnDisable()
         {
-            scaffoldsTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
+            scaffoldTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed -= OnChangeScaffolds;
             scaffold.FullReset -= OnChangeScaffolds;
             SessionState.SetString(SessionStateKeyPrefix + scaffold.GetInstanceID(),
-                JsonUtility.ToJson(scaffoldsTreeView.state));
+                JsonUtility.ToJson(scaffoldTreeView.state));
         }
 
-        private void OnChangeScaffolds() => scaffoldsTreeView.Reload();
+        private void OnChangeScaffolds() => scaffoldTreeView.Reload();
 
         private void DrawButton(GUIContent content,
             GUIStyle style,
             Action<TemplScaffoldNode[]> action,
             string name,
-            bool key = false)
+            bool keyPress = false)
         {
-            if (GUILayout.Button(content, style, GUILayout.MaxWidth(ToolbarButtonWidth)) || key)
+            var maxWidth = GUILayout.MaxWidth(ToolbarButtonWidth);
+
+            if (GUILayout.Button(content, style, maxWidth) || keyPress)
             {
                 ScaffoldAction(action, name);
             }
@@ -158,6 +179,9 @@ namespace Willykc.Templ.Editor.Scaffold
             ScaffoldIcon = ScaffoldIcon
                 ? ScaffoldIcon
                 : AssetDatabase.LoadAssetAtPath<Texture2D>(ScaffoldIconPath);
+            EditIcon = EditIcon
+                ? EditIcon
+                : EditorGUIUtility.FindTexture(EditIconName);
         }
 
         private void CreateButtonContents()
@@ -166,6 +190,7 @@ namespace Willykc.Templ.Editor.Scaffold
             FileButtonContent ??= new GUIContent(FileIcon, FileTooltip);
             DeleteButtonContent ??= new GUIContent(DeleteIcon, DeleteTooltip);
             CloneButtonContent ??= new GUIContent(CloneIcon, CloneTooltip);
+            EditButtonContent ??= new GUIContent(EditIcon, EditTooltip);
         }
 
         private void CreateButtonStyles()
@@ -193,7 +218,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
         {
             Undo.RecordObject(scaffold, name);
-            var selectedNodes = scaffoldsTreeView.GetNodeSelection();
+            var selectedNodes = scaffoldTreeView.GetNodeSelection();
             action(selectedNodes);
         }
 

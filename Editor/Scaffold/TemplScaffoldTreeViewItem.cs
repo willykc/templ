@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEditor.IMGUI.Controls;
 
 namespace Willykc.Templ.Editor.Scaffold
