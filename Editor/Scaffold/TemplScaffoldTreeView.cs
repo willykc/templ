@@ -38,11 +38,13 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string TemplatePropertyName = nameof(TemplScaffoldFile.template);
         private const int IconWidth = 16;
         private const int Space = 2;
-        private const int NamePropertyWidth = 120;
         private const int SetFocusMaxFrames = 10;
-        private const int EditModeRowHeight = 21;
+        private const int EditModeRowHeight = 22;
         private const int EditPropertyHeight = 19;
+        private const int EditPropertyMinWidth = 80;
+        private const int DefaultPropertyWidthFactor = 1;
         private const int DefaultRowHeight = 16;
+        private const float Half = .5f;
 
         private readonly TemplScaffold scaffold;
         private readonly SerializedObject serializedObject;
@@ -50,7 +52,9 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
         private readonly IReadOnlyDictionary<Type, Texture2D> icons;
-        private readonly IReadOnlyDictionary<Type, Action<TemplScaffoldTreeViewItem, RowGUIArgs>>
+        private readonly IReadOnlyDictionary
+            <Type,
+            Action<TemplScaffoldTreeViewItem, RowGUIArgs, float>>
             rowGUIActions;
 
         private int editID;
@@ -76,7 +80,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 { typeof(TemplScaffoldFile), fileIcon },
                 { typeof(TemplScaffoldDirectory), directoryIcon }
             };
-            rowGUIActions = new Dictionary<Type, Action<TemplScaffoldTreeViewItem, RowGUIArgs>>()
+            rowGUIActions =
+                new Dictionary<Type, Action<TemplScaffoldTreeViewItem, RowGUIArgs, float>>()
             {
                 { typeof(TemplScaffoldFile), RowGUIFile },
                 { typeof(TemplScaffoldDirectory), RowGUIDirectory }
@@ -112,9 +117,10 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item as TemplScaffoldTreeViewItem;
+
             if (item.id == editID && rowGUIActions.TryGetValue(item.Node.GetType(), out var rowGUI))
             {
-                rowGUI(item, args);
+                rowGUI(item, args, DefaultPropertyWidthFactor);
             }
             else
             {
@@ -132,12 +138,14 @@ namespace Willykc.Templ.Editor.Scaffold
             var node = nodeIDs.First(kvp => kvp.Value == id).Key;
             var parentID = GetId(node);
             var parentIDs = new List<int>() { parentID };
+
             while (node.parent != null)
             {
                 node = node.parent;
                 parentID = GetId(node);
                 parentIDs.Add(parentID);
             }
+
             return parentIDs;
         }
 
@@ -223,20 +231,28 @@ namespace Willykc.Templ.Editor.Scaffold
             editID = 0;
         }
 
-        private void RowGUIFile(TemplScaffoldTreeViewItem item, RowGUIArgs args)
+        private void RowGUIFile(
+            TemplScaffoldTreeViewItem item,
+            RowGUIArgs args,
+            float widthFactor)
         {
-            RowGUIDirectory(item, args);
+            RowGUIDirectory(item, args, Half);
             var templateProperty = item.Property.FindPropertyRelative(TemplatePropertyName);
             var rect = args.rowRect;
-            rect.x += GetContentIndent(args.item) + IconWidth + NamePropertyWidth + (Space * 2);
+            var indent = GetContentIndent(args.item) + IconWidth + Space;
+            var halfWidth = Mathf.Max((args.rowRect.width - indent) * Half, EditPropertyMinWidth);
+            rect.x += indent + halfWidth + Space;
             rect.y++;
-            rect.width = NamePropertyWidth;
+            rect.width = halfWidth - Space;
             rect.height = EditPropertyHeight;
             GUI.SetNextControlName(TemplatePropertyName);
             EditorGUI.PropertyField(rect, templateProperty, GUIContent.none);
         }
 
-        private void RowGUIDirectory(TemplScaffoldTreeViewItem item, RowGUIArgs args)
+        private void RowGUIDirectory(
+            TemplScaffoldTreeViewItem item,
+            RowGUIArgs args,
+            float widthFactor)
         {
             var nameProperty = item.Property.FindPropertyRelative(NamePropertyName);
             var rect = args.rowRect;
@@ -245,7 +261,8 @@ namespace Willykc.Templ.Editor.Scaffold
             GUI.DrawTexture(rect, item.icon, ScaleMode.ScaleToFit);
             rect.x += rect.width + Space;
             rect.y++;
-            rect.width = NamePropertyWidth;
+            rect.width = Mathf.Max((args.rowRect.width - rect.x) * widthFactor,
+                EditPropertyMinWidth);
             rect.height = EditPropertyHeight;
             GUI.SetNextControlName(NamePropertyName);
             EditorGUI.PropertyField(rect, nameProperty, GUIContent.none);
