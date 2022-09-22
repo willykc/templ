@@ -54,10 +54,10 @@ namespace Willykc.Templ.Editor
             log = Logger.Instance;
         }
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         internal string text;
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         internal string[] parsingErrors;
 
         public override void OnImportAsset(AssetImportContext ctx)
