@@ -171,8 +171,9 @@ namespace Willykc.Templ.Editor.Scaffold
             bool keyPress = false)
         {
             var maxWidth = GUILayout.MaxWidth(ToolbarButtonWidth);
+            var minWidth = GUILayout.MinWidth(ToolbarButtonWidth);
 
-            if (GUILayout.Button(content, style, maxWidth) || keyPress)
+            if (GUILayout.Button(content, style, maxWidth, minWidth) || keyPress)
             {
                 ScaffoldAction(action, name);
             }

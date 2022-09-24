@@ -45,7 +45,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly IReadOnlyDictionary<Type, DrawAction> drawActions;
 
         private int textFocusFrameCounter;
-        private int editRowID;
+        private int editNodeID;
 
         internal TemplScaffoldRowView()
         {
@@ -58,7 +58,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal void DrawRow(TemplScaffoldTreeViewItem item, Rect rowRect)
         {
-            if (item.id == editRowID)
+            if (item.id == editNodeID)
             {
                 DrawEditModeRow(item, rowRect);
             }
@@ -68,19 +68,19 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        internal void ToggleEditMode(int rowID)
+        internal void ToggleEditMode(int nodeID)
         {
-            editRowID = rowID != editRowID ? rowID : 0;
+            editNodeID = nodeID != editNodeID ? nodeID : 0;
             textFocusFrameCounter = 0;
         }
 
         internal void ResetEditMode()
         {
-            editRowID = 0;
+            editNodeID = 0;
             textFocusFrameCounter = 0;
         }
 
-        internal float GetRowHeight(TreeViewItem item) => item.id == editRowID
+        internal float GetRowHeight(TreeViewItem item) => item.id == editNodeID
             ? EditModeRowHeight
             : DefaultRowHeight;
 

@@ -80,22 +80,14 @@ namespace Willykc.Templ.Editor.Scaffold
         internal void EditSelectedNode()
         {
             var firstID = GetSelection().FirstOrDefault();
-
-            if (firstID <= 0 || firstID == GetId(scaffold.Root))
-            {
-                return;
-            }
-
-            rowView.ToggleEditMode(firstID);
-            Reload();
+            SetEditMode(firstID);
         }
 
         internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetId(node));
 
         protected override void DoubleClickedItem(int id)
         {
-            rowView.ToggleEditMode(id);
-            Reload();
+            SetEditMode(id);
         }
 
         protected override void RowGUI(RowGUIArgs args)
@@ -226,6 +218,17 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             base.AfterRowsGUI();
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void SetEditMode(int nodeID)
+        {
+            if (nodeID <= 0 || nodeID == GetId(scaffold.Root))
+            {
+                return;
+            }
+
+            rowView.ToggleEditMode(nodeID);
+            Reload();
         }
 
         private void OnDropItemsAtIndex(
