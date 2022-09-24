@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using Willykc.Templ.Editor.Entry;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -128,27 +128,34 @@ namespace Willykc.Templ.Editor.Scaffold
                 treeViewState,
                 scaffold, ScaffoldIcon, DirectoryIcon, FileIcon);
             scaffoldTreeView.BeforeDrop += OnBeforeScaffoldDrop;
-            Undo.undoRedoPerformed += OnChangeScaffold;
-            scaffold.FullReset += OnResetScaffold;
-            OnChangeScaffold();
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
+            scaffold.Change += OnScaffoldChange;
+            scaffold.FullReset += OnScaffoldReset;
+            OnUndoRedoPerformed();
         }
 
         private void OnDisable()
         {
             scaffoldTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
-            Undo.undoRedoPerformed -= OnChangeScaffold;
-            scaffold.FullReset -= OnResetScaffold;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+            scaffold.Change -= OnScaffoldChange;
+            scaffold.FullReset -= OnScaffoldReset;
             SessionState.SetString(SessionStateKeyPrefix + scaffold.GetInstanceID(),
                 JsonUtility.ToJson(scaffoldTreeView.state));
         }
 
-        private void OnResetScaffold()
+        private void OnScaffoldReset()
         {
-            OnChangeScaffold();
+            OnUndoRedoPerformed();
             scaffoldTreeView.SetSelection(NoIDs);
         }
 
-        private void OnChangeNodeFields() => isScaffoldValid = scaffold.Root.IsValid;
+        private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes) =>
+            CheckValidity();
+
+        private void OnChangeNodeFields() => CheckValidity();
+
+        private void CheckValidity() => isScaffoldValid = scaffold.Root.IsValid;
 
         private void DrawLeftToolbar()
         {
@@ -200,9 +207,9 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private void OnChangeScaffold()
+        private void OnUndoRedoPerformed()
         {
-            isScaffoldValid = scaffold.Root.IsValid;
+            CheckValidity();
             scaffoldTreeView.Reload();
         }
 
@@ -289,7 +296,6 @@ namespace Willykc.Templ.Editor.Scaffold
             Undo.RecordObject(scaffold, name);
             var selectedNodes = scaffoldTreeView.GetNodeSelection();
             action(selectedNodes);
-            isScaffoldValid = scaffold.Root.IsValid;
         }
 
         private void OnBeforeScaffoldDrop() =>
