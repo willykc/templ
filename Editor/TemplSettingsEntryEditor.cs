@@ -40,12 +40,13 @@ namespace Willykc.Templ.Editor
         private const string Header = "Templ Entries";
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveTitle = "Live";
+
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
-            $"input. {Capitalize(nameof(TemplEntry.template))} must be valid. " +
-            $"{Capitalize(nameof(TemplEntry.filename))} field must not contain invalid " +
+            $"input. {nameof(TemplEntry.template).Capitalize()} must be valid. " +
+            $"{nameof(TemplEntry.filename).Capitalize()} field must not contain invalid " +
             "characters and must be unique under the same " +
-            $"{Capitalize(nameof(TemplEntry.directory))}. Templ will only render templates for " +
+            $"{nameof(TemplEntry.directory).Capitalize()}. Templ will only render templates for " +
             "valid entries.";
 
         private ReorderableList list;
@@ -61,8 +62,7 @@ namespace Willykc.Templ.Editor
                 .ToArray();
             entriesProperty =
                 serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
-            list = new ReorderableList(serializedObject, entriesProperty,
-                true, true, true, true)
+            list = new ReorderableList(serializedObject, entriesProperty, true, true, true, true)
             {
                 elementHeight = (DoubleLine * Double) + Spacing + Padding
             };

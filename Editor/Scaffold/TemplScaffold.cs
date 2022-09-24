@@ -34,8 +34,9 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const string MenuName = "Templ/Scaffold Definition";
         private const string NewPrefix = "New";
-        private const string DefaultFileName = "NewFile";
-        private const string DefaultDirectoryName = "NewDirectory";
+        private const string DefaultFileName = NewPrefix + "File";
+        private const string DefaultDirectoryName = NewPrefix + "Directory";
+
         private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
 
         public string input;
@@ -49,6 +50,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly ILogger log;
 
         internal TemplScaffoldRoot Root => root;
+
+        internal bool IsValid => root.IsValid;
 
         internal TemplScaffold()
         {

@@ -24,6 +24,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using Willykc.Templ.Editor.Entry;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -53,6 +54,13 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
 
+        private static readonly int[] NoIDs = new int[] { };
+        private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
+            $"must have values. {nameof(TemplScaffoldFile.template).Capitalize()}s must be " +
+            "valid. File and Directory names must not contain invalid characters and must be " +
+            "unique under the same parent node. Directories must not be empty. " +
+            "Templ will only deploy valid scaffolds.";
+
         private static GUIStyle LeftButtonStyle;
         private static GUIStyle RightButtonStyle;
         private static GUIStyle MidButtonStyle;
@@ -74,6 +82,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private TemplScaffold scaffold;
         private TemplScaffoldTreeView scaffoldTreeView;
+        private bool isScaffoldValid;
 
         private bool IsRootSelected =>
             !scaffoldTreeView.GetNodeSelection().Contains(scaffold.Root) &&
@@ -85,29 +94,24 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             CreateButtonStyles();
             EditorGUILayout.BeginHorizontal();
-            GUI.enabled = RootHasChildren;
-            DrawButton(ExpandCollapseButtonContent, MiniButtonStyle, _ => ToggleExpandCollapse(),
-                nameof(ToggleExpandCollapse));
-            GUI.enabled = IsRootSelected;
-            DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
-                nameof(scaffoldTreeView.EditSelectedNode));
-            GUI.enabled = true;
+            DrawLeftToolbar();
             GUILayout.FlexibleSpace();
-            DrawButton(DirectoryButtonContent, LeftButtonStyle, AddScaffoldDirectoryNode,
-                nameof(scaffold.AddScaffoldDirectoryNode));
-            DrawButton(FileButtonContent, MidButtonStyle, AddScaffoldFileNode,
-                nameof(scaffold.AddScaffoldFileNode));
-            GUI.enabled = IsRootSelected;
-            DrawButton(CloneButtonContent, MidButtonStyle, scaffold.CloneScaffoldNodes,
-                nameof(scaffold.CloneScaffoldNodes),
-                (Event.current.command || Event.current.control) && KeyPress(KeyCode.D));
-            DrawButton(DeleteButtonContent, RightButtonStyle, scaffold.RemoveScaffoldNodes,
-                nameof(scaffold.RemoveScaffoldNodes), KeyPress(KeyCode.Delete));
-            GUI.enabled = true;
+            DrawRightToolbar();
             EditorGUILayout.EndHorizontal();
             var rect = GUILayoutUtility
                 .GetRect(0, MaxScaffoldsWidth, 0, scaffoldTreeView.totalHeight);
+            EditorGUI.BeginChangeCheck();
             scaffoldTreeView.OnGUI(rect);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                OnChangeNodeFields();
+            }
+
+            if (!isScaffoldValid)
+            {
+                EditorGUILayout.HelpBox(ErrorMessage, MessageType.Error);
+            }
         }
 
         private void OnEnable()
@@ -124,18 +128,52 @@ namespace Willykc.Templ.Editor.Scaffold
                 treeViewState,
                 scaffold, ScaffoldIcon, DirectoryIcon, FileIcon);
             scaffoldTreeView.BeforeDrop += OnBeforeScaffoldDrop;
-            Undo.undoRedoPerformed += OnChangeScaffolds;
-            scaffold.FullReset += OnChangeScaffolds;
-            OnChangeScaffolds();
+            Undo.undoRedoPerformed += OnChangeScaffold;
+            scaffold.FullReset += OnResetScaffold;
+            OnChangeScaffold();
         }
 
         private void OnDisable()
         {
             scaffoldTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
-            Undo.undoRedoPerformed -= OnChangeScaffolds;
-            scaffold.FullReset -= OnChangeScaffolds;
+            Undo.undoRedoPerformed -= OnChangeScaffold;
+            scaffold.FullReset -= OnResetScaffold;
             SessionState.SetString(SessionStateKeyPrefix + scaffold.GetInstanceID(),
                 JsonUtility.ToJson(scaffoldTreeView.state));
+        }
+
+        private void OnResetScaffold()
+        {
+            OnChangeScaffold();
+            scaffoldTreeView.SetSelection(NoIDs);
+        }
+
+        private void OnChangeNodeFields() => isScaffoldValid = scaffold.Root.IsValid;
+
+        private void DrawLeftToolbar()
+        {
+            GUI.enabled = RootHasChildren;
+            DrawButton(ExpandCollapseButtonContent, MiniButtonStyle, _ => ToggleExpandCollapse(),
+                nameof(ToggleExpandCollapse));
+            GUI.enabled = IsRootSelected;
+            DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
+                nameof(scaffoldTreeView.EditSelectedNode));
+            GUI.enabled = true;
+        }
+
+        private void DrawRightToolbar()
+        {
+            DrawButton(DirectoryButtonContent, LeftButtonStyle, AddScaffoldDirectoryNode,
+                nameof(scaffold.AddScaffoldDirectoryNode));
+            DrawButton(FileButtonContent, MidButtonStyle, AddScaffoldFileNode,
+                nameof(scaffold.AddScaffoldFileNode));
+            GUI.enabled = IsRootSelected;
+            DrawButton(CloneButtonContent, MidButtonStyle, scaffold.CloneScaffoldNodes,
+                nameof(scaffold.CloneScaffoldNodes),
+                (Event.current.command || Event.current.control) && KeyPress(KeyCode.D));
+            DrawButton(DeleteButtonContent, RightButtonStyle, scaffold.RemoveScaffoldNodes,
+                nameof(scaffold.RemoveScaffoldNodes), KeyPress(KeyCode.Delete));
+            GUI.enabled = true;
         }
 
         private void AddScaffoldFileNode(TemplScaffoldNode[] parents)
@@ -162,7 +200,11 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private void OnChangeScaffolds() => scaffoldTreeView.Reload();
+        private void OnChangeScaffold()
+        {
+            isScaffoldValid = scaffold.Root.IsValid;
+            scaffoldTreeView.Reload();
+        }
 
         private void DrawButton(GUIContent content,
             GUIStyle style,
@@ -247,6 +289,7 @@ namespace Willykc.Templ.Editor.Scaffold
             Undo.RecordObject(scaffold, name);
             var selectedNodes = scaffoldTreeView.GetNodeSelection();
             action(selectedNodes);
+            isScaffoldValid = scaffold.Root.IsValid;
         }
 
         private void OnBeforeScaffoldDrop() =>

@@ -28,9 +28,11 @@ using UnityEditor.IMGUI.Controls;
 namespace Willykc.Templ.Editor.Scaffold
 {
     using DrawAction = Action<TemplScaffoldTreeViewItem, Rect>;
+    using static TemplSettingsEditor;
 
     internal sealed class TemplScaffoldRowView
     {
+        private const string BlankName = "blank";
         private const string NamePropertyName = nameof(TemplScaffoldNode.name);
         private const string TemplatePropertyName = nameof(TemplScaffoldFile.template);
         private const int IconWidth = 16;
@@ -98,7 +100,15 @@ namespace Willykc.Templ.Editor.Scaffold
             rect.x += rect.width;
             rect.y--;
             rect.width = rowRect.width;
-            GUI.Label(rect, item.displayName);
+            var style = new GUIStyle()
+            {
+                normal = { textColor = item.Node.IsValid ? ValidColor : InvalidColor }
+            };
+
+            var displayName = !string.IsNullOrEmpty(item.displayName)
+                ? item.displayName
+                : BlankName;
+            GUI.Label(rect, displayName, style);
         }
 
         private void DrawEditModeFile(TemplScaffoldTreeViewItem item, Rect rowRect)

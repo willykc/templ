@@ -28,12 +28,15 @@ namespace Willykc.Templ.Editor
     internal sealed partial class TemplSettingsEditor : UnityEditor.Editor
     {
         internal const string MenuName = "Window/Templ/Settings";
+
         private const int Padding = 5;
         private const int Spacing = 2;
         private const int Double = 2;
         private const float Half = .5f;
-        private static readonly Color InvalidColor = new Color(1, .3f, .3f, 1);
-        private static readonly Color ValidColor = Color.white;
+
+        internal static readonly Color InvalidColor = new Color(1, .3f, .3f, 1);
+        internal static readonly Color ValidColor = Color.white;
+
         private static readonly float Line = EditorGUIUtility.singleLineHeight;
         private static readonly float DoubleLine = EditorGUIUtility.singleLineHeight * Double;
 
@@ -69,9 +72,6 @@ namespace Willykc.Templ.Editor
                 : TemplSettings.CreateNewSettings();
             Selection.activeObject = settings;
         }
-
-        private static string Capitalize(string input) =>
-            char.ToUpper(input[0]) + input.Substring(1);
 
         private static bool Foldout(SerializedProperty property, string name) =>
             property.isExpanded = EditorGUILayout.Foldout(property.isExpanded, name);

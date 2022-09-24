@@ -30,7 +30,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
     internal class TemplScaffoldSelectionMenu : EditorWindow
     {
-        private const string MenuName = "Assets/Create/Templ/Scaffold";
+        private const string MenuName = "Assets/Create/Templ/Deploy Scaffold";
         private const string AssetsPath = "Assets/";
         private const string AssetExtension = ".asset";
 
@@ -78,7 +78,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var menu = new GenericMenu();
 
-            foreach (var scaffold in settings.Scaffolds.Distinct())
+            foreach (var scaffold in settings.ValidScaffolds.Distinct())
             {
                 var path = AssetDatabase.GetAssetPath(scaffold)
                     .Replace(AssetsPath, string.Empty)

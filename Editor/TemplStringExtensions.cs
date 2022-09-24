@@ -19,20 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System;
-
-namespace Willykc.Templ.Editor.Scaffold
+namespace Willykc.Templ.Editor
 {
-    [Serializable]
-    internal sealed class TemplScaffoldFile : TemplScaffoldNode
+    internal static class TemplStringExtensions
     {
-        public ScribanAsset template;
-
-        protected override bool IsValidNode => template && !template.HasErrors;
-
-        protected override TemplScaffoldNode DoClone() => new TemplScaffoldFile()
-        {
-            template = template
-        };
+        internal static string Capitalize(this string input) =>
+            char.ToUpper(input[0]) + input.Substring(1);
     }
 }

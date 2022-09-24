@@ -62,6 +62,12 @@ namespace Willykc.Templ.Editor
             .ToArray()
             ?? new TemplEntry[] { };
 
+        internal IReadOnlyList<TemplScaffold> ValidScaffolds =>
+            scaffolds?
+            .Where(s => s.IsValid)
+            .ToArray()
+            ?? new TemplScaffold[] { };
+
         internal bool HasInvalidEntries => Entries.Count != ValidEntries.Count;
 
         private void Reset()

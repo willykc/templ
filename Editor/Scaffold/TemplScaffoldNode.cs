@@ -21,6 +21,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -42,7 +43,16 @@ namespace Willykc.Templ.Editor.Scaffold
             return clone;
         }
 
+        internal bool IsValid =>
+            IsValidNode &&
+            !IsNameDuplicated &&
+            !string.IsNullOrWhiteSpace(name) &&
+            name.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
+            children.All(c => c.IsValid);
+
         protected abstract TemplScaffoldNode DoClone();
+
+        protected virtual bool IsValidNode => true;
 
         private TemplScaffoldNode CloneRecursive(
             TemplScaffoldNode original,
@@ -54,5 +64,8 @@ namespace Willykc.Templ.Editor.Scaffold
             clone.children.AddRange(original.children.Select(c => c.CloneRecursive(c, clone)));
             return clone;
         }
+
+        private bool IsNameDuplicated =>
+            parent?.children.Any(c => c != this && c.name == name) ?? false;
     }
 }
