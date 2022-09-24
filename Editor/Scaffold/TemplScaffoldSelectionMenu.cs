@@ -41,8 +41,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private TemplSettings settings;
         private ILogger log;
 
-        [MenuItem(MenuName, priority = 2)]
-        public static void Init()
+        [MenuItem(MenuName, priority = 3)]
+        public static void ShowScaffoldsMenu()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
             window.ShowAsDropDown(EmptyRect, Size);

@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Scaffold
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
 
-    [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 1)]
+    [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
     internal sealed class TemplScaffold : ScriptableObject
     {
         private const string MenuName = "Templ/Scaffold Definition";
