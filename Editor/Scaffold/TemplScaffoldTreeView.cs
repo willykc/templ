@@ -91,6 +91,8 @@ namespace Willykc.Templ.Editor.Scaffold
             Reload();
         }
 
+        internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetId(node));
+
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item as TemplScaffoldTreeViewItem;
@@ -115,6 +117,34 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             return parentIDs;
+        }
+
+        protected override IList<int> GetDescendantsThatHaveChildren(int id)
+        {
+            var stack = new Stack<TemplScaffoldNode>();
+            var start = nodeIDs.FirstOrDefault(kvp => kvp.Value == id).Key ?? scaffold.Root;
+            stack.Push(start);
+
+            var descendantsWithChildren = new List<int>();
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+
+                if (current.children.Count == 0)
+                {
+                    continue;
+                }
+
+                descendantsWithChildren.Add(GetId(current));
+
+                foreach (var child in current.children)
+                {
+                    stack.Push(child);
+                }
+            }
+
+            return descendantsWithChildren;
         }
 
         protected override TreeViewItem BuildRoot() =>

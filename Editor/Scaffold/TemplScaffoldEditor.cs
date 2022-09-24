@@ -35,13 +35,15 @@ namespace Willykc.Templ.Editor.Scaffold
         private const int ToolbarButtonVerticalPadding = 1;
         private const string DirectoryIconName = "Folder Icon";
         private const string DeleteIconName = "Toolbar Minus";
-        private const string CloneIconName = "BuildSettings.N3DS On";
+        private const string CloneIconName = "BuildSettings.N3DS On@2x";
         private const string EditIconName = "CustomTool@2x";
+        private const string ExpandCollapseIconName = "UnityEditor.SceneHierarchyWindow@2x";
         private const string DirectoryTooltip = "Add Directory";
         private const string FileTooltip = "Add Template";
         private const string DeleteTooltip = "Delete Node(s)";
         private const string CloneTooltip = "Clone Node(s)";
         private const string EditTooltip = "Edit Node";
+        private const string ExpandCollapseTooltip = "Expand/Collapse All";
         private const string SessionStateKeyPrefix = "TemplScaffold";
         private const string MiniButtonLeftStyleName = "miniButtonLeft";
         private const string MiniButtonRightStyleName = "miniButtonRight";
@@ -61,11 +63,13 @@ namespace Willykc.Templ.Editor.Scaffold
         private static Texture2D DeleteIcon;
         private static Texture2D ScaffoldIcon;
         private static Texture2D EditIcon;
+        private static Texture2D ExpandCollapseIcon;
         private static GUIContent DirectoryButtonContent;
         private static GUIContent FileButtonContent;
         private static GUIContent CloneButtonContent;
         private static GUIContent DeleteButtonContent;
         private static GUIContent EditButtonContent;
+        private static GUIContent ExpandCollapseButtonContent;
         private static RectOffset ToolbarButtonPadding;
 
         private TemplScaffold scaffold;
@@ -75,10 +79,15 @@ namespace Willykc.Templ.Editor.Scaffold
             !scaffoldTreeView.GetNodeSelection().Contains(scaffold.Root) &&
             scaffoldTreeView.HasSelection();
 
+        private bool RootHasChildren => scaffold.Root.children.Count > 0;
+
         public override void OnInspectorGUI()
         {
             CreateButtonStyles();
             EditorGUILayout.BeginHorizontal();
+            GUI.enabled = RootHasChildren;
+            DrawButton(ExpandCollapseButtonContent, MiniButtonStyle, _ => ToggleExpandCollapse(),
+                nameof(ToggleExpandCollapse));
             GUI.enabled = IsRootSelected;
             DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
                 nameof(scaffoldTreeView.EditSelectedNode));
@@ -99,18 +108,6 @@ namespace Willykc.Templ.Editor.Scaffold
             var rect = GUILayoutUtility
                 .GetRect(0, MaxScaffoldsWidth, 0, scaffoldTreeView.totalHeight);
             scaffoldTreeView.OnGUI(rect);
-        }
-
-        private void AddScaffoldFileNode(TemplScaffoldNode[] parents)
-        {
-            scaffold.AddScaffoldFileNode(parents);
-            scaffoldTreeView.EditSelectedNode();
-        }
-
-        private void AddScaffoldDirectoryNode(TemplScaffoldNode[] parents)
-        {
-            scaffold.AddScaffoldDirectoryNode(parents);
-            scaffoldTreeView.EditSelectedNode();
         }
 
         private void OnEnable()
@@ -139,6 +136,30 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffold.FullReset -= OnChangeScaffolds;
             SessionState.SetString(SessionStateKeyPrefix + scaffold.GetInstanceID(),
                 JsonUtility.ToJson(scaffoldTreeView.state));
+        }
+
+        private void AddScaffoldFileNode(TemplScaffoldNode[] parents)
+        {
+            scaffold.AddScaffoldFileNode(parents);
+            scaffoldTreeView.EditSelectedNode();
+        }
+
+        private void AddScaffoldDirectoryNode(TemplScaffoldNode[] parents)
+        {
+            scaffold.AddScaffoldDirectoryNode(parents);
+            scaffoldTreeView.EditSelectedNode();
+        }
+
+        private void ToggleExpandCollapse()
+        {
+            if (!scaffoldTreeView.IsNodeExpanded(scaffold.Root))
+            {
+                scaffoldTreeView.ExpandAll();
+            }
+            else
+            {
+                scaffoldTreeView.CollapseAll();
+            }
         }
 
         private void OnChangeScaffolds() => scaffoldTreeView.Reload();
@@ -182,6 +203,9 @@ namespace Willykc.Templ.Editor.Scaffold
             EditIcon = EditIcon
                 ? EditIcon
                 : EditorGUIUtility.FindTexture(EditIconName);
+            ExpandCollapseIcon = ExpandCollapseIcon
+                ? ExpandCollapseIcon
+                : EditorGUIUtility.FindTexture(ExpandCollapseIconName);
         }
 
         private void CreateButtonContents()
@@ -191,6 +215,8 @@ namespace Willykc.Templ.Editor.Scaffold
             DeleteButtonContent ??= new GUIContent(DeleteIcon, DeleteTooltip);
             CloneButtonContent ??= new GUIContent(CloneIcon, CloneTooltip);
             EditButtonContent ??= new GUIContent(EditIcon, EditTooltip);
+            ExpandCollapseButtonContent ??=
+                new GUIContent(ExpandCollapseIcon, ExpandCollapseTooltip);
         }
 
         private void CreateButtonStyles()
