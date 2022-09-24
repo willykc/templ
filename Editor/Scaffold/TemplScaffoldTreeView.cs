@@ -28,23 +28,12 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    internal class TemplScaffoldTreeView : TreeView
+    internal sealed class TemplScaffoldTreeView : TreeView
     {
         private const string GenericDragID = "GenericDragColumnDragging";
         private const string MultipleDragTitle = "< Multiple >";
         private const string RootName = nameof(TemplScaffold.Root);
         private const string ChildrenPropertyName = nameof(TemplScaffoldNode.children);
-        private const string NamePropertyName = nameof(TemplScaffoldNode.name);
-        private const string TemplatePropertyName = nameof(TemplScaffoldFile.template);
-        private const int IconWidth = 16;
-        private const int Space = 2;
-        private const int SetFocusMaxFrames = 10;
-        private const int EditModeRowHeight = 22;
-        private const int EditPropertyHeight = 19;
-        private const int EditPropertyMinWidth = 80;
-        private const int DefaultPropertyWidthFactor = 1;
-        private const int DefaultRowHeight = 16;
-        private const float Half = .5f;
 
         private readonly TemplScaffold scaffold;
         private readonly SerializedObject serializedObject;
@@ -52,13 +41,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly Dictionary<TemplScaffoldNode, int> nodeIDs =
             new Dictionary<TemplScaffoldNode, int>();
         private readonly IReadOnlyDictionary<Type, Texture2D> icons;
-        private readonly IReadOnlyDictionary
-            <Type,
-            Action<TemplScaffoldTreeViewItem, RowGUIArgs, float>>
-            rowGUIActions;
-
-        private int editID;
-        private int setFocusCounter;
+        private readonly TemplScaffoldRowView rowView;
 
         internal event Action BeforeDrop;
         internal event Action AfterDrop;
@@ -80,12 +63,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 { typeof(TemplScaffoldFile), fileIcon },
                 { typeof(TemplScaffoldDirectory), directoryIcon }
             };
-            rowGUIActions =
-                new Dictionary<Type, Action<TemplScaffoldTreeViewItem, RowGUIArgs, float>>()
-            {
-                { typeof(TemplScaffoldFile), RowGUIFile },
-                { typeof(TemplScaffoldDirectory), RowGUIDirectory }
-            };
+            rowView = new TemplScaffoldRowView();
             scaffold.Change += OnScaffoldChange;
             scaffold.FullReset += Reload;
             showAlternatingRowBackgrounds = true;
@@ -101,37 +79,27 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal void EditSelectedNode()
         {
-            var first = GetSelection().FirstOrDefault();
+            var firstID = GetSelection().FirstOrDefault();
 
-            if (first <= 0 || first == GetId(scaffold.Root))
+            if (firstID <= 0 || firstID == GetId(scaffold.Root))
             {
                 return;
             }
 
-            setFocusCounter = 0;
-            editID = first != editID ? first : 0;
-            SetSelection(new[] { first }, TreeViewSelectionOptions.RevealAndFrame);
+            rowView.ToggleEditMode(firstID);
+            SetSelection(new[] { firstID }, TreeViewSelectionOptions.RevealAndFrame);
             Reload();
         }
 
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item as TemplScaffoldTreeViewItem;
-
-            if (item.id == editID && rowGUIActions.TryGetValue(item.Node.GetType(), out var rowGUI))
-            {
-                rowGUI(item, args, DefaultPropertyWidthFactor);
-            }
-            else
-            {
-                base.RowGUI(args);
-            }
+            item.Indent = GetContentIndent(item);
+            rowView.DrawRow(item, args.rowRect);
         }
 
         protected override float GetCustomRowHeight(int row, TreeViewItem item) =>
-            item.id == editID
-            ? EditModeRowHeight
-            : DefaultRowHeight;
+            rowView.GetRowHeight(item);
 
         protected override IList<int> GetAncestors(int id)
         {
@@ -225,59 +193,6 @@ namespace Willykc.Templ.Editor.Scaffold
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void ResetEditMode()
-        {
-            setFocusCounter = 0;
-            editID = 0;
-        }
-
-        private void RowGUIFile(
-            TemplScaffoldTreeViewItem item,
-            RowGUIArgs args,
-            float widthFactor)
-        {
-            RowGUIDirectory(item, args, Half);
-            var templateProperty = item.Property.FindPropertyRelative(TemplatePropertyName);
-            var rect = args.rowRect;
-            var indent = GetContentIndent(args.item) + IconWidth + Space;
-            var halfWidth = Mathf.Max((args.rowRect.width - indent) * Half, EditPropertyMinWidth);
-            rect.x += indent + halfWidth + Space;
-            rect.y++;
-            rect.width = halfWidth - Space;
-            rect.height = EditPropertyHeight;
-            GUI.SetNextControlName(TemplatePropertyName);
-            EditorGUI.PropertyField(rect, templateProperty, GUIContent.none);
-        }
-
-        private void RowGUIDirectory(
-            TemplScaffoldTreeViewItem item,
-            RowGUIArgs args,
-            float widthFactor)
-        {
-            var nameProperty = item.Property.FindPropertyRelative(NamePropertyName);
-            var rect = args.rowRect;
-            rect.x += GetContentIndent(args.item);
-            rect.width = IconWidth;
-            GUI.DrawTexture(rect, item.icon, ScaleMode.ScaleToFit);
-            rect.x += rect.width + Space;
-            rect.y++;
-            rect.width = Mathf.Max((args.rowRect.width - rect.x) * widthFactor,
-                EditPropertyMinWidth);
-            rect.height = EditPropertyHeight;
-            GUI.SetNextControlName(NamePropertyName);
-            EditorGUI.PropertyField(rect, nameProperty, GUIContent.none);
-            HandleFocusOnText();
-        }
-
-        private void HandleFocusOnText()
-        {
-            if (setFocusCounter < SetFocusMaxFrames)
-            {
-                EditorGUI.FocusTextInControl(NamePropertyName);
-                setFocusCounter++;
-            }
-        }
-
         private void OnDropItemsAtIndex(
             IEnumerable<TemplScaffoldTreeViewItem> draggedItems,
             TemplScaffoldNode parent,
@@ -324,7 +239,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes)
         {
             var selectedIDs = nodes.Select(n => GetId(n)).ToArray();
-            ResetEditMode();
+            rowView.ResetEditMode();
             Reload();
             SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
         }

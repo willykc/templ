@@ -28,7 +28,7 @@ using UnityEngine;
 namespace Willykc.Templ.Editor.Scaffold
 {
     [CustomEditor(typeof(TemplScaffold))]
-    public class TemplScaffoldEditor : UnityEditor.Editor
+    internal sealed class TemplScaffoldEditor : UnityEditor.Editor
     {
         private const int MaxScaffoldsWidth = 1000;
         private const int ToolbarButtonWidth = 30;

@@ -28,6 +28,7 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         internal SerializedProperty Property { get; }
         internal TemplScaffoldNode Node { get; }
+        internal float Indent { get; set; }
 
         internal TemplScaffoldTreeViewItem(
             int id,
