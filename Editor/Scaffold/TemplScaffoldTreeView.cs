@@ -87,11 +87,16 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             rowView.ToggleEditMode(firstID);
-            SetSelection(new[] { firstID }, TreeViewSelectionOptions.RevealAndFrame);
             Reload();
         }
 
         internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetId(node));
+
+        protected override void DoubleClickedItem(int id)
+        {
+            rowView.ToggleEditMode(id);
+            Reload();
+        }
 
         protected override void RowGUI(RowGUIArgs args)
         {

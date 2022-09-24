@@ -42,7 +42,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string FileTooltip = "Add Template";
         private const string DeleteTooltip = "Delete Node(s)";
         private const string CloneTooltip = "Clone Node(s)";
-        private const string EditTooltip = "Edit Node";
+        private const string EditTooltip = "Edit Node (Double Click)";
         private const string ExpandCollapseTooltip = "Expand/Collapse All";
         private const string SessionStateKeyPrefix = "TemplScaffold";
         private const string MiniButtonLeftStyleName = "miniButtonLeft";
