@@ -164,7 +164,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 nameof(ToggleExpandCollapse));
             GUI.enabled = IsRootSelected;
             DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
-                nameof(scaffoldTreeView.EditSelectedNode));
+                nameof(scaffoldTreeView.EditSelectedNode),
+                KeyPress(KeyCode.F2) || KeyPress(KeyCode.Return));
             GUI.enabled = true;
         }
 
