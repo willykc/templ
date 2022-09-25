@@ -113,7 +113,10 @@ namespace Willykc.Templ.Editor
 
         private static void TriggerRename()
         {
-            var @event = new Event { keyCode = KeyCode.F2, type = EventType.KeyDown };
+            var renameKeyCode = Application.platform == RuntimePlatform.OSXEditor
+                ? KeyCode.Return
+                : KeyCode.F2;
+            var @event = new Event { keyCode = renameKeyCode, type = EventType.KeyDown };
             EditorWindow.focusedWindow.SendEvent(@event);
         }
 
