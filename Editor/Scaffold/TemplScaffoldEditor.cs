@@ -21,6 +21,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -53,6 +54,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
+        private const string WarningMessage = "This scaffold is not currently referenced in " +
+            "Templ settings. Reference it to enable it for deployment.";
 
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
@@ -83,6 +86,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private TemplScaffold scaffold;
         private TemplScaffoldTreeView scaffoldTreeView;
         private bool isScaffoldValid;
+        private bool isReferencedInSettings;
 
         private bool IsRootSelected =>
             !scaffoldTreeView.GetNodeSelection().Contains(scaffold.Root) &&
@@ -93,6 +97,12 @@ namespace Willykc.Templ.Editor.Scaffold
         public override void OnInspectorGUI()
         {
             CreateButtonStyles();
+            
+            if (!isReferencedInSettings)
+            {
+                EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
+            }
+
             EditorGUILayout.BeginHorizontal();
             DrawLeftToolbar();
             GUILayout.FlexibleSpace();
@@ -117,6 +127,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnEnable()
         {
             scaffold = target as TemplScaffold;
+            var settings = TemplSettings.Instance;
+            isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
             LoadIcons();
             CreateButtonContents();
             var treeViewState = new TreeViewState();

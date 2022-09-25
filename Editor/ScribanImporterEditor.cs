@@ -37,30 +37,32 @@ namespace Willykc.Templ.Editor
 
         private string text;
         private string path;
-        private string[] templatePaths = new string[0];
+        private bool isReferencedInSettings;
+        private ScribanImporter importer;
+        private SerializedProperty property;
 
         public override void OnEnable()
         {
             base.OnEnable();
-            templatePaths = TemplSettings.Instance
-                ? TemplSettings.Instance.Entries
-                .Select(e => AssetDatabase.GetAssetPath(e.template))
-                .ToArray()
-                : new string[0];
+            importer = serializedObject.targetObject as ScribanImporter;
+            path = importer.assetPath;
+            property = serializedObject.FindProperty(nameof(importer.text));
+            var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
+            var settings = TemplSettings.Instance;
+            isReferencedInSettings = settings &&
+                (settings.Entries.Any(e => e.template == asset) ||
+                settings.Scaffolds.Any(s => s.ContainsTemplate(asset)));
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            var importer = serializedObject.targetObject as ScribanImporter;
-            var property = serializedObject.FindProperty(nameof(importer.text));
-            path = importer.assetPath;
             if (importer.parsingErrors.Length > 0)
             {
                 var errors = string.Join("\n", importer.parsingErrors);
                 EditorGUILayout.HelpBox($"Template errors found:\n{errors}", MessageType.Error);
             }
-            else if (!templatePaths.Contains(path))
+            else if (!isReferencedInSettings)
             {
                 EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
             }

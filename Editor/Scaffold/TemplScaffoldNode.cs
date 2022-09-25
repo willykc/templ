@@ -50,9 +50,18 @@ namespace Willykc.Templ.Editor.Scaffold
             name.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
             children.All(c => c.IsValid);
 
-        protected abstract TemplScaffoldNode DoClone();
-
         protected virtual bool IsValidNode => true;
+
+        internal bool ContainsTemplate(ScribanAsset template)
+        {
+            if(this is TemplScaffoldFile fileNode && fileNode.template == template)
+            {
+                return true;
+            }
+            return children.Any(c => c.ContainsTemplate(template));
+        }
+
+        protected abstract TemplScaffoldNode DoClone();
 
         private TemplScaffoldNode CloneRecursive(
             TemplScaffoldNode original,

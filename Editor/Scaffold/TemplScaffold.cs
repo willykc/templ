@@ -159,6 +159,9 @@ namespace Willykc.Templ.Editor.Scaffold
             Change?.Invoke(clones);
         }
 
+        internal bool ContainsTemplate(ScribanAsset template) =>
+            root.children.Any(c => c.ContainsTemplate(template));
+
         private void RemoveNode(TemplScaffoldNode node)
         {
             if (node.parent != null)
