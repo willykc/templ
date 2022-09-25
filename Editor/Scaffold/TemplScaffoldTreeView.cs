@@ -85,22 +85,22 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetID(node));
 
-        protected override void DoubleClickedItem(int id)
-        {
-            SetEditMode(id);
-        }
+        protected override void BeforeRowsGUI() => EditorGUI.BeginChangeCheck();
 
         protected override void RowGUI(RowGUIArgs args)
         {
             var item = args.item as TemplScaffoldTreeViewItem;
             item.Indent = GetContentIndent(item);
-            EditorGUI.BeginChangeCheck();
             rowView.DrawRow(item, args.rowRect);
+        }
 
+        protected override void AfterRowsGUI()
+        {
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
-                item.UpdateValidity();
+                var rootNodeRow = GetRootNodeRow();
+                rootNodeRow.UpdateValidity();
             }
         }
 
@@ -220,6 +220,11 @@ namespace Willykc.Templ.Editor.Scaffold
                     return DragAndDropVisualMode.None;
             }
         }
+
+        protected override void DoubleClickedItem(int id) => SetEditMode(id);
+
+        private TemplScaffoldTreeViewItem GetRootNodeRow() =>
+            rows.SingleOrDefault(r => r.id == GetID(scaffold.Root)) as TemplScaffoldTreeViewItem;
 
         private void SetEditMode(int nodeID)
         {

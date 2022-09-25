@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 
@@ -45,8 +46,16 @@ namespace Willykc.Templ.Editor.Scaffold
         internal void UpdateValidity()
         {
             IsValid = Node.IsValid;
-            var realParent = parent as TemplScaffoldTreeViewItem;
-            realParent?.UpdateValidity();
+
+            if (children == null)
+            {
+                return;
+            }
+
+            foreach (var child in children.OfType<TemplScaffoldTreeViewItem>())
+            {
+                child?.UpdateValidity();
+            }
         }
     }
 }

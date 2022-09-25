@@ -98,7 +98,6 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var rect = DrawNodeIcon(item, rowRect);
             rect.x += rect.width;
-            rect.y--;
             rect.width = rowRect.width;
             var style = new GUIStyle()
             {
