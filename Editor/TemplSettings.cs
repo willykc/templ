@@ -64,7 +64,7 @@ namespace Willykc.Templ.Editor
 
         internal IReadOnlyList<TemplScaffold> ValidScaffolds =>
             scaffolds?
-            .Where(s => s.IsValid)
+            .Where(s => s && s.IsValid)
             .ToArray()
             ?? new TemplScaffold[] { };
 
