@@ -67,10 +67,10 @@ namespace Willykc.Templ.Editor
         [MenuItem(MenuName, priority = 10)]
         private static void FindSettings()
         {
-            var settings = TemplSettings.Instance
+            Selection.activeObject = TemplSettings.Instance
                 ? TemplSettings.Instance
                 : TemplSettings.CreateNewSettings();
-            Selection.activeObject = settings;
+            EditorGUIUtility.PingObject(Selection.activeObject);
         }
 
         private static bool Foldout(SerializedProperty property, string name) =>

@@ -64,9 +64,9 @@ namespace Willykc.Templ.Editor.Scaffold
                 return;
             }
 
-            if (settings.Scaffolds.Count == 0)
+            if (settings.ValidScaffolds.Count == 0)
             {
-                log.Warn("No scaffolds found in settings");
+                log.Warn("No valid scaffolds found in settings");
                 Close();
                 return;
             }
