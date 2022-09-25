@@ -39,7 +39,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
 
-        public string input;
+        public ScriptableObject defaultInput;
 
         internal event Action FullReset;
         internal event Action<IReadOnlyList<TemplScaffoldNode>> Change;

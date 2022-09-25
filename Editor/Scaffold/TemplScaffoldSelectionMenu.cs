@@ -28,7 +28,7 @@ namespace Willykc.Templ.Editor.Scaffold
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
 
-    internal class TemplScaffoldSelectionMenu : EditorWindow
+    internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Create/Templ/Deploy Scaffold";
         private const string AssetsPath = "Assets/";
@@ -42,7 +42,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private ILogger log;
 
         [MenuItem(MenuName, priority = 3)]
-        public static void ShowScaffoldsMenu()
+        private static void ShowScaffoldsMenu()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
             window.ShowAsDropDown(EmptyRect, Size);
@@ -93,8 +93,20 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnScaffoldSelected(object selection)
         {
             var scaffold = selection as TemplScaffold;
-            log.Info($"{scaffold.name} scaffold deployed at {Selection.activeObject.name}");
+
+            if (scaffold.defaultInput)
+            {
+                TemplScaffoldInputForm.ShowScaffoldInputForm(scaffold);
+            }
+            else
+            {
+                DeployScaffold(scaffold, Selection.activeObject);
+            }
+
             Close();
         }
+
+        private static void DeployScaffold(TemplScaffold scaffold, Object selection) =>
+            Logger.Instance.Info($"{scaffold.name} scaffold deployed at {selection.name}");
     }
 }

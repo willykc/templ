@@ -85,6 +85,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private TemplScaffold scaffold;
         private TemplScaffoldTreeView scaffoldTreeView;
+        private SerializedProperty inputProperty;
         private bool isScaffoldValid;
         private bool isReferencedInSettings;
 
@@ -97,17 +98,14 @@ namespace Willykc.Templ.Editor.Scaffold
         public override void OnInspectorGUI()
         {
             CreateButtonStyles();
-            
+
             if (!isReferencedInSettings)
             {
                 EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
             }
 
-            EditorGUILayout.BeginHorizontal();
-            DrawLeftToolbar();
-            GUILayout.FlexibleSpace();
-            DrawRightToolbar();
-            EditorGUILayout.EndHorizontal();
+            DrawInputProperty();
+            DrawToolbar();
             var rect = GUILayoutUtility
                 .GetRect(0, MaxScaffoldsWidth, 0, scaffoldTreeView.totalHeight);
             EditorGUI.BeginChangeCheck();
@@ -129,6 +127,7 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffold = target as TemplScaffold;
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
+            inputProperty = serializedObject.FindProperty(nameof(TemplScaffold.defaultInput));
             LoadIcons();
             CreateButtonContents();
             var treeViewState = new TreeViewState();
@@ -168,6 +167,22 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnChangeNodeFields() => CheckValidity();
 
         private void CheckValidity() => isScaffoldValid = scaffold.Root.IsValid;
+
+        private void DrawInputProperty()
+        {
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(inputProperty);
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawToolbar()
+        {
+            EditorGUILayout.BeginHorizontal();
+            DrawLeftToolbar();
+            GUILayout.FlexibleSpace();
+            DrawRightToolbar();
+            EditorGUILayout.EndHorizontal();
+        }
 
         private void DrawLeftToolbar()
         {
