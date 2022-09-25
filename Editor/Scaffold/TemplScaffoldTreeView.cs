@@ -83,7 +83,7 @@ namespace Willykc.Templ.Editor.Scaffold
             SetEditMode(firstID);
         }
 
-        internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetId(node));
+        internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetID(node));
 
         protected override void DoubleClickedItem(int id)
         {
@@ -94,7 +94,14 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var item = args.item as TemplScaffoldTreeViewItem;
             item.Indent = GetContentIndent(item);
+            EditorGUI.BeginChangeCheck();
             rowView.DrawRow(item, args.rowRect);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedObject.ApplyModifiedProperties();
+                item.UpdateValidity();
+            }
         }
 
         protected override float GetCustomRowHeight(int row, TreeViewItem item) =>
@@ -103,13 +110,13 @@ namespace Willykc.Templ.Editor.Scaffold
         protected override IList<int> GetAncestors(int id)
         {
             var node = nodeIDs.First(kvp => kvp.Value == id).Key;
-            var parentID = GetId(node);
+            var parentID = GetID(node);
             var parentIDs = new List<int>() { parentID };
 
             while (node.parent != null)
             {
                 node = node.parent;
-                parentID = GetId(node);
+                parentID = GetID(node);
                 parentIDs.Add(parentID);
             }
 
@@ -133,7 +140,7 @@ namespace Willykc.Templ.Editor.Scaffold
                     continue;
                 }
 
-                descendantsWithChildren.Add(GetId(current));
+                descendantsWithChildren.Add(GetID(current));
 
                 foreach (var child in current.children)
                 {
@@ -214,15 +221,9 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        protected override void AfterRowsGUI()
-        {
-            base.AfterRowsGUI();
-            serializedObject.ApplyModifiedProperties();
-        }
-
         private void SetEditMode(int nodeID)
         {
-            if (nodeID <= 0 || nodeID == GetId(scaffold.Root))
+            if (nodeID <= 0 || nodeID == GetID(scaffold.Root))
             {
                 return;
             }
@@ -276,7 +277,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes)
         {
-            var selectedIDs = nodes.Select(n => GetId(n)).ToArray();
+            var selectedIDs = nodes.Select(n => GetID(n)).ToArray();
             rowView.ResetEditMode();
             Reload();
             SetSelection(selectedIDs, TreeViewSelectionOptions.RevealAndFrame);
@@ -290,7 +291,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var children = parent.children;
             var serializedChildren = serializedParent.FindPropertyRelative(ChildrenPropertyName);
-            var id = GetId(parent);
+            var id = GetID(parent);
             var icon = GetIcon(parent);
             var item = new TemplScaffoldTreeViewItem(id, depth, parent, serializedParent)
             {
@@ -319,7 +320,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private int GetId(TemplScaffoldNode node)
+        private int GetID(TemplScaffoldNode node)
         {
             if (!nodeIDs.TryGetValue(node, out var id))
             {

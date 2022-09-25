@@ -102,7 +102,7 @@ namespace Willykc.Templ.Editor.Scaffold
             rect.width = rowRect.width;
             var style = new GUIStyle()
             {
-                normal = { textColor = item.Node.IsValid ? ValidColor : InvalidColor }
+                normal = { textColor = item.IsValid ? ValidColor : InvalidColor }
             };
 
             var displayName = !string.IsNullOrEmpty(item.displayName)

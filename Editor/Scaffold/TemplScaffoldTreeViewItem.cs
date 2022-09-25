@@ -29,6 +29,7 @@ namespace Willykc.Templ.Editor.Scaffold
         internal SerializedProperty Property { get; }
         internal TemplScaffoldNode Node { get; }
         internal float Indent { get; set; }
+        internal bool IsValid { get; private set; }
 
         internal TemplScaffoldTreeViewItem(
             int id,
@@ -38,6 +39,14 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             Node = node;
             Property = property;
+            IsValid = node.IsValid;
+        }
+
+        internal void UpdateValidity()
+        {
+            IsValid = Node.IsValid;
+            var realParent = parent as TemplScaffoldTreeViewItem;
+            realParent?.UpdateValidity();
         }
     }
 }
