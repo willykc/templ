@@ -55,7 +55,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
         private const string WarningMessage = "This scaffold is not currently referenced in " +
-            "Templ settings. Reference it to enable it for deployment.";
+            "Templ settings.";
 
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
