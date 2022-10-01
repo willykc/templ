@@ -31,9 +31,9 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const int Width = 500;
         private const int Height = 400;
-        private const int DeployButtonVerticalSpace = 24;
+        private const int GenerateButtonVerticalSpace = 24;
         private const string InputFormTitleSuffix = "Input Form";
-        private const string DeployButtonPrefix = "Deploy";
+        private const string GenerateButtonPrefix = "Generate";
 
         private ScriptableObject input;
         private TemplScaffold scaffold;
@@ -62,14 +62,14 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnGUI()
         {
             var width = GUILayout.Width(position.width);
-            var height = GUILayout.Height(position.height - DeployButtonVerticalSpace);
+            var height = GUILayout.Height(position.height - GenerateButtonVerticalSpace);
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, width, height);
             inputEditor.DrawDefaultInspector();
             EditorGUILayout.EndScrollView();
 
-            if (GUILayout.Button($"{DeployButtonPrefix} {scaffold.name}"))
+            if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
             {
-                DeployScaffold(scaffold, selection, input);
+                GenerateScaffold(scaffold, selection, input);
                 Close();
             }
         }
@@ -79,10 +79,10 @@ namespace Willykc.Templ.Editor.Scaffold
             DestroyImmediate(inputEditor);
         }
 
-        private static void DeployScaffold(
+        private static void GenerateScaffold(
             TemplScaffold scaffold,
             Object selection,
             ScriptableObject input) =>
-            Logger.Instance.Info($"{scaffold.name} scaffold deployed at {selection.name}");
+            Logger.Instance.Info($"{scaffold.name} scaffold generated at {selection.name}");
     }
 }

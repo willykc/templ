@@ -30,7 +30,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
     internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
-        private const string MenuName = "Assets/Create/Templ/Deploy Scaffold";
+        private const string MenuName = "Assets/Create/Templ/Generate Scaffold";
         private const string AssetsPath = "Assets/";
         private const string AssetExtension = ".asset";
 
@@ -100,13 +100,13 @@ namespace Willykc.Templ.Editor.Scaffold
             }
             else
             {
-                DeployScaffold(scaffold, Selection.activeObject);
+                GenerateScaffold(scaffold, Selection.activeObject);
             }
 
             Close();
         }
 
-        private static void DeployScaffold(TemplScaffold scaffold, Object selection) =>
-            Logger.Instance.Info($"{scaffold.name} scaffold deployed at {selection.name}");
+        private static void GenerateScaffold(TemplScaffold scaffold, Object selection) =>
+            Logger.Instance.Info($"{scaffold.name} scaffold generated at {selection.name}");
     }
 }

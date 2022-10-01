@@ -62,7 +62,7 @@ namespace Willykc.Templ.Editor.Scaffold
             $"must have values. {nameof(TemplScaffoldFile.template).Capitalize()}s must be " +
             "valid. File and Directory names must not contain invalid characters and must be " +
             "unique under the same parent node. Directories must not be empty. " +
-            "Templ will only deploy valid scaffolds.";
+            "Templ will only generate valid scaffolds.";
 
         private static GUIStyle LeftButtonStyle;
         private static GUIStyle RightButtonStyle;
