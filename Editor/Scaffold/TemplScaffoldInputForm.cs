@@ -56,7 +56,7 @@ namespace Willykc.Templ.Editor.Scaffold
             window.input = Instantiate(scaffold.defaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
             window.inputEditor = Editor.CreateEditor(window.input);
-            window.ShowUtility();
+            window.ShowModalUtility();
         }
 
         private void OnGUI()
