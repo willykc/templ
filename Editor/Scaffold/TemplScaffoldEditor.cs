@@ -133,8 +133,12 @@ namespace Willykc.Templ.Editor.Scaffold
             var treeViewState = new TreeViewState();
             var jsonState = SessionState
                 .GetString(SessionStateKeyPrefix + scaffold.GetInstanceID(), string.Empty);
+
             if (!string.IsNullOrEmpty(jsonState))
+            {
                 JsonUtility.FromJsonOverwrite(jsonState, treeViewState);
+            }
+
             scaffoldTreeView = new TemplScaffoldTreeView(
                 treeViewState,
                 scaffold, ScaffoldIcon, DirectoryIcon, FileIcon);
@@ -173,6 +177,7 @@ namespace Willykc.Templ.Editor.Scaffold
             serializedObject.Update();
             EditorGUILayout.PropertyField(inputProperty);
             serializedObject.ApplyModifiedProperties();
+            EditorGUILayout.Separator();
         }
 
         private void DrawToolbar()
@@ -233,6 +238,7 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 scaffoldTreeView.CollapseAll();
             }
+            scaffoldTreeView.SetSelection(NoIDs);
         }
 
         private void OnUndoRedoPerformed()
