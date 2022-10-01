@@ -66,11 +66,13 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             var templateAsset = ScriptableObject.CreateInstance<ScribanAsset>()
                 .Init(text = File.ReadAllText(ctx.assetPath));
             parsingErrors = templateAsset.ParsingErrors;
             ctx.AddObjectToAsset(nameof(ScribanAsset), templateAsset);
             ctx.SetMainObject(templateAsset);
+
             if (templateAsset.HasErrors)
             {
                 var errors = string.Join("\n", parsingErrors);
@@ -92,16 +94,15 @@ namespace Willykc.Templ.Editor
 
         private static string GetNewTemplatePath(UnityObject selected)
         {
-            var assetPath = AssetDatabase.GetAssetPath(selected.GetInstanceID());
-            var dir = File.Exists(assetPath)
-                ? Path.GetDirectoryName(assetPath)
-                : Path.Combine(assetPath);
+            var dir = selected.GetAssetDirectoryPath();
             var newTemplatePath = Path.Combine(dir, $"{FileName}.{DefaultExtension}");
             var count = 0;
+
             while (File.Exists(newTemplatePath))
             {
-                newTemplatePath = Path.Combine(dir, $"{FileName}{++count}.{DefaultExtension}");
+                newTemplatePath = Path.Combine(dir, $"{FileName} {++count}.{DefaultExtension}");
             }
+
             return newTemplatePath;
         }
 

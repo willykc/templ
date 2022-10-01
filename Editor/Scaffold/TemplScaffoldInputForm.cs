@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,15 +32,19 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const int Width = 500;
         private const int Height = 400;
-        private const int GenerateButtonVerticalSpace = 24;
+        private const int LineHeight = 1;
+        private const int LineVerticalOffset = 10;
         private const string InputFormTitleSuffix = "Input Form";
         private const string GenerateButtonPrefix = "Generate";
+        private const string SelectionLabel = "Selected Asset";
+        private const string TargetPathLabel = "Target Path";
 
         private ScriptableObject input;
         private TemplScaffold scaffold;
         private Object selection;
         private Editor inputEditor;
         private Vector2 scrollPos;
+        private string targetPath;
 
         internal static void ShowScaffoldInputForm(TemplScaffold scaffold)
         {
@@ -52,6 +57,7 @@ namespace Willykc.Templ.Editor.Scaffold
             window.Center(Width, Height);
             window.scaffold = scaffold;
             window.selection = Selection.activeObject;
+            window.targetPath = window.selection.GetAssetDirectoryPath();
             window.titleContent = new GUIContent($"{scaffold.name} {InputFormTitleSuffix}");
             window.input = Instantiate(scaffold.defaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
@@ -61,11 +67,12 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnGUI()
         {
-            var width = GUILayout.Width(position.width);
-            var height = GUILayout.Height(position.height - GenerateButtonVerticalSpace);
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, width, height);
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos,
+                GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             inputEditor.OnInspectorGUI();
             EditorGUILayout.EndScrollView();
+            DrawLine();
+            DrawSelectionAndPath();
 
             if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
             {
@@ -74,9 +81,29 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
+        private void DrawSelectionAndPath()
+        {
+            if (!selection)
+            {
+                return;
+            }
+
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField(SelectionLabel, selection, selection.GetType(), false);
+            EditorGUILayout.TextField(TargetPathLabel, targetPath);
+            GUI.enabled = true;
+        }
+
         private void OnDestroy()
         {
             DestroyImmediate(inputEditor);
+        }
+
+        private static void DrawLine()
+        {
+            var rect = EditorGUILayout.GetControlRect(GUILayout.Height(LineHeight));
+            rect.y -= LineVerticalOffset;
+            EditorGUI.LabelField(rect, string.Empty, GUI.skin.horizontalSlider);
         }
 
         private static void GenerateScaffold(
