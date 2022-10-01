@@ -64,7 +64,7 @@ namespace Willykc.Templ.Editor.Scaffold
             var width = GUILayout.Width(position.width);
             var height = GUILayout.Height(position.height - GenerateButtonVerticalSpace);
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, width, height);
-            inputEditor.DrawDefaultInspector();
+            inputEditor.OnInspectorGUI();
             EditorGUILayout.EndScrollView();
 
             if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
