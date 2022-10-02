@@ -116,6 +116,7 @@ namespace Willykc.Templ.Editor
 
         private void DrawScaffoldField(Rect rect, SerializedProperty element)
         {
+            var previousReference = element.objectReferenceValue;
             EditorGUI.BeginChangeCheck();
             var fieldRect = new Rect(
                 rect.x + ScaffoldHorizontalPadding,
@@ -126,16 +127,16 @@ namespace Willykc.Templ.Editor
 
             if (EditorGUI.EndChangeCheck())
             {
-                SanitizeRepeatedScaffold(element);
+                SanitizeRepeatedScaffold(element, previousReference);
             }
         }
 
-        private void SanitizeRepeatedScaffold(SerializedProperty element)
+        private void SanitizeRepeatedScaffold(SerializedProperty element, Object previousReference)
         {
             if (element.objectReferenceValue is TemplScaffold scaffold && scaffold &&
-                settings.Scaffolds.Contains(scaffold))
+                settings.Scaffolds.Contains(scaffold) && scaffold != previousReference)
             {
-                element.objectReferenceValue = null;
+                element.objectReferenceValue = previousReference;
                 showUniqueScaffoldMessage = true;
             }
         }
