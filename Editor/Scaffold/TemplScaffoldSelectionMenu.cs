@@ -94,7 +94,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var scaffold = selection as TemplScaffold;
 
-            if (scaffold.defaultInput)
+            if (scaffold.DefaultInput)
             {
                 TemplScaffoldInputForm.ShowScaffoldInputForm(scaffold);
             }

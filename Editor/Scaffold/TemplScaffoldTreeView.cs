@@ -33,7 +33,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string GenericDragID = "GenericDragColumnDragging";
         private const string MultipleDragTitle = "< Multiple >";
         private const string RootName = nameof(TemplScaffold.Root);
-        private const string ChildrenPropertyName = nameof(TemplScaffoldNode.children);
+        private const string ChildrenPropertyName = nameof(TemplScaffoldNode.Children);
 
         private readonly TemplScaffold scaffold;
         private readonly SerializedObject serializedObject;
@@ -118,9 +118,9 @@ namespace Willykc.Templ.Editor.Scaffold
             var parentID = GetID(node);
             var parentIDs = new List<int>() { parentID };
 
-            while (node.parent != null)
+            while (node.Parent != null)
             {
-                node = node.parent;
+                node = node.Parent;
                 parentID = GetID(node);
                 parentIDs.Add(parentID);
             }
@@ -140,14 +140,14 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 var current = stack.Pop();
 
-                if (current.children.Count == 0)
+                if (current.Children.Count == 0)
                 {
                     continue;
                 }
 
                 descendantsWithChildren.Add(GetID(current));
 
-                foreach (var child in current.children)
+                foreach (var child in current.Children)
                 {
                     stack.Push(child);
                 }
@@ -163,7 +163,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             rows.Clear();
             serializedObject.Update();
-            var rootPropertyName = RootName.ToLower();
+            var rootPropertyName = RootName.Decapitalize();
             var rootProperty = serializedObject.FindProperty(rootPropertyName);
             AddChildrenRecursive(scaffold.Root, rootProperty, 0, rows);
             SetupParentsAndChildrenFromDepths(root, rows);
@@ -299,8 +299,9 @@ namespace Willykc.Templ.Editor.Scaffold
             int depth,
             List<TreeViewItem> rows)
         {
-            var children = parent.children;
-            var serializedChildren = serializedParent.FindPropertyRelative(ChildrenPropertyName);
+            var children = parent.Children;
+            var propertyName = ChildrenPropertyName.Decapitalize();
+            var serializedChildren = serializedParent.FindPropertyRelative(propertyName);
             var id = GetID(parent);
             var icon = GetIcon(parent);
             var item = new TemplScaffoldTreeViewItem(id, depth, parent, serializedParent)

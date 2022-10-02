@@ -34,7 +34,7 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const string BlankName = "blank";
         private const string NamePropertyName = nameof(TemplScaffoldNode.name);
-        private const string TemplatePropertyName = nameof(TemplScaffoldFile.template);
+        private const string TemplatePropertyName = nameof(TemplScaffoldFile.Template);
         private const int IconWidth = 16;
         private const int Space = 2;
         private const int TextFocusMaxFrames = 10;
@@ -157,7 +157,8 @@ namespace Willykc.Templ.Editor.Scaffold
             Rect rect,
             Rect rowRect)
         {
-            var templateProperty = item.Property.FindPropertyRelative(TemplatePropertyName);
+            var propertyName = TemplatePropertyName.Decapitalize();
+            var templateProperty = item.Property.FindPropertyRelative(propertyName);
             rect.x += rect.width + Space;
             var width = rowRect.width - rect.x;
             rect.width = Mathf.Max(width, EditPropertyMinWidth) - Space;

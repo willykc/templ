@@ -30,18 +30,15 @@ namespace Willykc.Templ.Editor.Scaffold
     [Serializable]
     internal abstract class TemplScaffoldNode
     {
-        public string name;
+        [SerializeField]
+        internal string name;
         [SerializeReference]
-        public List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();
+        private List<TemplScaffoldNode> children = new List<TemplScaffoldNode>();
         [SerializeReference]
-        public TemplScaffoldNode parent;
+        private TemplScaffoldNode parent;
 
-        internal TemplScaffoldNode Clone()
-        {
-            var clone = CloneRecursive(this, parent);
-            parent?.children.Add(clone);
-            return clone;
-        }
+        internal IReadOnlyList<TemplScaffoldNode> Children => children;
+        internal TemplScaffoldNode Parent { get => parent; set => SetParent(value); }
 
         internal bool IsValid =>
             IsValidNode &&
@@ -52,15 +49,63 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected virtual bool IsValidNode => true;
 
+        private bool IsNameDuplicated =>
+            parent?.children.Any(c => c != this && c.name == name) ?? false;
+
+        private void SetParent(TemplScaffoldNode parent)
+        {
+            if (!parent.IsValidChild(this))
+            {
+                throw new InvalidOperationException(
+                    $"{GetType().Name} can not be a child of {parent.GetType().Name}");
+            }
+
+            this.parent = parent;
+        }
+
+        internal void RemoveChild(TemplScaffoldNode node) =>
+            children.Remove(node);
+
+        internal void InsertChildrenRange(int insertIndex, TemplScaffoldNode[] nodes)
+        {
+            if (nodes.Any(n => !IsValidChild(n)))
+            {
+                throw new InvalidOperationException(
+                    $"Some {nameof(nodes)} can not be children of {GetType().Name}");
+            }
+
+            children.InsertRange(insertIndex, nodes);
+        }
+
+        internal void AddChild(TemplScaffoldNode node)
+        {
+            if (!IsValidChild(node))
+            {
+                throw new InvalidOperationException(
+                    $"{node.GetType().Name} can not be a child of {GetType().Name}");
+            }
+
+            children.Add(node);
+        }
+
+        internal TemplScaffoldNode Clone()
+        {
+            var clone = CloneRecursive(this, parent);
+            parent?.children.Add(clone);
+            return clone;
+        }
+
         internal bool ContainsTemplate(ScribanAsset template)
         {
-            if(this is TemplScaffoldFile fileNode && fileNode.template == template)
+            if (this is TemplScaffoldFile fileNode && fileNode.Template == template)
             {
                 return true;
             }
+
             return children.Any(c => c.ContainsTemplate(template));
         }
 
+        protected abstract bool IsValidChild(TemplScaffoldNode value);
         protected abstract TemplScaffoldNode DoClone();
 
         private TemplScaffoldNode CloneRecursive(
@@ -73,8 +118,5 @@ namespace Willykc.Templ.Editor.Scaffold
             clone.children.AddRange(original.children.Select(c => c.CloneRecursive(c, clone)));
             return clone;
         }
-
-        private bool IsNameDuplicated =>
-            parent?.children.Any(c => c != this && c.name == name) ?? false;
     }
 }

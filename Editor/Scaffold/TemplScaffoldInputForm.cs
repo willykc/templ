@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal static void ShowScaffoldInputForm(TemplScaffold scaffold)
         {
-            if (!scaffold.defaultInput)
+            if (!scaffold.DefaultInput)
             {
                 return;
             }
@@ -59,7 +59,7 @@ namespace Willykc.Templ.Editor.Scaffold
             window.selection = Selection.activeObject;
             window.targetPath = window.selection.GetAssetDirectoryPath();
             window.titleContent = new GUIContent($"{scaffold.name} {InputFormTitleSuffix}");
-            window.input = Instantiate(scaffold.defaultInput);
+            window.input = Instantiate(scaffold.DefaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
             window.inputEditor = Editor.CreateEditor(window.input);
             window.ShowModalUtility();

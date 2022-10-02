@@ -39,18 +39,18 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
 
-        public ScriptableObject defaultInput;
-
         internal event Action FullReset;
         internal event Action<IReadOnlyList<TemplScaffoldNode>> Change;
 
+        [SerializeField]
+        private ScriptableObject defaultInput;
         [SerializeReference]
         private TemplScaffoldRoot root = GetNewRoot();
 
         private readonly ILogger log;
 
+        internal ScriptableObject DefaultInput => defaultInput;
         internal TemplScaffoldRoot Root => root;
-
         internal bool IsValid => root.IsValid;
 
         internal TemplScaffold()
@@ -95,7 +95,7 @@ namespace Willykc.Templ.Editor.Scaffold
             nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             foreach (var node in nodes)
             {
-                RemoveNode(node);
+                node.Parent?.RemoveChild(node);
             }
             Change?.Invoke(EmptyList);
         }
@@ -131,18 +131,18 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (insertIndex > 0)
             {
-                insertIndex -= parent.children
-                    .GetRange(0, insertIndex)
-                    .Count(draggedNodes.Contains);
+                var subSet = new TemplScaffoldNode[insertIndex];
+                Array.Copy(parent.Children.ToArray(), subSet, insertIndex);
+                insertIndex -= subSet.Count(draggedNodes.Contains);
             }
 
             foreach (var node in draggedNodes)
             {
-                node.parent.children.Remove(node);
-                node.parent = parent;
+                node.Parent.RemoveChild(node);
+                node.Parent = parent;
             }
 
-            parent.children.InsertRange(insertIndex, draggedNodes);
+            parent.InsertChildrenRange(insertIndex, draggedNodes);
             Change?.Invoke(draggedNodes);
         }
 
@@ -160,15 +160,7 @@ namespace Willykc.Templ.Editor.Scaffold
         }
 
         internal bool ContainsTemplate(ScribanAsset template) =>
-            root.children.Any(c => c.ContainsTemplate(template));
-
-        private void RemoveNode(TemplScaffoldNode node)
-        {
-            if (node.parent != null)
-            {
-                node.parent.children.Remove(node);
-            }
-        }
+            root.Children.Any(c => c.ContainsTemplate(template));
 
         private static TemplScaffoldRoot GetNewRoot() =>
             new TemplScaffoldRoot() { name = nameof(Root) };
@@ -179,14 +171,16 @@ namespace Willykc.Templ.Editor.Scaffold
             var current = node;
             if (node is TemplScaffoldFile)
             {
-                current = node.parent;
+                current = node.Parent;
             }
+
             var newNode = new T()
             {
                 name = name,
-                parent = current
+                Parent = current
             };
-            current.children.Add(newNode);
+
+            current.AddChild(newNode);
             return newNode;
         }
     }

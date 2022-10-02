@@ -26,7 +26,10 @@ namespace Willykc.Templ.Editor.Scaffold
     [Serializable]
     internal sealed class TemplScaffoldDirectory : TemplScaffoldNode
     {
-        protected override bool IsValidNode => children.Count > 0;
+        protected override bool IsValidNode => Children.Count > 0;
+
+        protected override bool IsValidChild(TemplScaffoldNode value) =>
+            value != null && !(value is TemplScaffoldRoot);
 
         protected override TemplScaffoldNode DoClone() => new TemplScaffoldDirectory();
     }

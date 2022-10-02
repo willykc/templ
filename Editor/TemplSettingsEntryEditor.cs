@@ -60,7 +60,7 @@ namespace Willykc.Templ.Editor
                 .Where(IsEntryType)
                 .ToArray();
             entriesProperty =
-                serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
+                serializedObject.FindProperty(nameof(TemplSettings.Entries).Decapitalize());
             entryList = new ReorderableList(serializedObject, entriesProperty,
                 false, false, true, true)
             {

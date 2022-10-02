@@ -20,15 +20,21 @@
  * THE SOFTWARE.
  */
 using System;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
     [Serializable]
     internal sealed class TemplScaffoldFile : TemplScaffoldNode
     {
-        public ScribanAsset template;
+        [SerializeField]
+        private ScribanAsset template;
+
+        internal ScribanAsset Template => template;
 
         protected override bool IsValidNode => template && !template.HasErrors;
+
+        protected override bool IsValidChild(TemplScaffoldNode value) => false;
 
         protected override TemplScaffoldNode DoClone() => new TemplScaffoldFile()
         {

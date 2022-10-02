@@ -26,6 +26,9 @@ namespace Willykc.Templ.Editor.Scaffold
     [Serializable]
     internal sealed class TemplScaffoldRoot : TemplScaffoldNode
     {
+        protected override bool IsValidChild(TemplScaffoldNode value) =>
+            value != null && !(value is TemplScaffoldRoot);
+
         protected override TemplScaffoldNode DoClone() =>
             throw new InvalidOperationException("Can not clone scaffold root node");
     }

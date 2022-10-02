@@ -55,10 +55,10 @@ namespace Willykc.Templ.Editor.Scaffold
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
         private const string WarningMessage = "This scaffold is not currently referenced in " +
             "Templ settings.";
-
+        private const string DefaultInputPropertyName = nameof(TemplScaffold.DefaultInput);
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
-            $"must have values. {nameof(TemplScaffoldFile.template).Capitalize()}s must be " +
+            $"must have values. {nameof(TemplScaffoldFile.Template)}s must be " +
             "valid. File and Directory names must not contain invalid characters and must be " +
             "unique under the same parent node. Directories must not be empty. " +
             "Templ will only generate valid scaffolds.";
@@ -92,7 +92,7 @@ namespace Willykc.Templ.Editor.Scaffold
             !scaffoldTreeView.GetNodeSelection().Contains(scaffold.Root) &&
             scaffoldTreeView.HasSelection();
 
-        private bool RootHasChildren => scaffold.Root.children.Count > 0;
+        private bool RootHasChildren => scaffold.Root.Children.Count > 0;
 
         public override void OnInspectorGUI()
         {
@@ -126,7 +126,8 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffold = target as TemplScaffold;
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
-            inputProperty = serializedObject.FindProperty(nameof(TemplScaffold.defaultInput));
+            var propertyName = DefaultInputPropertyName.Decapitalize();
+            inputProperty = serializedObject.FindProperty(propertyName);
             LoadIcons();
             CreateButtonContents();
             var treeViewState = new TreeViewState();

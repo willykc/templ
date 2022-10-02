@@ -49,7 +49,7 @@ namespace Willykc.Templ.Editor
 
         private void OnEnableScaffolds()
         {
-            var scaffoldsPropertyName = ScaffoldsName.ToLower();
+            var scaffoldsPropertyName = ScaffoldsName.Decapitalize();
             scaffoldsProperty = serializedObject.FindProperty(scaffoldsPropertyName);
             scaffoldList = new ReorderableList(serializedObject, scaffoldsProperty,
                 false, false, true, true);
