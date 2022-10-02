@@ -37,10 +37,9 @@ namespace Willykc.Templ.Editor
     {
         private const int MaxFilenameLength = 64;
         private const int ValidInputFieldCount = 1;
-        private const string Header = "Templ Entries";
+        private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
-        private const string LiveTitle = "Live";
-
+        private const string LiveTitle = "Live Entries";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {nameof(TemplEntry.template).Capitalize()} must be valid. " +
@@ -49,7 +48,7 @@ namespace Willykc.Templ.Editor
             $"{nameof(TemplEntry.directory).Capitalize()}. Templ will only render templates for " +
             "valid entries.";
 
-        private ReorderableList list;
+        private ReorderableList entryList;
         private string[] fullPathDuplicates;
         private Type[] entryTypes;
         private SerializedProperty entriesProperty;
@@ -62,13 +61,13 @@ namespace Willykc.Templ.Editor
                 .ToArray();
             entriesProperty =
                 serializedObject.FindProperty(nameof(TemplSettings.Entries).ToLower());
-            list = new ReorderableList(serializedObject, entriesProperty, true, true, true, true)
+            entryList = new ReorderableList(serializedObject, entriesProperty,
+                false, false, true, true)
             {
                 elementHeight = (DoubleLine * Double) + Spacing + Padding
             };
-            list.drawElementCallback += OnDrawElement;
-            list.drawHeaderCallback += OnDrawHeader;
-            list.onAddDropdownCallback += OnAddDropdown;
+            entryList.drawElementCallback += OnDrawEntryElement;
+            entryList.onAddDropdownCallback += OnAddEntryDropdown;
             Undo.undoRedoPerformed += OnChangeEntries;
             settings.FullReset += OnChangeEntries;
             OnChangeEntries();
@@ -76,17 +75,16 @@ namespace Willykc.Templ.Editor
 
         private void OnDisableEntries()
         {
-            list.drawElementCallback -= OnDrawElement;
-            list.drawHeaderCallback -= OnDrawHeader;
-            list.onAddDropdownCallback -= OnAddDropdown;
+            entryList.drawElementCallback -= OnDrawEntryElement;
+            entryList.onAddDropdownCallback -= OnAddEntryDropdown;
             Undo.undoRedoPerformed -= OnChangeEntries;
             settings.FullReset -= OnChangeEntries;
         }
 
         private void OnChangeEntries()
         {
-            CollectDuplicates();
-            CheckValidity();
+            CollectEntryDuplicates();
+            CheckEntriesValidity();
         }
 
         private void DrawLiveTemplEntries()
@@ -95,34 +93,42 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             EditorGUI.BeginChangeCheck();
-            list.DoLayoutList();
+            entryList.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
+
             if (EditorGUI.EndChangeCheck())
             {
                 OnChangeEntries();
             }
+
             GUI.enabled = settings.Entries.Count > 0;
             GUILayout.Space(Padding);
+
             if (GUILayout.Button(ForceRenderButtonText))
             {
                 Core.RenderAllValidEntries();
             }
+
             GUI.enabled = true;
+
             if (!isValidEntries)
             {
                 EditorGUILayout.HelpBox(ErrorMessage, MessageType.Error);
             }
         }
 
-        private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
+        private void OnDrawEntryElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             EditorGUI.BeginChangeCheck();
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
+            var element = entryList.serializedProperty.GetArrayElementAtIndex(index);
             var entry = settings.Entries[index];
             DrawHeaderLine(rect);
             rect.y += 4;
             DrawFirstRow(rect, element, entry);
             DrawSecondRow(rect, element, entry);
+
             if (EditorGUI.EndChangeCheck())
             {
                 Core.FlagChangedEntry(entry);
@@ -165,26 +171,26 @@ namespace Willykc.Templ.Editor
                 p => ValidFilename(p, entry));
         }
 
-        private void OnDrawHeader(Rect rect) => EditorGUI.LabelField(rect, Header);
-
-        private void OnAddDropdown(Rect buttonRect, ReorderableList list)
+        private void OnAddEntryDropdown(Rect buttonRect, ReorderableList list)
         {
             var menu = new GenericMenu();
+
             foreach (var entryType in entryTypes)
             {
                 menu.AddItem(new GUIContent(entryType.Name),
-                false, OnAddElement,
+                false, OnAddEntryElement,
                 entryType);
             }
+
             menu.ShowAsContext();
         }
 
-        private void OnAddElement(object target)
+        private void OnAddEntryElement(object target)
         {
-            var index = list.serializedProperty.arraySize;
-            list.serializedProperty.arraySize++;
-            list.index = index;
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
+            var index = entryList.serializedProperty.arraySize;
+            entryList.serializedProperty.arraySize++;
+            entryList.index = index;
+            var element = entryList.serializedProperty.GetArrayElementAtIndex(index);
             element.managedReferenceValue = Activator.CreateInstance(target as Type);
             serializedObject.ApplyModifiedProperties();
             OnChangeEntries();
@@ -199,6 +205,7 @@ namespace Willykc.Templ.Editor
             {
                 normal = { textColor = isValid(property) ? ValidColor : InvalidColor }
             };
+
             EditorGUI.LabelField(
                 new Rect(rect.x, rect.y, rect.width, rect.height),
                 property.displayName, style);
@@ -207,7 +214,7 @@ namespace Willykc.Templ.Editor
                 property, GUIContent.none);
         }
 
-        private void CollectDuplicates() =>
+        private void CollectEntryDuplicates() =>
             fullPathDuplicates = settings.Entries
             .Select(e => e.fullPathCache = e.FullPath)
             .GroupBy(p => p)
@@ -215,7 +222,7 @@ namespace Willykc.Templ.Editor
             .Select(g => g.Key)
             .ToArray();
 
-        private void CheckValidity() =>
+        private void CheckEntriesValidity() =>
             isValidEntries = settings.Entries.All(e => e.IsValid) && fullPathDuplicates.Length == 0;
 
         private bool ValidFilename(SerializedProperty property, TemplEntry entry)
@@ -241,7 +248,7 @@ namespace Willykc.Templ.Editor
         private static void DrawHeaderLine(Rect rect) =>
             EditorGUI.LabelField(new Rect(
                 rect.x,
-                rect.y - 6,
+                rect.y - HeaderLineOffset,
                 rect.width,
                 rect.height), string.Empty, GUI.skin.horizontalSlider);
 

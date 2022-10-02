@@ -48,7 +48,6 @@ namespace Willykc.Templ.Editor
             DrawLiveTemplEntries();
             GUILayout.Space(Padding);
             DrawTemplScaffolds();
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void OnEnable()

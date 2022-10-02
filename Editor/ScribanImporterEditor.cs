@@ -51,7 +51,7 @@ namespace Willykc.Templ.Editor
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings &&
                 (settings.Entries.Any(e => e.template == asset) ||
-                settings.Scaffolds.Any(s => s.ContainsTemplate(asset)));
+                settings.Scaffolds.Any(s => s && s.ContainsTemplate(asset)));
         }
 
         public override void OnInspectorGUI()
