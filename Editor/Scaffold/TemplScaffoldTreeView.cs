@@ -85,7 +85,11 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal bool IsNodeExpanded(TemplScaffoldNode node) => IsExpanded(GetID(node));
 
-        protected override void BeforeRowsGUI() => EditorGUI.BeginChangeCheck();
+        protected override void BeforeRowsGUI()
+        {
+            EditorGUI.BeginChangeCheck();
+            base.BeforeRowsGUI();
+        }
 
         protected override void RowGUI(RowGUIArgs args)
         {
@@ -102,6 +106,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 var rootNodeRow = GetRootNodeRow();
                 rootNodeRow.UpdateValidity();
             }
+            base.AfterRowsGUI();
         }
 
         protected override float GetCustomRowHeight(int row, TreeViewItem item) =>
