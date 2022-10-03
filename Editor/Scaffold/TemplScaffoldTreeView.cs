@@ -33,7 +33,6 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string GenericDragID = "GenericDragColumnDragging";
         private const string MultipleDragTitle = "< Multiple >";
         private const string RootName = nameof(TemplScaffold.Root);
-        private const string ChildrenPropertyName = nameof(TemplScaffoldNode.Children);
 
         private readonly TemplScaffold scaffold;
         private readonly SerializedObject serializedObject;
@@ -163,8 +162,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             rows.Clear();
             serializedObject.Update();
-            var rootPropertyName = RootName.Decapitalize();
-            var rootProperty = serializedObject.FindProperty(rootPropertyName);
+            var rootProperty = serializedObject.FindProperty(TemplScaffold.NameOfRoot);
             AddChildrenRecursive(scaffold.Root, rootProperty, 0, rows);
             SetupParentsAndChildrenFromDepths(root, rows);
             return rows;
@@ -300,8 +298,8 @@ namespace Willykc.Templ.Editor.Scaffold
             List<TreeViewItem> rows)
         {
             var children = parent.Children;
-            var propertyName = ChildrenPropertyName.Decapitalize();
-            var serializedChildren = serializedParent.FindPropertyRelative(propertyName);
+            var serializedChildren = serializedParent
+                .FindPropertyRelative(TemplScaffoldNode.NameOfChildren);
             var id = GetID(parent);
             var icon = GetIcon(parent);
             var item = new TemplScaffoldTreeViewItem(id, depth, parent, serializedParent)

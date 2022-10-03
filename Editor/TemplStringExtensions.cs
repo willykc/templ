@@ -25,8 +25,5 @@ namespace Willykc.Templ.Editor
     {
         internal static string Capitalize(this string input) =>
             char.ToUpperInvariant(input[0]) + input.Substring(1);
-
-        internal static string Decapitalize(this string input) =>
-            char.ToLowerInvariant(input[0]) + input.Substring(1);
     }
 }

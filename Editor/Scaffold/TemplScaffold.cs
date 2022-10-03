@@ -32,6 +32,8 @@ namespace Willykc.Templ.Editor.Scaffold
     [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
     internal sealed class TemplScaffold : ScriptableObject
     {
+        internal const string NameOfDefaultInput = nameof(defaultInput);
+        internal const string NameOfRoot = nameof(root);
         private const string MenuName = "Templ/Scaffold Definition";
         private const string NewPrefix = "New";
         private const string DefaultFileName = NewPrefix + "File";

@@ -27,6 +27,8 @@ namespace Willykc.Templ.Editor.Scaffold
     [Serializable]
     internal sealed class TemplScaffoldFile : TemplScaffoldNode
     {
+        internal const string NameOfTemplate = nameof(template);
+
         [SerializeField]
         private ScribanAsset template;
 

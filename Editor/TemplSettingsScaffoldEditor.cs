@@ -53,8 +53,7 @@ namespace Willykc.Templ.Editor
         private void OnEnableScaffolds()
         {
             LoadIcons();
-            var scaffoldsPropertyName = ScaffoldsName.Decapitalize();
-            scaffoldsProperty = serializedObject.FindProperty(scaffoldsPropertyName);
+            scaffoldsProperty = serializedObject.FindProperty(TemplSettings.NameOfScaffolds);
             scaffoldList = new ReorderableList(serializedObject, scaffoldsProperty,
                 false, false, true, true);
             scaffoldList.drawElementCallback += OnDrawScaffoldElement;

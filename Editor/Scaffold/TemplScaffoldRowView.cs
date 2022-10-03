@@ -33,8 +33,6 @@ namespace Willykc.Templ.Editor.Scaffold
     internal sealed class TemplScaffoldRowView
     {
         private const string BlankName = "blank";
-        private const string NamePropertyName = nameof(TemplScaffoldNode.name);
-        private const string TemplatePropertyName = nameof(TemplScaffoldFile.Template);
         private const int IconWidth = 16;
         private const int Space = 2;
         private const int TextFocusMaxFrames = 10;
@@ -140,13 +138,13 @@ namespace Willykc.Templ.Editor.Scaffold
             Rect rowRect,
             float widthFactor)
         {
-            var nameProperty = item.Property.FindPropertyRelative(NamePropertyName);
+            var nameProperty = item.Property.FindPropertyRelative(TemplScaffoldNode.NameOfName);
             rect.x += rect.width + Space;
             var width = (rowRect.width - rect.x) * widthFactor;
             rect.y++;
             rect.width = Mathf.Max(width, EditPropertyMinWidth);
             rect.height = EditPropertyHeight;
-            GUI.SetNextControlName(NamePropertyName);
+            GUI.SetNextControlName(TemplScaffoldNode.NameOfName);
             EditorGUI.PropertyField(rect, nameProperty, GUIContent.none);
             HandleFocusOnText();
             return rect;
@@ -157,13 +155,13 @@ namespace Willykc.Templ.Editor.Scaffold
             Rect rect,
             Rect rowRect)
         {
-            var propertyName = TemplatePropertyName.Decapitalize();
-            var templateProperty = item.Property.FindPropertyRelative(propertyName);
+            var templateProperty = item.Property
+                .FindPropertyRelative(TemplScaffoldFile.NameOfTemplate);
             rect.x += rect.width + Space;
             var width = rowRect.width - rect.x;
             rect.width = Mathf.Max(width, EditPropertyMinWidth) - Space;
             rect.height = EditPropertyHeight;
-            GUI.SetNextControlName(TemplatePropertyName);
+            GUI.SetNextControlName(TemplScaffoldFile.NameOfTemplate);
             EditorGUI.PropertyField(rect, templateProperty, GUIContent.none);
         }
 
@@ -171,7 +169,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             if (textFocusFrameCounter < TextFocusMaxFrames)
             {
-                EditorGUI.FocusTextInControl(NamePropertyName);
+                EditorGUI.FocusTextInControl(TemplScaffoldNode.NameOfName);
                 textFocusFrameCounter++;
             }
         }

@@ -33,6 +33,8 @@ namespace Willykc.Templ.Editor
 
     internal sealed class TemplSettings : ScriptableObject
     {
+        internal const string NameOfEntries = nameof(entries);
+        internal const string NameOfScaffolds = nameof(scaffolds);
         internal const string DefaultConfigFolder = "Assets/Editor/TemplData";
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";

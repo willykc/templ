@@ -30,6 +30,9 @@ namespace Willykc.Templ.Editor.Scaffold
     [Serializable]
     internal abstract class TemplScaffoldNode
     {
+        internal const string NameOfName = nameof(name);
+        internal const string NameOfChildren = nameof(children);
+
         [SerializeField]
         internal string name;
         [SerializeReference]

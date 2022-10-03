@@ -55,7 +55,6 @@ namespace Willykc.Templ.Editor.Scaffold
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
         private const string WarningMessage = "This scaffold is not currently referenced in " +
             "Templ settings.";
-        private const string DefaultInputPropertyName = nameof(TemplScaffold.DefaultInput);
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
             $"must have values. {nameof(TemplScaffoldFile.Template)}s must be " +
@@ -126,8 +125,7 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffold = target as TemplScaffold;
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
-            var propertyName = DefaultInputPropertyName.Decapitalize();
-            inputProperty = serializedObject.FindProperty(propertyName);
+            inputProperty = serializedObject.FindProperty(TemplScaffold.NameOfDefaultInput);
             LoadIcons();
             CreateButtonContents();
             var treeViewState = new TreeViewState();
