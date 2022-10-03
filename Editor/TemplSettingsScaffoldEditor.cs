@@ -42,6 +42,9 @@ namespace Willykc.Templ.Editor
         private const string UniqueScaffoldMessage =
             "There can only be one instance of each scaffold in the list";
 
+        private static GUIContent ValidScaffoldIcon;
+        private static GUIContent InvalidScaffoldIcon;
+
         private ReorderableList scaffoldList;
         private SerializedProperty scaffoldsProperty;
         private bool[] scaffoldsValidity;
@@ -49,6 +52,7 @@ namespace Willykc.Templ.Editor
 
         private void OnEnableScaffolds()
         {
+            LoadIcons();
             var scaffoldsPropertyName = ScaffoldsName.Decapitalize();
             scaffoldsProperty = serializedObject.FindProperty(scaffoldsPropertyName);
             scaffoldList = new ReorderableList(serializedObject, scaffoldsProperty,
@@ -106,11 +110,9 @@ namespace Willykc.Templ.Editor
 
         private void DrawValidityIcon(Rect rect, int index)
         {
-            var isValid = scaffoldsValidity[index];
+            var isValid = index < scaffoldsValidity.Length && scaffoldsValidity[index];
             var iconRect = new Rect(rect.x, rect.y + (Spacing * Double), IconSize, IconSize);
-            var iconName = isValid ? ValidScaffoldIconName : InvalidScaffoldIconName;
-            var icon = EditorGUIUtility.IconContent(iconName);
-            icon.tooltip = isValid ? ValidScaffoldTooltip : InvalidScaffoldTooltip;
+            var icon = isValid ? ValidScaffoldIcon : InvalidScaffoldIcon;
             EditorGUI.LabelField(iconRect, icon);
         }
 
@@ -143,5 +145,13 @@ namespace Willykc.Templ.Editor
 
         private void CheckScaffoldsValidity() =>
             scaffoldsValidity = settings.Scaffolds.Select(s => s && s.IsValid).ToArray();
+
+        private static void LoadIcons()
+        {
+            ValidScaffoldIcon ??= EditorGUIUtility.IconContent(ValidScaffoldIconName);
+            ValidScaffoldIcon.tooltip = ValidScaffoldTooltip;
+            InvalidScaffoldIcon ??= EditorGUIUtility.IconContent(InvalidScaffoldIconName);
+            InvalidScaffoldIcon.tooltip = InvalidScaffoldTooltip;
+        }
     }
 }
