@@ -28,7 +28,7 @@ namespace Willykc.Templ.Editor.Tests
     using Mocks;
     using System.IO;
 
-    internal class TemplCoreTests
+    internal class TemplEntryCoreTests
     {
         internal const string TestSettingsPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestTemplSettings.asset";
@@ -44,7 +44,7 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestPathFunctionTemplate.sbn";
         private const string ExpectedOutput = "Hello world!";
 
-        private TemplCore subject;
+        private TemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileMock fileMock;
         private SessionStateMock sessionStateMock;
@@ -82,7 +82,7 @@ namespace Willykc.Templ.Editor.Tests
                 new string[0],
                 new string[0]);
 
-            subject = new TemplCore(
+            subject = new TemplEntryCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
                 fileMock = new FileMock(),
                 sessionStateMock = new SessionStateMock(),

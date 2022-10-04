@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor
     using Abstraction;
     using Entry;
 
-    internal sealed class TemplCore
+    internal sealed class TemplEntryCore
     {
         private const string TemplChangedKey = "templ.changed";
         private const string TemplDeferredKey = "templ.deferred";
@@ -46,7 +46,7 @@ namespace Willykc.Templ.Editor
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
 
-        internal TemplCore(
+        internal TemplEntryCore(
             IAssetDatabase assetDatabase,
             IFile file,
             ISessionState sessionState,

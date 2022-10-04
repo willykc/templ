@@ -26,14 +26,14 @@ namespace Willykc.Templ.Editor
     using static TemplEditorInitialization;
 
     [InitializeOnLoad]
-    internal sealed class TemplProcessor : AssetPostprocessor
+    internal sealed class TemplEntryProcessor : AssetPostprocessor
     {
-        internal static TemplCore Core { get; }
+        internal static TemplEntryCore Core { get; }
 
-        static TemplProcessor()
+        static TemplEntryProcessor()
         {
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-            Core = new TemplCore(
+            Core = new TemplEntryCore(
                 Abstraction.AssetDatabase.Instance,
                 Abstraction.File.Instance,
                 Abstraction.SessionState.Instance,

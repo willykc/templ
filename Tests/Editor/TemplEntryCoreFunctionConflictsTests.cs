@@ -26,11 +26,11 @@ using UnityEditor;
 namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
-    using static TemplCoreTests;
+    using static TemplEntryCoreTests;
 
-    internal class TemplCoreNoSettingsTests
+    internal class TemplEntryCoreFunctionConflictsTests
     {
-        private TemplCore subject;
+        private TemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileMock fileMock;
         private SessionStateMock sessionStateMock;
@@ -44,7 +44,10 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeSetUp]
         public void BeforeAll()
         {
-            typeCache = new Type[0];
+            typeCache = new Type[]
+            {
+                typeof(TemplFunctionsConflictMock)
+            };
             settings = AssetDatabase.LoadAssetAtPath<TemplSettings>(TestSettingsPath);
             firstEntryMock = settings.Entries[0] as EntryMock;
         }
@@ -54,7 +57,7 @@ namespace Willykc.Templ.Editor.Tests
         {
             changes = new AssetsPaths(new string[0], new string[0], new string[0], new string[0]);
 
-            subject = new TemplCore(
+            subject = new TemplEntryCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
                 fileMock = new FileMock(),
                 sessionStateMock = new SessionStateMock(),
@@ -62,7 +65,7 @@ namespace Willykc.Templ.Editor.Tests
                 settingsProviderMock = new SettingsProviderMock(),
                 typeCache);
 
-            settingsProviderMock.settingsExist = false;
+            settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = settings;
         }
 
@@ -73,7 +76,27 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNoSettings_WhenAssetsChange_ThenEntryShouldNotRender()
+        public void GivenFunctionConflicts_WhenInstantiatingTemplCore_ThenShouldLogError()
+        {
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenAssetsChange_ThenShouldLogError()
+        {
+            // Setup
+            loggerMock.Clear();
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenAssetsChange_ThenEntriesShouldNotRender()
         {
             // Setup
             firstEntryMock.templateChanged = true;
@@ -86,7 +109,21 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNoSettings_WhenAssemblyReloads_ThenEntryShouldNotRender()
+        public void GivenFunctionConflicts_WhenAssemblyReloads_ThenShouldLogError()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.guid;
+            loggerMock.Clear();
+
+            // Act
+            subject.OnAfterAssemblyReload();
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenAssemblyReloads_ThenEntriesShouldNotRender()
         {
             // Setup
             sessionStateMock.value = firstEntryMock.guid;
@@ -99,7 +136,21 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNoSettings_WhenAssetDeleted_ThenShouldNotFlagEntries()
+        public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldLogError()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+            loggerMock.Clear();
+
+            // Act
+            subject.OnWillDeleteAsset(string.Empty);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldNotFlagEntries()
         {
             // Setup
             firstEntryMock.inputChanged = true;
@@ -112,7 +163,20 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNoSettings_WhenRenderAllValidEntries_ThenEntriesShouldNotRender()
+        public void GivenFunctionConflicts_WhenRenderAllValidEntries_ThenShouldLogError()
+        {
+            // Setup
+            loggerMock.Clear();
+
+            // Act
+            subject.RenderAllValidEntries();
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenRenderAllValidEntries_ThenEntriesShouldNotRender()
         {
             // Act
             subject.RenderAllValidEntries();

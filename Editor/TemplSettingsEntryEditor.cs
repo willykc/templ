@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor
 {
     using Entry;
     using static TemplEditorInitialization;
-    using static TemplProcessor;
+    using static TemplEntryProcessor;
 
     internal partial class TemplSettingsEditor
     {
