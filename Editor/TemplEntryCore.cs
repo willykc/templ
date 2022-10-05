@@ -37,7 +37,7 @@ namespace Willykc.Templ.Editor
         private const string TemplDeferredKey = "templ.deferred";
 
         private readonly IAssetDatabase assetDatabase;
-        private readonly IFile file;
+        private readonly IFileSystem fileSystem;
         private readonly ISessionState sessionState;
         private readonly ILogger log;
         private readonly ISettingsProvider settingsProvider;
@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor
 
         internal TemplEntryCore(
             IAssetDatabase assetDatabase,
-            IFile file,
+            IFileSystem fileSystem,
             ISessionState sessionState,
             ILogger log,
             ISettingsProvider settingsProvider,
@@ -56,8 +56,8 @@ namespace Willykc.Templ.Editor
         {
             this.assetDatabase = assetDatabase ??
                 throw new ArgumentNullException(nameof(assetDatabase));
-            this.file = file ??
-                throw new ArgumentNullException(nameof(file));
+            this.fileSystem = fileSystem ??
+                throw new ArgumentNullException(nameof(fileSystem));
             this.sessionState = sessionState ??
                 throw new ArgumentNullException(nameof(sessionState));
             this.log = log ??
@@ -256,7 +256,7 @@ namespace Willykc.Templ.Editor
                 var context = GetContext(entry);
                 var template = Template.Parse(entry.template.Text);
                 var result = template.Render(context);
-                file.WriteAllText(entry.FullPath, result);
+                fileSystem.WriteAllText(entry.FullPath, result);
                 assetDatabase.ImportAsset(entry.OutputAssetPath);
                 log.Info($"Template rendered at {entry.FullPath}");
             }

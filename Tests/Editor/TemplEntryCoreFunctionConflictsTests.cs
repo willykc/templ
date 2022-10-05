@@ -32,7 +32,7 @@ namespace Willykc.Templ.Editor.Tests
     {
         private TemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
-        private FileMock fileMock;
+        private FileSystemMock fileSystemMock;
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
@@ -59,7 +59,7 @@ namespace Willykc.Templ.Editor.Tests
 
             subject = new TemplEntryCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
-                fileMock = new FileMock(),
+                fileSystemMock = new FileSystemMock(),
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
@@ -105,7 +105,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAfterAssemblyReload();
 
             // Verify
-            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
         }
     }
 }

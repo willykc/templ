@@ -19,14 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
     using Editor = UnityEditor.Editor;
-    using Logger = Abstraction.Logger;
+    using static TemplScaffoldSelectionMenu;
 
     internal sealed class TemplScaffoldInputForm : EditorWindow
     {
@@ -76,7 +75,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
             {
-                GenerateScaffold(scaffold, selection, input);
+                ScaffoldCore.GenerateScaffold(scaffold, targetPath, input, selection);
                 Close();
             }
         }
@@ -105,11 +104,5 @@ namespace Willykc.Templ.Editor.Scaffold
             rect.y -= LineVerticalOffset;
             EditorGUI.LabelField(rect, string.Empty, GUI.skin.horizontalSlider);
         }
-
-        private static void GenerateScaffold(
-            TemplScaffold scaffold,
-            Object selection,
-            ScriptableObject input) =>
-            Logger.Instance.Info($"{scaffold.name} scaffold generated at {selection.name}");
     }
 }

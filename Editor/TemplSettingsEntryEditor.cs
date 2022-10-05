@@ -108,7 +108,7 @@ namespace Willykc.Templ.Editor
 
             if (GUILayout.Button(ForceRenderButtonText))
             {
-                Core.RenderAllValidEntries();
+                EntryCore.RenderAllValidEntries();
             }
 
             GUI.enabled = true;
@@ -131,7 +131,7 @@ namespace Willykc.Templ.Editor
 
             if (EditorGUI.EndChangeCheck())
             {
-                Core.FlagChangedEntry(entry);
+                EntryCore.FlagChangedEntry(entry);
             }
         }
 

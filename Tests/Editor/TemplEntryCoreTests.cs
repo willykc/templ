@@ -21,12 +21,12 @@
  */
 using NUnit.Framework;
 using System;
+using System.IO;
 using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
-    using System.IO;
 
     internal class TemplEntryCoreTests
     {
@@ -46,7 +46,7 @@ namespace Willykc.Templ.Editor.Tests
 
         private TemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
-        private FileMock fileMock;
+        private FileSystemMock fileMock;
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
@@ -84,7 +84,7 @@ namespace Willykc.Templ.Editor.Tests
 
             subject = new TemplEntryCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
-                fileMock = new FileMock(),
+                fileMock = new FileSystemMock(),
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),

@@ -19,29 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System.Collections.Generic;
+using NUnit.Framework;
 
-namespace Willykc.Templ.Editor.Tests.Mocks
+namespace Willykc.Templ.Editor.Tests
 {
-    using Abstraction;
+    using Mocks;
 
-    internal sealed class FileMock : IFile
+    internal class TemplScaffoldCoreTests
     {
-        internal List<string> Path { get; } = new List<string>();
-        internal List<string> Contents { get; } = new List<string>();
-        internal int WriteAllTextCount { get; private set; }
+        private TemplScaffoldCore subject;
+        private FileSystemMock fileSystemMock;
+        private LoggerMock loggerMock;
 
-        void IFile.WriteAllText(string path, string contents)
+        [OneTimeSetUp]
+        public void BeforeAll()
         {
-            Path.Add(path);
-            Contents.Add(contents);
-            WriteAllTextCount++;
         }
 
-        internal void Clear()
+        [SetUp]
+        public void BeforeEach()
         {
-            Path.Clear();
-            Contents.Clear();
+        }
+
+        [TearDown]
+        public void AfterEach()
+        {
+        }
+
+        [Test]
+        public void Given_When_Then()
+        {
+            // Setup
+
+            // Act
+
+            // Verify
         }
     }
 }

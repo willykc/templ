@@ -21,15 +21,9 @@
  */
 namespace Willykc.Templ.Editor.Abstraction
 {
-    internal sealed class File : IFile
+    internal interface IEditorUtility
     {
-        private static File instance;
-
-        internal static File Instance => instance ??= new File();
-
-        private File() { }
-
-        void IFile.WriteAllText(string path, string contents) =>
-            System.IO.File.WriteAllText(path, contents);
+        void DisplayProgressBar(string title, string info, float progress);
+        void ClearProgressBar();
     }
 }

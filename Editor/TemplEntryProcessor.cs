@@ -28,14 +28,14 @@ namespace Willykc.Templ.Editor
     [InitializeOnLoad]
     internal sealed class TemplEntryProcessor : AssetPostprocessor
     {
-        internal static TemplEntryCore Core { get; }
+        internal static TemplEntryCore EntryCore { get; }
 
         static TemplEntryProcessor()
         {
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-            Core = new TemplEntryCore(
+            EntryCore = new TemplEntryCore(
                 Abstraction.AssetDatabase.Instance,
-                Abstraction.File.Instance,
+                Abstraction.FileSystem.Instance,
                 Abstraction.SessionState.Instance,
                 Abstraction.Logger.Instance,
                 Abstraction.SettingsProvider.Instance,
@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor
             string[] movedAssets,
             string[] movedFromAssetPaths)
         {
-            Core.OnAssetsChanged(new AssetsPaths(
+            EntryCore.OnAssetsChanged(new AssetsPaths(
                 importedAssets,
                 deletedAssets,
                 movedAssets,
@@ -57,7 +57,7 @@ namespace Willykc.Templ.Editor
 
         private static void OnAfterAssemblyReload()
         {
-            Core.OnAfterAssemblyReload();
+            EntryCore.OnAfterAssemblyReload();
         }
 
         private sealed class AssemblyReferenceDeleteHandler :
@@ -67,7 +67,7 @@ namespace Willykc.Templ.Editor
                 string path,
                 RemoveAssetOptions options)
             {
-                Core.OnWillDeleteAsset(path);
+                EntryCore.OnWillDeleteAsset(path);
                 return AssetDeleteResult.DidNotDelete;
             }
         }

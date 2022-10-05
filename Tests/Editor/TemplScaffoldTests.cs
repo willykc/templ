@@ -19,10 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor.Abstraction
+using NUnit.Framework;
+
+namespace Willykc.Templ.Editor.Tests
 {
-    internal interface IFile
+    using Scaffold;
+
+    internal class TemplScaffoldTests
     {
-        void WriteAllText(string path, string contents);
+        private TemplScaffold subject;
+
+        [OneTimeSetUp]
+        public void BeforeAll()
+        {
+        }
+
+        [SetUp]
+        public void BeforeEach()
+        {
+        }
+
+        [Test]
+        public void Given_When_Then()
+        {
+            // Setup
+
+            // Act
+
+            // Verify
+        }
     }
 }

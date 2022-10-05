@@ -25,14 +25,19 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
+    using EditorUtility = Abstraction.EditorUtility;
+    using FileSystem = Abstraction.FileSystem;
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
+
 
     internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Create/Templ/Generate Scaffold";
         private const string AssetsPath = "Assets/";
         private const string AssetExtension = ".asset";
+
+        internal static TemplScaffoldCore ScaffoldCore { get; }
 
         private static readonly Rect EmptyRect = new Rect();
         private static readonly Vector2 Size = new Vector2(1, 1);
@@ -41,14 +46,22 @@ namespace Willykc.Templ.Editor.Scaffold
         private TemplSettings settings;
         private ILogger log;
 
-        [MenuItem(MenuName, priority = 3)]
+        static TemplScaffoldSelectionMenu()
+        {
+            ScaffoldCore = new TemplScaffoldCore(
+                FileSystem.Instance,
+                Logger.Instance,
+                EditorUtility.Instance);
+        }
+
+            [MenuItem(MenuName, priority = 3)]
         private static void ShowScaffoldsMenu()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
             window.ShowAsDropDown(EmptyRect, Size);
         }
 
-        private void OnEnable()
+        private void Awake()
         {
             settings = TemplSettings.Instance;
             log = Logger.Instance;
@@ -100,13 +113,14 @@ namespace Willykc.Templ.Editor.Scaffold
             }
             else
             {
-                GenerateScaffold(scaffold, Selection.activeObject);
+                var selectedAsset = Selection.activeObject;
+                ScaffoldCore.GenerateScaffold(
+                    scaffold,
+                    selectedAsset.GetAssetDirectoryPath(),
+                    selection: selectedAsset);
             }
 
             Close();
         }
-
-        private static void GenerateScaffold(TemplScaffold scaffold, Object selection) =>
-            Logger.Instance.Info($"{scaffold.name} scaffold generated at {selection.name}");
     }
 }
