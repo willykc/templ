@@ -33,6 +33,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private ScribanAsset template;
 
         internal ScribanAsset Template => template;
+        internal string RenderedTemplate { get; set; }
 
         protected override bool IsValidNode => template && !template.HasErrors;
 

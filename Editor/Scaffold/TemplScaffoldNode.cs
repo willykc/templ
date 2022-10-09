@@ -42,6 +42,9 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal IReadOnlyList<TemplScaffoldNode> Children => children;
         internal TemplScaffoldNode Parent { get => parent; set => SetParent(value); }
+        internal string NodePath => parent == null ? name : $"{parent.NodePath}/{name}";
+        internal int NodeCount => children.Sum(c => c.NodeCount) + 1;
+        internal string RenderedName { get; set; }
 
         internal bool IsValid =>
             IsValidNode &&

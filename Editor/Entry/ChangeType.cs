@@ -30,6 +30,6 @@ namespace Willykc.Templ.Editor.Entry
         Import = 1,
         Move = 2,
         Delete = 4,
-        All = 7
+        All = Import | Move | Delete,
     }
 }

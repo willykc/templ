@@ -19,39 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System.Collections.Generic;
-
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
     using Abstraction;
 
-    internal sealed class FileSystemMock : IFileSystem
+    public class EditorUtilityMock : IEditorUtility
     {
-        internal List<string> Path { get; } = new List<string>();
-        internal List<string> Contents { get; } = new List<string>();
-        internal int WriteAllTextCount { get; private set; }
-
-        void IFileSystem.WriteAllText(string path, string contents)
-        {
-            Path.Add(path);
-            Contents.Add(contents);
-            WriteAllTextCount++;
-        }
-
-        void IFileSystem.CreateDirectory(string path)
+        public void ClearProgressBar()
         {
             throw new System.NotImplementedException();
         }
 
-        bool IFileSystem.FileExists(string renderedPath)
+        public void DisplayProgressBar(string title, string info, float progress)
         {
             throw new System.NotImplementedException();
-        }
-
-        internal void Clear()
-        {
-            Path.Clear();
-            Contents.Clear();
         }
     }
 }

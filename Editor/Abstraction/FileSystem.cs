@@ -34,7 +34,8 @@ namespace Willykc.Templ.Editor.Abstraction
         void IFileSystem.WriteAllText(string path, string contents) =>
             File.WriteAllText(path, contents);
 
-        void IFileSystem.CreateDirectory(string path) =>
-            Directory.CreateDirectory(path);
+        void IFileSystem.CreateDirectory(string path) => Directory.CreateDirectory(path);
+
+        public bool FileExists(string renderedPath) => File.Exists(renderedPath);
     }
 }

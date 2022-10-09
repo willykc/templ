@@ -25,19 +25,14 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using EditorUtility = Abstraction.EditorUtility;
-    using FileSystem = Abstraction.FileSystem;
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
 
-
     internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
-        private const string MenuName = "Assets/Create/Templ/Generate Scaffold";
+        private const string MenuName = "Assets/Generate Templ Scaffold";
         private const string AssetsPath = "Assets/";
         private const string AssetExtension = ".asset";
-
-        internal static TemplScaffoldCore ScaffoldCore { get; }
 
         private static readonly Rect EmptyRect = new Rect();
         private static readonly Vector2 Size = new Vector2(1, 1);
@@ -46,15 +41,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private TemplSettings settings;
         private ILogger log;
 
-        static TemplScaffoldSelectionMenu()
-        {
-            ScaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Logger.Instance,
-                EditorUtility.Instance);
-        }
-
-            [MenuItem(MenuName, priority = 3)]
+        [MenuItem(MenuName, priority = 1)]
         private static void ShowScaffoldsMenu()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
@@ -106,20 +93,12 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnScaffoldSelected(object selection)
         {
             var scaffold = selection as TemplScaffold;
-
-            if (scaffold.DefaultInput)
-            {
-                TemplScaffoldInputForm.ShowScaffoldInputForm(scaffold);
-            }
-            else
-            {
-                var selectedAsset = Selection.activeObject;
-                ScaffoldCore.GenerateScaffold(
-                    scaffold,
-                    selectedAsset.GetAssetDirectoryPath(),
-                    selection: selectedAsset);
-            }
-
+            var selectedAsset = Selection.activeObject;
+            var targetPath = selectedAsset.GetAssetDirectoryPath();
+            TemplScaffoldGenerator.GenerateScaffold(
+                scaffold,
+                targetPath,
+                selection: selectedAsset);
             Close();
         }
     }

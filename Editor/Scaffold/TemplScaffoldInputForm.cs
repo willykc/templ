@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
     using Editor = UnityEditor.Editor;
-    using static TemplScaffoldSelectionMenu;
 
     internal sealed class TemplScaffoldInputForm : EditorWindow
     {
@@ -45,23 +46,31 @@ namespace Willykc.Templ.Editor.Scaffold
         private Vector2 scrollPos;
         private string targetPath;
 
-        internal static void ShowScaffoldInputForm(TemplScaffold scaffold)
+        internal event Action<ScriptableObject> GenerateClicked;
+        internal event Action Closed;
+
+        internal static TemplScaffoldInputForm ShowScaffoldInputForm(
+            TemplScaffold scaffold,
+            string targetPath,
+            Object selection)
         {
             if (!scaffold.DefaultInput)
             {
-                return;
+                throw new InvalidOperationException($"{nameof(scaffold)} must have a " +
+                    $"{nameof(scaffold.DefaultInput)} instance to be able to show the input form");
             }
 
             var window = CreateInstance<TemplScaffoldInputForm>();
             window.Center(Width, Height);
             window.scaffold = scaffold;
-            window.selection = Selection.activeObject;
-            window.targetPath = window.selection.GetAssetDirectoryPath();
+            window.selection = selection;
+            window.targetPath = targetPath;
             window.titleContent = new GUIContent($"{scaffold.name} {InputFormTitleSuffix}");
             window.input = Instantiate(scaffold.DefaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
             window.inputEditor = Editor.CreateEditor(window.input);
             window.ShowUtility();
+            return window;
         }
 
         private void OnGUI()
@@ -75,8 +84,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
             {
-                ScaffoldCore.GenerateScaffold(scaffold, targetPath, input, selection);
-                Close();
+                GenerateClicked?.Invoke(input);
             }
         }
 
@@ -95,6 +103,8 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnDestroy()
         {
+            Closed?.Invoke();
+            DestroyImmediate(input);
             DestroyImmediate(inputEditor);
         }
 
