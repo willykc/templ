@@ -22,7 +22,7 @@
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
     [TemplFunctions]
-    public static class TemplFunctionsConflictMock
+    internal static class TemplFunctionsConflictMock
     {
         public static void GetType(string name) { }
     }

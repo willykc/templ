@@ -23,14 +23,14 @@ namespace Willykc.Templ.Editor.Tests.Mocks
 {
     using Abstraction;
 
-    public class EditorUtilityMock : IEditorUtility
+    internal sealed class EditorUtilityMock : IEditorUtility
     {
-        public void ClearProgressBar()
+        void IEditorUtility.ClearProgressBar()
         {
             throw new System.NotImplementedException();
         }
 
-        public void DisplayProgressBar(string title, string info, float progress)
+        void IEditorUtility.DisplayProgressBar(string title, string info, float progress)
         {
             throw new System.NotImplementedException();
         }

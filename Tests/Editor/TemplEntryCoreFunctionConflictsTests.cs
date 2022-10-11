@@ -21,7 +21,6 @@
  */
 using NUnit.Framework;
 using System;
-using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -48,7 +47,7 @@ namespace Willykc.Templ.Editor.Tests
             {
                 typeof(TemplFunctionsConflictMock)
             };
-            settings = AssetDatabase.LoadAssetAtPath<TemplSettings>(TestSettingsPath);
+            settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
             firstEntryMock = settings.Entries[0] as EntryMock;
         }
 
@@ -73,6 +72,12 @@ namespace Willykc.Templ.Editor.Tests
         public void AfterEach()
         {
             firstEntryMock.Clear();
+        }
+
+        [OneTimeTearDown]
+        public void AfterAll()
+        {
+            TemplTestUtility.DeleteTestAsset(settings);
         }
 
         [Test]

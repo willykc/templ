@@ -22,26 +22,26 @@
 using NUnit.Framework;
 using System;
 using System.IO;
-using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
+    using UnityEngine;
 
     internal class TemplEntryCoreTests
     {
         internal const string TestSettingsPath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestTemplSettings.asset";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTemplSettings.asset";
         internal const string TestTextPath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestText.txt";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestText.txt";
         internal const string TestTemplatePath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestTemplate.sbn";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTemplate.sbn";
         internal const string TestErrorTemplatePath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestErrorTemplate.sbn";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestErrorTemplate.sbn";
         internal const string TestOutputPathTemplatePath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestOutputPathTemplate.sbn";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestOutputPathTemplate.sbn";
         internal const string TestPathFunctionTemplatePath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets/TestPathFunctionTemplate.sbn";
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestPathFunctionTemplate.sbn";
         private const string ExpectedOutput = "Hello world!";
 
         private TemplEntryCore subject;
@@ -58,17 +58,27 @@ namespace Willykc.Templ.Editor.Tests
         private ScribanAsset testErrorTemplate;
         private ScribanAsset testOutputPathTemplate;
         private ScribanAsset testPathFunctionTemplate;
+        private ScribanAsset testTemplate;
+        private TextAsset testText;
+        private string testTemplatePath;
+        private string testTextPath;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             typeCache = new Type[0];
-            settings = AssetDatabase.LoadAssetAtPath<TemplSettings>(TestSettingsPath);
-            testErrorTemplate = AssetDatabase.LoadAssetAtPath<ScribanAsset>(TestErrorTemplatePath);
+            settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
+            testErrorTemplate =
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestErrorTemplatePath, out _);
             testOutputPathTemplate =
-                AssetDatabase.LoadAssetAtPath<ScribanAsset>(TestOutputPathTemplatePath);
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestOutputPathTemplatePath, out _);
             testPathFunctionTemplate =
-                AssetDatabase.LoadAssetAtPath<ScribanAsset>(TestPathFunctionTemplatePath);
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestPathFunctionTemplatePath, out _);
+            testTemplate =
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTemplatePath,
+                out testTemplatePath);
+            testText =
+                TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out testTextPath);
             firstEntryMock = settings.Entries[0] as EntryMock;
             secondEntryMock = settings.Entries[1] as EntryMock;
         }
@@ -99,6 +109,17 @@ namespace Willykc.Templ.Editor.Tests
         {
             firstEntryMock.Clear();
             secondEntryMock.Clear();
+        }
+
+        [OneTimeTearDown]
+        public void AfterAll()
+        {
+            TemplTestUtility.DeleteTestAsset(settings);
+            TemplTestUtility.DeleteTestAsset(testErrorTemplate);
+            TemplTestUtility.DeleteTestAsset(testOutputPathTemplate);
+            TemplTestUtility.DeleteTestAsset(testPathFunctionTemplate);
+            TemplTestUtility.DeleteTestAsset(testTemplate);
+            TemplTestUtility.DeleteTestAsset(testText);
         }
 
         [Test]
@@ -413,8 +434,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenOverwritingInput_WhenRenderAllValidEntries_ThenShouldNotRenderEntry()
         {
             // Setup
-            firstEntryMock.outputAssetPath = TestTextPath;
-            assetDatabaseMock.mockInputPath = TestTextPath;
+            firstEntryMock.outputAssetPath = testTextPath;
+            assetDatabaseMock.mockInputPath = testTextPath;
 
             // Act
             subject.RenderAllValidEntries();
@@ -427,8 +448,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenOverwritingInput_WhenRenderAllValidEntries_ThenShouldLogError()
         {
             // Setup
-            firstEntryMock.outputAssetPath = TestTextPath;
-            assetDatabaseMock.mockInputPath = TestTextPath;
+            firstEntryMock.outputAssetPath = testTextPath;
+            assetDatabaseMock.mockInputPath = testTextPath;
 
             // Act
             subject.RenderAllValidEntries();
@@ -441,8 +462,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenOverwritingTemplate_WhenRenderAllValidEntries_ThenShouldNotRenderEntry()
         {
             // Setup
-            firstEntryMock.outputAssetPath = TestTemplatePath;
-            assetDatabaseMock.mockTemplatePath = TestTemplatePath;
+            firstEntryMock.outputAssetPath = testTemplatePath;
+            assetDatabaseMock.mockTemplatePath = testTemplatePath;
 
             // Act
             subject.RenderAllValidEntries();
@@ -455,8 +476,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenOverwritingTemplate_WhenRenderAllValidEntries_ThenShouldLogError()
         {
             // Setup
-            firstEntryMock.outputAssetPath = TestTemplatePath;
-            assetDatabaseMock.mockTemplatePath = TestTemplatePath;
+            firstEntryMock.outputAssetPath = testTemplatePath;
+            assetDatabaseMock.mockTemplatePath = testTemplatePath;
 
             // Act
             subject.RenderAllValidEntries();
