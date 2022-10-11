@@ -142,7 +142,7 @@ namespace Willykc.Templ.Editor.Scaffold
             rect.x += rect.width + Space;
             var width = (rowRect.width - rect.x) * widthFactor;
             rect.y++;
-            rect.width = Mathf.Max(width, EditPropertyMinWidth);
+            rect.width = Mathf.Max(width, EditPropertyMinWidth) - Space;
             rect.height = EditPropertyHeight;
             GUI.SetNextControlName(TemplScaffoldNode.NameOfName);
             EditorGUI.PropertyField(rect, nameProperty, GUIContent.none);
