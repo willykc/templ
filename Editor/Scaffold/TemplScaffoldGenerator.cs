@@ -19,25 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    using Scaffold;
     using static TemplEditorInitialization;
-    using static TemplScaffoldCore;
     using FileSystem = Abstraction.FileSystem;
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
 
     internal static class TemplScaffoldGenerator
     {
-        private const string DialogOkText = "Generate anyway";
-        private const string DialogCancelText = "Abort";
-        private const string NewLine = "\n";
+        private static readonly string[] EmptyStringArray = new string[0];
 
         private static readonly ILogger Log;
         private static readonly TemplScaffoldCore ScaffoldCore;
@@ -61,6 +58,13 @@ namespace Willykc.Templ.Editor
             ScriptableObject input = null,
             Object selection = null)
         {
+            scaffold = scaffold
+                ? scaffold
+                : throw new ArgumentException($"{nameof(scaffold)} must not be null");
+            targetPath = !string.IsNullOrWhiteSpace(targetPath)
+                ? targetPath
+                : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
+
             if (IsGenerating)
             {
                 Log.Error("Only one scaffold can be generated at a time");
@@ -85,7 +89,7 @@ namespace Willykc.Templ.Editor
             Object selection)
         {
             var form = TemplScaffoldInputForm
-                .ShowScaffoldInputForm(scaffold, targetPath, selection);
+                .Show(scaffold, targetPath, selection);
             form.GenerateClicked += OnGenerateClicked;
             form.Closed += OnInputFormClosed;
 
@@ -116,13 +120,13 @@ namespace Willykc.Templ.Editor
             var errors =
                 ScaffoldCore.ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
 
-            if (Aborting(scaffold, targetPath, errors))
+            if (Aborting(scaffold, targetPath, errors, out var skipPaths))
             {
                 return false;
             }
 
             var generatedPaths =
-                ScaffoldCore.GenerateScaffold(scaffold, targetPath, input, selection);
+                ScaffoldCore.GenerateScaffold(scaffold, targetPath, input, selection, skipPaths);
 
             AssetDatabase.Refresh();
             SelectFirstReneratedAsset(generatedPaths);
@@ -132,7 +136,8 @@ namespace Willykc.Templ.Editor
         private static bool Aborting(
             TemplScaffold scaffold,
             string targetPath,
-            TemplScaffoldError[] errors)
+            TemplScaffoldError[] errors,
+            out string[] skipPaths)
         {
             var overwritePaths = errors
                 .Where(e => e.Type == TemplScaffoldErrorType.Overwrite)
@@ -142,10 +147,11 @@ namespace Willykc.Templ.Editor
             if (errors.Any(e => e.Type != TemplScaffoldErrorType.Overwrite))
             {
                 Log.Error($"Aborted generation of {scaffold.name} scaffold due to errors");
+                skipPaths = EmptyStringArray;
                 return true;
             }
 
-            return OverwriteDialogAborted(scaffold, targetPath, overwritePaths);
+            return OverwriteDialogAborted(scaffold, targetPath, overwritePaths, out skipPaths);
         }
 
         private static void SelectFirstReneratedAsset(string[] generatedPaths)
@@ -162,14 +168,12 @@ namespace Willykc.Templ.Editor
         private static bool OverwriteDialogAborted(
             TemplScaffold scaffold,
             string targetPath,
-            string[] paths)
+            string[] paths,
+            out string[] skipPaths)
         {
-            var joinedPaths = string.Join(NewLine, paths);
-            return paths.Length > 0 && !EditorUtility.DisplayDialog(
-                ScaffoldGenerationTitle,
-                $"Generating {scaffold.name} scaffold at {targetPath} will " +
-                $"overwrite the following files:{NewLine}{joinedPaths}",
-                DialogOkText, DialogCancelText);
+            skipPaths = EmptyStringArray;
+            return paths.Length > 0 && !TemplScaffoldOverwriteDialog.Show(
+                scaffold, targetPath, paths, out skipPaths);
         }
     }
 }

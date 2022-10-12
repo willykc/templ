@@ -35,7 +35,6 @@ namespace Willykc.Templ.Editor
 
     internal sealed class TemplScaffoldCore
     {
-
         internal const string ScaffoldGenerationTitle = "Templ Scaffold Generation";
 
         private const string InputName = "Input";
@@ -43,6 +42,8 @@ namespace Willykc.Templ.Editor
         private const string OutputAssetPathName = "OutputAssetPath";
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
+
+        private static readonly string[] EmptyStringArray = new string[0];
 
         private readonly IFileSystem fileSystem;
         private readonly ILogger log;
@@ -78,8 +79,10 @@ namespace Willykc.Templ.Editor
             TemplScaffold scaffold,
             string targetPath,
             ScriptableObject input = null,
-            Object selection = null)
+            Object selection = null,
+            string[] skipPaths = null)
         {
+            skipPaths ??= EmptyStringArray;
             var errors = ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
 
             if (errors.Count(e => e.Type != TemplScaffoldErrorType.Overwrite) > 0)
@@ -93,7 +96,7 @@ namespace Willykc.Templ.Editor
             var showIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarGeneratingInfo);
 
-            GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths);
+            GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths, skipPaths);
 
             editorUtility.ClearProgressBar();
 
@@ -107,15 +110,12 @@ namespace Willykc.Templ.Editor
             ScriptableObject input = null,
             Object selection = null)
         {
-            if (!scaffold || !scaffold.IsValid)
-            {
-                throw new ArgumentException($"{nameof(scaffold)} must be not null and valid");
-            }
-
-            if (string.IsNullOrWhiteSpace(targetPath))
-            {
-                throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
-            }
+            scaffold = scaffold && scaffold.IsValid
+                ? scaffold
+                : throw new ArgumentException($"{nameof(scaffold)} must be not null and valid");
+            targetPath = !string.IsNullOrWhiteSpace(targetPath)
+                ? targetPath
+                : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
 
             var errors = new List<TemplScaffoldError>();
             var functionConflictErrors = functionConflicts
@@ -148,7 +148,8 @@ namespace Willykc.Templ.Editor
             TemplScaffoldNode node,
             string targetNodePath,
             Action showProgressIncrement,
-            List<string> paths)
+            List<string> paths,
+            string[] skipPaths)
         {
             var renderedPath = node is TemplScaffoldRoot
                 ? targetNodePath
@@ -159,7 +160,7 @@ namespace Willykc.Templ.Editor
                 fileSystem.CreateDirectory(renderedPath);
                 paths.Add(renderedPath);
             }
-            else if (node is TemplScaffoldFile fileNode)
+            else if (node is TemplScaffoldFile fileNode && !skipPaths.Contains(renderedPath))
             {
                 fileSystem.WriteAllText(renderedPath, fileNode.RenderedTemplate);
                 paths.Add(renderedPath);
@@ -169,7 +170,7 @@ namespace Willykc.Templ.Editor
 
             foreach (var child in node.Children)
             {
-                GenerateScaffoldTree(child, renderedPath, showProgressIncrement, paths);
+                GenerateScaffoldTree(child, renderedPath, showProgressIncrement, paths, skipPaths);
             }
         }
 

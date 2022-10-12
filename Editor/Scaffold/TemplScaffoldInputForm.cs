@@ -49,11 +49,18 @@ namespace Willykc.Templ.Editor.Scaffold
         internal event Action<ScriptableObject> GenerateClicked;
         internal event Action Closed;
 
-        internal static TemplScaffoldInputForm ShowScaffoldInputForm(
+        internal static TemplScaffoldInputForm Show(
             TemplScaffold scaffold,
             string targetPath,
             Object selection)
         {
+            scaffold = scaffold
+                ? scaffold
+                : throw new ArgumentException($"{nameof(scaffold)} must not be null");
+            targetPath = !string.IsNullOrWhiteSpace(targetPath)
+                ? targetPath
+                : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
+
             if (!scaffold.DefaultInput)
             {
                 throw new InvalidOperationException($"{nameof(scaffold)} must have a " +
