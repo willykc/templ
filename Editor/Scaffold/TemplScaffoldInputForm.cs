@@ -95,6 +95,13 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
+        private void OnDestroy()
+        {
+            Closed?.Invoke();
+            DestroyImmediate(input);
+            DestroyImmediate(inputEditor);
+        }
+
         private void DrawSelectionAndPath()
         {
             if (!selection)
@@ -106,13 +113,6 @@ namespace Willykc.Templ.Editor.Scaffold
             EditorGUILayout.ObjectField(SelectionLabel, selection, selection.GetType(), false);
             EditorGUILayout.TextField(TargetPathLabel, targetPath);
             GUI.enabled = true;
-        }
-
-        private void OnDestroy()
-        {
-            Closed?.Invoke();
-            DestroyImmediate(input);
-            DestroyImmediate(inputEditor);
         }
 
         private static void DrawLine()

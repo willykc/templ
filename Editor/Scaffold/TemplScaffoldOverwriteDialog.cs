@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,29 +42,44 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string LabelStyleName = "label";
         private const string ButtonStyleName = "button";
 
+        private static readonly Task<string[]> NullArrayTask = Task.FromResult<string[]>(null);
+
+        private static TemplScaffoldOverwriteDialog current;
+
         private string targetPath;
         private TemplScaffold scaffold;
         private Dictionary<string, bool> pathsSelection;
+        private TaskCompletionSource<string[]> completionSource;
+        private CancellationToken cancellationToken;
         private string[] paths;
-        private string[] skipPaths = new string[0];
-        private bool abort = true;
+        private string[] skipPaths;
         private Vector2 scrollPos;
         private GUIStyle labelStyle;
         private GUIStyle buttonPanelStyle;
 
-        internal static bool Show(
+        internal static Task<string[]> Show(
             TemplScaffold scaffold,
             string targetPath,
             string[] paths,
-            out string[] skipPaths)
+            CancellationToken token)
         {
+            if (current)
+            {
+                current.Focus();
+                return NullArrayTask;
+            }
+
+            if (paths?.Length == 0)
+            {
+                return NullArrayTask;
+            }
+
             scaffold = scaffold
                 ? scaffold
                 : throw new ArgumentException($"{nameof(scaffold)} must not be null");
             targetPath = !string.IsNullOrWhiteSpace(targetPath)
                 ? targetPath
                 : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
-            paths = paths ?? throw new ArgumentNullException(nameof(paths));
 
             var window = CreateInstance<TemplScaffoldOverwriteDialog>();
             window.Center(Width, Height);
@@ -72,11 +89,13 @@ namespace Willykc.Templ.Editor.Scaffold
             window.titleContent = new GUIContent(ScaffoldGenerationTitle);
             window.scaffold = scaffold;
             window.targetPath = targetPath;
-            window.paths = paths;
+            window.paths = paths.OrderBy(p => p).ToArray();
             window.pathsSelection = paths.ToDictionary(p => p, _ => true);
-            window.ShowModalUtility();
-            skipPaths = window.skipPaths;
-            return !window.abort;
+            window.completionSource = new TaskCompletionSource<string[]>();
+            window.cancellationToken = token;
+            window.ShowUtility();
+            current = window;
+            return window.completionSource.Task;
         }
 
         private void OnGUI()
@@ -85,6 +104,17 @@ namespace Willykc.Templ.Editor.Scaffold
                 "the files selected below. Deselect those that should be skipped.", labelStyle);
             DrawPathToggles();
             DrawButtonPanel();
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Close();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            completionSource.SetResult(skipPaths);
+            current = null;
         }
 
         private void DrawPathToggles()
@@ -123,7 +153,6 @@ namespace Willykc.Templ.Editor.Scaffold
                     .Where(kvp => !kvp.Value)
                     .Select(kvp => kvp.Key)
                     .ToArray();
-                abort = false;
                 Close();
             }
 
