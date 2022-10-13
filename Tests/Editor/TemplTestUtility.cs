@@ -44,8 +44,10 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             Guid guid = Guid.NewGuid();
-            var extension = Path.GetExtension(path);
-            testAssetPath = $"{AssetsPath}{guid}{extension}";
+            var filename = Path.GetFileName(path);
+            var directory = $"{AssetsPath}{guid}";
+            Directory.CreateDirectory(directory);
+            testAssetPath = $"{directory}/{filename}";
             File.Copy(path, testAssetPath);
 
             if (File.Exists(path + MetaExtension))
@@ -65,8 +67,9 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             var path = AssetDatabase.GetAssetPath(asset);
+            var dirPath = Path.GetDirectoryName(path);
 
-            return AssetDatabase.DeleteAsset(path);
+            return AssetDatabase.DeleteAsset(path) && AssetDatabase.DeleteAsset(dirPath);
         }
     }
 }
