@@ -34,7 +34,7 @@ namespace Willykc.Templ.Editor
         private const int IconSize = 15;
         private const int ScaffoldHorizontalPadding = 20;
         private const int ScaffoldVerticalPadding = 1;
-        private const string ScaffoldsName = nameof(TemplSettings.Scaffolds);
+        private const string ScaffoldsTitle = "Selectable " + nameof(TemplSettings.Scaffolds);
         private const string ValidScaffoldIconName = "TestPassed";
         private const string InvalidScaffoldIconName = "TestFailed";
         private const string ValidScaffoldTooltip = "Valid Scaffold";
@@ -69,7 +69,7 @@ namespace Willykc.Templ.Editor
 
         private void DrawTemplScaffolds()
         {
-            if (!Foldout(scaffoldsProperty, ScaffoldsName))
+            if (!Foldout(scaffoldsProperty, ScaffoldsTitle))
             {
                 return;
             }

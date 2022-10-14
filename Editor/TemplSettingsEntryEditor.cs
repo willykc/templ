@@ -39,7 +39,7 @@ namespace Willykc.Templ.Editor
         private const int ValidInputFieldCount = 1;
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
-        private const string LiveTitle = "Live Entries";
+        private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {nameof(TemplEntry.template).Capitalize()} must be valid. " +
@@ -89,7 +89,7 @@ namespace Willykc.Templ.Editor
 
         private void DrawLiveTemplEntries()
         {
-            if (!Foldout(entriesProperty, LiveTitle))
+            if (!Foldout(entriesProperty, LiveEntriesTitle))
             {
                 return;
             }
