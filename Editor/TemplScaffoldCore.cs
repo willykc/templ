@@ -123,6 +123,13 @@ namespace Willykc.Templ.Editor
                 $"Found duplicate template function name: {c}"));
             errors.AddRange(functionConflictErrors);
 
+            ProcessDynamicScaffold(scaffold, input, selection, errors);
+
+            if (errors.Count > 0)
+            {
+                return errors.ToArray();
+            }
+
             var showProgressIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarValidatingInfo);
 
@@ -132,15 +139,64 @@ namespace Willykc.Templ.Editor
             return errors.ToArray();
         }
 
+        private void ProcessDynamicScaffold(
+            TemplScaffold scaffold,
+            ScriptableObject input,
+            Object selection,
+            List<TemplScaffoldError> errors)
+        {
+            if (!(scaffold is TemplDynamicScaffold dynamicScaffold))
+            {
+                return;
+            }
+
+            var context = GetContext(input, selection);
+            var text = dynamicScaffold.StructureTemplate.Text;
+            var json = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                AddError(errors,
+                    $"Empty structure template for scaffold {scaffold.name}",
+                    TemplScaffoldErrorType.Template);
+                return;
+            }
+
+            try
+            {
+                var template = Template.Parse(text);
+                json = template.Render(context);
+                dynamicScaffold.Overwrite(json);
+
+                if (!scaffold.IsValid)
+                {
+                    AddError(errors,
+                        $"Dynamic scaffold {scaffold.name} is invalid " +
+                        $"after deserializing rendered JSON:\n{json}",
+                        TemplScaffoldErrorType.Undefined);
+                    dynamicScaffold.ResetTree();
+                }
+            }
+            catch (Exception e)
+            {
+                AddError(errors,
+                    $"Error processing structure for scaffold {scaffold.name}: {json}",
+                    TemplScaffoldErrorType.Template, e);
+                dynamicScaffold.ResetTree();
+            }
+        }
+
         private Action GetShowProgressIncrementAction(float total, string info)
         {
             float progress = 0;
+
             void ShowProgressIncrement()
             {
                 progress++;
                 editorUtility.DisplayProgressBar(ScaffoldGenerationTitle,
                     info, progress / total);
             }
+
             return ShowProgressIncrement;
         }
 
@@ -225,22 +281,15 @@ namespace Willykc.Templ.Editor
 
             if (string.IsNullOrWhiteSpace(node.RenderedName))
             {
-                message = $"Empty {nameof(TemplScaffoldErrorType.Filename)} found for " +
-                    $"node {node.NodePath}";
+                AddError(errors, $"Empty {nameof(TemplScaffoldErrorType.Filename)} found for " +
+                    $"node {node.NodePath}", TemplScaffoldErrorType.Filename);
             }
 
             if (node.RenderedName.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
             {
-                message = "Invalid characters found in " +
+                AddError(errors, "Invalid characters found in " +
                     $"{nameof(TemplScaffoldErrorType.Filename)}: {node.RenderedName} for " +
-                    $"node {node.NodePath}";
-            }
-
-            if (!string.IsNullOrEmpty(message))
-            {
-                var error = new TemplScaffoldError(TemplScaffoldErrorType.Filename, message);
-                errors.Add(error);
-                log.Error(message);
+                    $"node {node.NodePath}", TemplScaffoldErrorType.Filename);
             }
         }
 
@@ -276,25 +325,36 @@ namespace Willykc.Templ.Editor
                 }
                 else
                 {
-                    var message = $"Empty {errorType} found in node {node.NodePath}";
-                    log.Error(message);
-                    var error = new TemplScaffoldError(
-                        errorType,
-                        $"{message}");
-                    errors.Add(error);
+                    AddError(errors, $"Empty {errorType} found in node {node.NodePath}", errorType);
                 }
             }
             catch (Exception e)
             {
-                var message = $"Error parsing {errorType} of node {node.NodePath}";
-                log.Error(message, e);
-                var error = new TemplScaffoldError(
-                    errorType,
-                    $"{message}: {e.Message}");
-                errors.Add(error);
+                AddError(errors, $"Error rendering {errorType} of node {node.NodePath}",
+                    errorType, e);
             }
 
             return string.Empty;
+        }
+
+        private void AddError(
+            List<TemplScaffoldError> errors,
+            string message,
+            TemplScaffoldErrorType type,
+            Exception exception = null)
+        {
+            if (exception != null)
+            {
+                log.Error(message, exception);
+                message = $"{message}: {exception.Message}";
+            }
+            else
+            {
+                log.Error(message);
+            }
+
+            var error = new TemplScaffoldError(type, message);
+            errors.Add(error);
         }
 
         private List<Type> GetTemplateFunctions() =>

@@ -31,6 +31,9 @@ namespace Willykc.Templ.Editor.Scaffold
     [CustomEditor(typeof(TemplScaffold))]
     internal sealed class TemplScaffoldEditor : UnityEditor.Editor
     {
+        internal const string WarningMessage = "This scaffold is not currently referenced in " +
+            "Templ settings.";
+
         private const int MaxScaffoldsWidth = 1000;
         private const int ToolbarButtonWidth = 30;
         private const int ToolbarButtonVerticalPadding = 1;
@@ -53,8 +56,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
-        private const string WarningMessage = "This scaffold is not currently referenced in " +
-            "Templ settings.";
+        private const string CopyJsonMenuName = "CONTEXT/" + nameof(TemplScaffold) + "/Copy JSON";
+
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
             $"must have values. {nameof(TemplScaffoldFile.Template)}s must be " +
@@ -168,7 +171,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnChangeNodeFields() => CheckValidity();
 
-        private void CheckValidity() => isScaffoldValid = scaffold.Root.IsValid;
+        private void CheckValidity() => isScaffoldValid = scaffold.IsValid;
 
         private void DrawInputProperty()
         {
@@ -332,5 +335,13 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnBeforeScaffoldDrop() =>
             Undo.RecordObject(scaffold, nameof(scaffold.MoveScaffoldNodes));
+
+        [MenuItem(CopyJsonMenuName)]
+        private static void JsonToClipboard(MenuCommand menuCommand) =>
+            EditorGUIUtility.systemCopyBuffer = JsonUtility.ToJson(menuCommand.context, true);
+
+        [MenuItem(CopyJsonMenuName, isValidateFunction: true)]
+        private static bool ValidateJsonToClipboardMenu(MenuCommand menuCommand) =>
+            menuCommand.context.GetType() == typeof(TemplScaffold);
     }
 }

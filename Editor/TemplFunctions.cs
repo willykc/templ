@@ -107,5 +107,11 @@ namespace Willykc.Templ.Editor
 
         public static string GetDirectoryName(string path) => Path.GetDirectoryName(path);
         #endregion
+
+        #region Assets
+        public static int GetAssetInstanceID(string path) =>
+            AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object)).GetInstanceID();
+        #endregion
+
     }
 }

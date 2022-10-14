@@ -30,12 +30,14 @@ namespace Willykc.Templ.Editor.Scaffold
     using Logger = Abstraction.Logger;
 
     [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
-    internal sealed class TemplScaffold : ScriptableObject
+    internal class TemplScaffold : ScriptableObject
     {
         internal const string NameOfDefaultInput = nameof(defaultInput);
         internal const string NameOfRoot = nameof(root);
+
+        protected const string NewPrefix = "New";
+
         private const string MenuName = "Templ/Scaffold Definition";
-        private const string NewPrefix = "New";
         private const string DefaultFileName = NewPrefix + "File";
         private const string DefaultDirectoryName = NewPrefix + "Directory";
 
@@ -45,7 +47,7 @@ namespace Willykc.Templ.Editor.Scaffold
         internal event Action<IReadOnlyList<TemplScaffoldNode>> Change;
 
         [SerializeField]
-        private ScriptableObject defaultInput;
+        protected ScriptableObject defaultInput;
         [SerializeReference]
         private TemplScaffoldRoot root = GetNewRoot();
 
@@ -53,17 +55,23 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal ScriptableObject DefaultInput => defaultInput;
         internal TemplScaffoldRoot Root => root;
-        internal bool IsValid => root.IsValid;
+        internal virtual bool IsValid => root.IsValid;
 
         internal TemplScaffold()
         {
             log = Logger.Instance;
         }
 
-        private void Reset()
+        protected void Reset()
+        {
+            ResetTree();
+            defaultInput = null;
+            FullReset?.Invoke();
+        }
+
+        internal void ResetTree()
         {
             root = GetNewRoot();
-            FullReset?.Invoke();
         }
 
         internal void AddScaffoldFileNode(TemplScaffoldNode[] nodes)
@@ -161,7 +169,7 @@ namespace Willykc.Templ.Editor.Scaffold
             Change?.Invoke(clones);
         }
 
-        internal bool ContainsTemplate(ScribanAsset template) =>
+        internal virtual bool ContainsTemplate(ScribanAsset template) =>
             root.Children.Any(c => c.ContainsTemplate(template));
 
         private static TemplScaffoldRoot GetNewRoot() =>
