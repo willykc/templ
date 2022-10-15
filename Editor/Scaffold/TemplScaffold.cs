@@ -54,7 +54,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly ILogger log;
 
         internal ScriptableObject DefaultInput => defaultInput;
-        internal TemplScaffoldRoot Root => root;
+        internal virtual TemplScaffoldRoot Root => root;
         internal virtual bool IsValid => root.IsValid;
 
         internal TemplScaffold()
@@ -64,14 +64,9 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected void Reset()
         {
-            ResetTree();
+            root = GetNewRoot();
             defaultInput = null;
             FullReset?.Invoke();
-        }
-
-        internal void ResetTree()
-        {
-            root = GetNewRoot();
         }
 
         internal void AddScaffoldFileNode(TemplScaffoldNode[] nodes)

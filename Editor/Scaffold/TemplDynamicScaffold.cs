@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
@@ -36,26 +37,36 @@ namespace Willykc.Templ.Editor.Scaffold
         [SerializeField]
         private ScribanAsset structureTemplate;
 
+        [NonSerialized]
+        private TemplScaffold innerScaffold;
+
+        internal override TemplScaffoldRoot Root => innerScaffold.Root;
+
         internal ScribanAsset StructureTemplate => structureTemplate;
 
-        internal override bool IsValid => base.IsValid &&
-            structureTemplate &&
-            !structureTemplate.HasErrors;
+        internal override bool IsValid => structureTemplate && !structureTemplate.HasErrors;
 
         internal override bool ContainsTemplate(ScribanAsset template) =>
             structureTemplate == template;
 
-        internal void Overwrite(string json)
+        internal bool IsInnerValid => innerScaffold.IsValid;
+
+        internal void Deserialize(string serialized)
         {
-            var originalDefaultInput = defaultInput;
-            JsonUtility.FromJsonOverwrite(json, this);
-            defaultInput = originalDefaultInput;
+            if (!innerScaffold)
+            {
+                innerScaffold = CreateInstance<TemplScaffold>();
+                innerScaffold.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            JsonUtility.FromJsonOverwrite(serialized, innerScaffold);
         }
 
         private new void Reset()
         {
             base.Reset();
             structureTemplate = null;
+            DestroyImmediate(innerScaffold);
         }
     }
 }

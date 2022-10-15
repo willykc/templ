@@ -63,7 +63,6 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnEnable()
         {
             scaffold = target as TemplDynamicScaffold;
-            scaffold.ResetTree();
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
             inputProperty = serializedObject

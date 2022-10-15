@@ -166,15 +166,14 @@ namespace Willykc.Templ.Editor
             {
                 var template = Template.Parse(text);
                 json = template.Render(context);
-                dynamicScaffold.Overwrite(json);
+                dynamicScaffold.Deserialize(json);
 
-                if (!scaffold.IsValid)
+                if (!dynamicScaffold.IsInnerValid)
                 {
                     AddError(errors,
                         $"Dynamic scaffold {scaffold.name} is invalid " +
                         $"after deserializing rendered JSON:\n{json}",
                         TemplScaffoldErrorType.Undefined);
-                    dynamicScaffold.ResetTree();
                 }
             }
             catch (Exception e)
@@ -182,7 +181,6 @@ namespace Willykc.Templ.Editor
                 AddError(errors,
                     $"Error processing structure for scaffold {scaffold.name}: {json}",
                     TemplScaffoldErrorType.Template, e);
-                dynamicScaffold.ResetTree();
             }
         }
 
