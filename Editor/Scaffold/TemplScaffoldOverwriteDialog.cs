@@ -35,6 +35,7 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const int Width = 600;
         private const int Height = 200;
+        private const int ScrollViewLeftPadding = 20;
         private const string DialogOkText = "Continue";
         private const string DialogCancelText = "Abort";
         private const string SelectAllText = "Select all";
@@ -56,6 +57,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private Vector2 scrollPos;
         private GUIStyle labelStyle;
         private GUIStyle buttonPanelStyle;
+        private GUIStyle scrollViewStyle;
 
         internal static Task<string[]> Show(
             TemplScaffold scaffold,
@@ -86,6 +88,8 @@ namespace Willykc.Templ.Editor.Scaffold
             window.labelStyle = new GUIStyle(LabelStyleName) { wordWrap = true };
             var buttonStyle = new GUIStyle(ButtonStyleName);
             window.buttonPanelStyle = new GUIStyle() { fixedHeight = buttonStyle.fixedHeight };
+            window.scrollViewStyle =
+                new GUIStyle() { padding = new RectOffset(ScrollViewLeftPadding, 0, 0, 0) };
             window.titleContent = new GUIContent(ScaffoldGenerationTitle);
             window.scaffold = scaffold;
             window.targetPath = targetPath;
@@ -119,7 +123,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void DrawPathToggles()
         {
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos,
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, scrollViewStyle,
                             GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
             foreach (var path in paths)
