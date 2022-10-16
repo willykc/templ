@@ -151,13 +151,13 @@ namespace Willykc.Templ.Editor
             }
 
             var context = GetContext(input, selection);
-            var templateText = dynamicScaffold.StructureTemplate.Text;
+            var templateText = dynamicScaffold.TreeTemplate.Text;
             var renderedText = string.Empty;
 
             if (string.IsNullOrWhiteSpace(templateText))
             {
                 AddError(errors,
-                    $"Empty structure template for scaffold {scaffold.name}",
+                    $"Empty tree template for dynamic scaffold {scaffold.name}",
                     TemplScaffoldErrorType.Template);
                 return;
             }
@@ -171,7 +171,8 @@ namespace Willykc.Templ.Editor
             catch (Exception e)
             {
                 AddError(errors,
-                    $"Error processing structure for scaffold {scaffold.name}: {renderedText}",
+                    "Error parsing tree for dynamic scaffold " +
+                    $"{scaffold.name}:\n{renderedText}",
                     TemplScaffoldErrorType.Template, e);
             }
         }

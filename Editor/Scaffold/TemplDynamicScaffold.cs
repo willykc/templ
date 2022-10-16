@@ -30,24 +30,24 @@ namespace Willykc.Templ.Editor.Scaffold
         order = 3)]
     internal sealed class TemplDynamicScaffold : TemplScaffold
     {
-        internal const string NameOfStructureTemplate = nameof(structureTemplate);
+        internal const string NameOfTreeTemplate = nameof(treeTemplate);
 
         private const string MenuName = "Templ/Dynamic Scaffold Definition";
 
         [SerializeField]
-        private ScribanAsset structureTemplate;
+        private ScribanAsset treeTemplate;
 
         [NonSerialized]
         private TemplScaffoldRoot innerRoot;
 
         internal override TemplScaffoldRoot Root => innerRoot;
 
-        internal ScribanAsset StructureTemplate => structureTemplate;
+        internal ScribanAsset TreeTemplate => treeTemplate;
 
-        internal override bool IsValid => structureTemplate && !structureTemplate.HasErrors;
+        internal override bool IsValid => treeTemplate && !treeTemplate.HasErrors;
 
         internal override bool ContainsTemplate(ScribanAsset template) =>
-            structureTemplate == template;
+            treeTemplate == template;
 
         internal void Deserialize(string fromText) =>
             innerRoot = TemplScaffoldYamlSerializer.DeserializeTree(fromText);
@@ -55,7 +55,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private new void Reset()
         {
             base.Reset();
-            structureTemplate = null;
+            treeTemplate = null;
             innerRoot = null;
         }
     }

@@ -29,10 +29,10 @@ namespace Willykc.Templ.Editor.Scaffold
     [CustomEditor(typeof(TemplDynamicScaffold))]
     internal sealed class TemplDynamicScaffoldEditor : UnityEditor.Editor
     {
-        private const string ErrorMessage = "Structure template must be not null and valid.";
+        private const string ErrorMessage = "Tree template must be not null and valid.";
 
         private TemplDynamicScaffold scaffold;
-        private SerializedProperty structureTemplateProperty;
+        private SerializedProperty treeTemplateProperty;
         private SerializedProperty inputProperty;
         private bool isScaffoldValid;
         private bool isReferencedInSettings;
@@ -67,8 +67,8 @@ namespace Willykc.Templ.Editor.Scaffold
             isReferencedInSettings = settings && settings.Scaffolds.Contains(scaffold);
             inputProperty = serializedObject
                 .FindProperty(TemplScaffold.NameOfDefaultInput);
-            structureTemplateProperty = serializedObject
-                .FindProperty(TemplDynamicScaffold.NameOfStructureTemplate);
+            treeTemplateProperty = serializedObject
+                .FindProperty(TemplDynamicScaffold.NameOfTreeTemplate);
 
             Undo.undoRedoPerformed += CheckValidity;
             scaffold.FullReset += CheckValidity;
@@ -86,7 +86,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private void DrawProperties()
         {
             EditorGUILayout.PropertyField(inputProperty);
-            EditorGUILayout.PropertyField(structureTemplateProperty);
+            EditorGUILayout.PropertyField(treeTemplateProperty);
             EditorGUILayout.Separator();
         }
 
