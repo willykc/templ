@@ -56,7 +56,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
-        private const string CopyJsonMenuName = "CONTEXT/" + nameof(TemplScaffold) + "/Copy JSON";
+        private const string CopyYamlMenuName = "CONTEXT/" + nameof(TemplScaffold) +
+            "/Copy YAML Tree";
 
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
@@ -336,12 +337,16 @@ namespace Willykc.Templ.Editor.Scaffold
         private void OnBeforeScaffoldDrop() =>
             Undo.RecordObject(scaffold, nameof(scaffold.MoveScaffoldNodes));
 
-        [MenuItem(CopyJsonMenuName)]
-        private static void JsonToClipboard(MenuCommand menuCommand) =>
-            EditorGUIUtility.systemCopyBuffer = JsonUtility.ToJson(menuCommand.context, true);
+        [MenuItem(CopyYamlMenuName)]
+        private static void YamlToClipboard(MenuCommand menuCommand)
+        {
+            var scaffold = menuCommand.context as TemplScaffold;
+            EditorGUIUtility.systemCopyBuffer =
+                TemplScaffoldYamlSerializer.SerializeTree(scaffold.Root);
+        }
 
-        [MenuItem(CopyJsonMenuName, isValidateFunction: true)]
-        private static bool ValidateJsonToClipboardMenu(MenuCommand menuCommand) =>
+        [MenuItem(CopyYamlMenuName, isValidateFunction: true)]
+        private static bool ValidateYamlToClipboardMenu(MenuCommand menuCommand) =>
             menuCommand.context.GetType() == typeof(TemplScaffold);
     }
 }

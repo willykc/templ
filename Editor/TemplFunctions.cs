@@ -108,17 +108,5 @@ namespace Willykc.Templ.Editor
         public static string GetDirectoryName(string path) => Path.GetDirectoryName(path);
         #endregion
 
-        #region Assets
-        public static int GetAssetInstanceID(string path)
-        {
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException($"Asset file does not exist at path: {path}");
-            }
-
-            return AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object)).GetInstanceID();
-        }
-        #endregion
-
     }
 }

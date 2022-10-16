@@ -41,7 +41,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private TemplScaffoldNode parent;
 
         internal IReadOnlyList<TemplScaffoldNode> Children => children;
-        internal TemplScaffoldNode Parent { get => parent; set => SetParent(value); }
+        internal TemplScaffoldNode Parent => parent;
         internal string NodePath => parent == null ? name : $"{parent.NodePath}/{name}";
         internal int NodeCount => children.Sum(c => c.NodeCount) + 1;
         internal string RenderedName { get; set; }
@@ -58,26 +58,14 @@ namespace Willykc.Templ.Editor.Scaffold
         private bool IsNameDuplicated =>
             parent?.children.Any(c => c != this && c.name == name) ?? false;
 
-        private void SetParent(TemplScaffoldNode parent)
-        {
-            if (!parent.IsValidChild(this))
-            {
-                throw new InvalidOperationException(
-                    $"{GetType().Name} can not be a child of {parent.GetType().Name}");
-            }
-
-            this.parent = parent;
-        }
-
         internal void RemoveChild(TemplScaffoldNode node) =>
             children.Remove(node);
 
-        internal void InsertChildrenRange(int insertIndex, TemplScaffoldNode[] nodes)
+        internal void InsertChildrenRange(int insertIndex, IEnumerable<TemplScaffoldNode> nodes)
         {
-            if (nodes.Any(n => !IsValidChild(n)))
+            foreach (var child in nodes)
             {
-                throw new InvalidOperationException(
-                    $"Some {nameof(nodes)} can not be children of {GetType().Name}");
+                child.SwitchParent(this);
             }
 
             children.InsertRange(insertIndex, nodes);
@@ -92,6 +80,15 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             children.Add(node);
+            node.parent = this;
+        }
+
+        internal void AddChildrenRange(IEnumerable<TemplScaffoldNode> children)
+        {
+            foreach (var child in children)
+            {
+                AddChild(child);
+            }
         }
 
         internal TemplScaffoldNode Clone()
@@ -113,6 +110,18 @@ namespace Willykc.Templ.Editor.Scaffold
 
         protected abstract bool IsValidChild(TemplScaffoldNode value);
         protected abstract TemplScaffoldNode DoClone();
+
+        private void SwitchParent(TemplScaffoldNode newParent)
+        {
+            if (!newParent.IsValidChild(this))
+            {
+                throw new InvalidOperationException(
+                    $"{GetType().Name} can not be a child of {newParent.GetType().Name}");
+            }
+
+            parent.RemoveChild(this);
+            parent = newParent;
+        }
 
         private TemplScaffoldNode CloneRecursive(
             TemplScaffoldNode original,

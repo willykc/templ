@@ -9,7 +9,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Scriban.dll"
+        "Scriban.dll",
+        "SharpYaml.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

@@ -18,7 +18,8 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.4.6"
+    "org.nuget.scriban": "5.4.6",
+    "org.nuget.sharpyaml": "2.1.0"
   },
   "unity": "2020.3",
   "documentationUrl": "https://github.com/willykc/templ/blob/main/README.md",

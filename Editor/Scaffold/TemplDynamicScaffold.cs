@@ -38,9 +38,9 @@ namespace Willykc.Templ.Editor.Scaffold
         private ScribanAsset structureTemplate;
 
         [NonSerialized]
-        private TemplScaffold innerScaffold;
+        private TemplScaffoldRoot innerRoot;
 
-        internal override TemplScaffoldRoot Root => innerScaffold.Root;
+        internal override TemplScaffoldRoot Root => innerRoot;
 
         internal ScribanAsset StructureTemplate => structureTemplate;
 
@@ -49,24 +49,14 @@ namespace Willykc.Templ.Editor.Scaffold
         internal override bool ContainsTemplate(ScribanAsset template) =>
             structureTemplate == template;
 
-        internal bool IsInnerValid => innerScaffold.IsValid;
-
-        internal void Deserialize(string serialized)
-        {
-            if (!innerScaffold)
-            {
-                innerScaffold = CreateInstance<TemplScaffold>();
-                innerScaffold.hideFlags = HideFlags.HideAndDontSave;
-            }
-
-            JsonUtility.FromJsonOverwrite(serialized, innerScaffold);
-        }
+        internal void Deserialize(string fromText) =>
+            innerRoot = TemplScaffoldYamlSerializer.DeserializeTree(fromText);
 
         private new void Reset()
         {
             base.Reset();
             structureTemplate = null;
-            DestroyImmediate(innerScaffold);
+            innerRoot = null;
         }
     }
 }

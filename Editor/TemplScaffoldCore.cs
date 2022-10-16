@@ -110,9 +110,9 @@ namespace Willykc.Templ.Editor
             ScriptableObject input = null,
             Object selection = null)
         {
-            scaffold = scaffold && scaffold.IsValid
+            scaffold = scaffold
                 ? scaffold
-                : throw new ArgumentException($"{nameof(scaffold)} must be not null and valid");
+                : throw new ArgumentException($"{nameof(scaffold)} must not be null");
             targetPath = !string.IsNullOrWhiteSpace(targetPath)
                 ? targetPath
                 : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
@@ -151,10 +151,10 @@ namespace Willykc.Templ.Editor
             }
 
             var context = GetContext(input, selection);
-            var text = dynamicScaffold.StructureTemplate.Text;
-            var json = string.Empty;
+            var templateText = dynamicScaffold.StructureTemplate.Text;
+            var renderedText = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(text))
+            if (string.IsNullOrWhiteSpace(templateText))
             {
                 AddError(errors,
                     $"Empty structure template for scaffold {scaffold.name}",
@@ -164,22 +164,14 @@ namespace Willykc.Templ.Editor
 
             try
             {
-                var template = Template.Parse(text);
-                json = template.Render(context);
-                dynamicScaffold.Deserialize(json);
-
-                if (!dynamicScaffold.IsInnerValid)
-                {
-                    AddError(errors,
-                        $"Dynamic scaffold {scaffold.name} is invalid " +
-                        $"after deserializing rendered JSON:\n{json}",
-                        TemplScaffoldErrorType.Undefined);
-                }
+                var template = Template.Parse(templateText);
+                renderedText = template.Render(context);
+                dynamicScaffold.Deserialize(renderedText);
             }
             catch (Exception e)
             {
                 AddError(errors,
-                    $"Error processing structure for scaffold {scaffold.name}: {json}",
+                    $"Error processing structure for scaffold {scaffold.name}: {renderedText}",
                     TemplScaffoldErrorType.Template, e);
             }
         }
@@ -258,11 +250,16 @@ namespace Willykc.Templ.Editor
             if (node is TemplScaffoldFile fileNode)
             {
                 context = GetContext(input, selection, renderedPath);
-                fileNode.RenderedTemplate = RenderTemplate(node, fileNode.Template.Text, context,
-                    TemplScaffoldErrorType.Template, errors);
+                CollectFileNodeErrors(fileNode, context, errors);
             }
 
             showProgressIncrement();
+
+            if (IsNameDuplicated(node))
+            {
+                AddError(errors, "Different sister node with the same name found for node " +
+                    node.NodePath, TemplScaffoldErrorType.Filename);
+            }
 
             foreach (var child in node.Children)
             {
@@ -270,6 +267,26 @@ namespace Willykc.Templ.Editor
                     input, selection, showProgressIncrement, errors);
             }
         }
+
+        private void CollectFileNodeErrors(
+            TemplScaffoldFile fileNode,
+            TemplateContext context,
+            List<TemplScaffoldError> errors)
+        {
+            if (fileNode.Template && !fileNode.Template.HasErrors)
+            {
+                fileNode.RenderedTemplate = RenderTemplate(fileNode, fileNode.Template.Text,
+                    context, TemplScaffoldErrorType.Template, errors);
+            }
+            else
+            {
+                AddError(errors, $"Null or invalid template found for node {fileNode.NodePath}",
+                    TemplScaffoldErrorType.Template);
+            }
+        }
+
+        private static bool IsNameDuplicated(TemplScaffoldNode node) =>
+            node.Parent?.Children.Any(c => c != node && c.name == node.name) ?? false;
 
         private void ValidateRenderedName(
             TemplScaffoldNode node,

@@ -32,6 +32,13 @@ namespace Willykc.Templ.Editor.Scaffold
         [SerializeField]
         private ScribanAsset template;
 
+        public TemplScaffoldFile() { }
+
+        public TemplScaffoldFile(ScribanAsset template)
+        {
+            this.template = template;
+        }
+
         internal ScribanAsset Template => template;
         internal string RenderedTemplate { get; set; }
 

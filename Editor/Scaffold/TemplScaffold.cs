@@ -26,9 +26,6 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using ILogger = Abstraction.ILogger;
-    using Logger = Abstraction.Logger;
-
     [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
     internal class TemplScaffold : ScriptableObject
     {
@@ -51,16 +48,9 @@ namespace Willykc.Templ.Editor.Scaffold
         [SerializeReference]
         private TemplScaffoldRoot root = GetNewRoot();
 
-        private readonly ILogger log;
-
         internal ScriptableObject DefaultInput => defaultInput;
         internal virtual TemplScaffoldRoot Root => root;
         internal virtual bool IsValid => root.IsValid;
-
-        internal TemplScaffold()
-        {
-            log = Logger.Instance;
-        }
 
         protected void Reset()
         {
@@ -141,12 +131,6 @@ namespace Willykc.Templ.Editor.Scaffold
                 insertIndex -= subSet.Count(draggedNodes.Contains);
             }
 
-            foreach (var node in draggedNodes)
-            {
-                node.Parent.RemoveChild(node);
-                node.Parent = parent;
-            }
-
             parent.InsertChildrenRange(insertIndex, draggedNodes);
             Change?.Invoke(draggedNodes);
         }
@@ -181,8 +165,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             var newNode = new T()
             {
-                name = name,
-                Parent = current
+                name = name
             };
 
             current.AddChild(newNode);
