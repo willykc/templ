@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
@@ -41,6 +42,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal ScribanAsset Template => template;
         internal string RenderedTemplate { get; set; }
+        internal IDictionary<string, object> NodeInputs { get; set; }
 
         protected override bool IsValidNode => template && !template.HasErrors;
 

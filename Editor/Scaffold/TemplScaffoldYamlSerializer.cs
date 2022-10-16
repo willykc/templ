@@ -126,11 +126,14 @@ namespace Willykc.Templ.Editor.Scaffold
                     "Serialized Scaffold child node dictionaries keys must always be strings");
             }
 
+            var nodeInputs = childDictionary
+                .Skip(1)
+                .ToDictionary(p => p.Key as string, p => p.Value);
+
             var value = firstPair.Value;
-            var childNode = value is string path
-                ? GetFileNode(name, path)
+            return value is string path
+                ? GetFileNode(name, path, nodeInputs)
                 : GetDirectoryNode(name, value);
-            return childNode;
         }
 
         private static TemplScaffoldNode GetDirectoryNode(string name, object value)
@@ -141,7 +144,10 @@ namespace Willykc.Templ.Editor.Scaffold
             return directoryNode;
         }
 
-        private static TemplScaffoldNode GetFileNode(string name, string path)
+        private static TemplScaffoldNode GetFileNode(
+            string name,
+            string path,
+            IDictionary<string, object> nodeInputs)
         {
             if (!File.Exists(path))
             {
@@ -149,7 +155,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             var template = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
-            return new TemplScaffoldFile(template) { name = name };
+            return new TemplScaffoldFile(template) { name = name, NodeInputs = nodeInputs };
         }
     }
 }

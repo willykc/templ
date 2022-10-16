@@ -247,9 +247,9 @@ namespace Willykc.Templ.Editor
                 errors.Add(error);
             }
 
-            if (node is TemplScaffoldFile fileNode)
+            if (node is TemplScaffoldFile fileNode &&
+                TryGetContext(fileNode, input, selection, renderedPath, errors, out context))
             {
-                context = GetContext(input, selection, renderedPath);
                 CollectFileNodeErrors(fileNode, context, errors);
             }
 
@@ -265,6 +265,29 @@ namespace Willykc.Templ.Editor
             {
                 CollectScaffoldErrors(child, renderedPath,
                     input, selection, showProgressIncrement, errors);
+            }
+        }
+
+        private bool TryGetContext(
+            TemplScaffoldFile fileNode,
+            ScriptableObject input,
+            Object selection,
+            string renderedPath,
+            List<TemplScaffoldError> errors,
+            out TemplateContext context)
+        {
+            context = null;
+
+            try
+            {
+                context = GetContext(input, selection, renderedPath, fileNode.NodeInputs);
+                return true;
+            }
+            catch (Exception e)
+            {
+                AddError(errors, $"Error preparing context for node {fileNode.NodePath}",
+                    TemplScaffoldErrorType.Undefined, e);
+                return false;
             }
         }
 
@@ -311,14 +334,22 @@ namespace Willykc.Templ.Editor
         private TemplateContext GetContext(
             ScriptableObject input,
             Object selection,
-            string renderedPath = null)
+            string renderedPath = null,
+            IDictionary<string, object> nodeInputs = null)
         {
+            nodeInputs ??= new Dictionary<string, object>();
             var scriptObject = new ScriptObject();
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
             scriptObject.Add(InputName, input);
             scriptObject.Add(SelectionName, selection);
             scriptObject.Add(OutputAssetPathName, renderedPath);
+
+            foreach (var nodeInput in nodeInputs)
+            {
+                scriptObject.Add(nodeInput.Key, nodeInput.Value);
+            }
+
             var context = new TemplateContext();
             context.PushGlobal(scriptObject);
             return context;
