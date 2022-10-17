@@ -125,6 +125,12 @@ namespace Willykc.Templ.Editor
 
             ProcessDynamicScaffold(scaffold, input, selection, errors);
 
+            if (scaffold.Root?.Children.Count == 0)
+            {
+                AddError(errors, $"Found empty tree for scaffold {scaffold.name}",
+                    TemplScaffoldErrorType.Undefined);
+            }
+
             if (errors.Count > 0)
             {
                 return errors.ToArray();

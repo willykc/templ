@@ -25,9 +25,6 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using ILogger = Abstraction.ILogger;
-    using Logger = Abstraction.Logger;
-
     internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Generate Templ Scaffold";
@@ -39,7 +36,6 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private GenericMenu menu;
         private TemplSettings settings;
-        private ILogger log;
 
         [MenuItem(MenuName, priority = 1)]
         private static void ShowScaffoldsMenu()
@@ -48,31 +44,13 @@ namespace Willykc.Templ.Editor.Scaffold
             window.ShowAsDropDown(EmptyRect, Size);
         }
 
-        private void Awake()
-        {
-            settings = TemplSettings.Instance;
-            log = Logger.Instance;
-        }
+        [MenuItem(MenuName, isValidateFunction: true)]
+        private static bool ValidateShowScaffoldsMenu() =>
+            TemplSettings.Instance && TemplSettings.Instance.ValidScaffolds.Count > 0;
 
-        private void OnGUI()
-        {
-            if (!settings)
-            {
-                log.Warn("Missing settings, create them by " +
-                    $"clicking on {TemplSettingsEditor.MenuName}");
-                Close();
-                return;
-            }
+        private void Awake() => settings = TemplSettings.Instance;
 
-            if (settings.ValidScaffolds.Count == 0)
-            {
-                log.Warn("No valid scaffolds found in settings");
-                Close();
-                return;
-            }
-
-            menu ??= ShowMenu();
-        }
+        private void OnGUI() => menu ??= ShowMenu();
 
         private GenericMenu ShowMenu()
         {
