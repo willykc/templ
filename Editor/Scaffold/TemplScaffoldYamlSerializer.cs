@@ -120,15 +120,11 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var firstPair = childDictionary.First();
 
-            if (!(firstPair.Key is string name))
-            {
-                throw new InvalidOperationException(
-                    "Serialized Scaffold child node dictionaries keys must always be strings");
-            }
+            var name = firstPair.Key.ToString();
 
             var nodeInputs = childDictionary
                 .Skip(1)
-                .ToDictionary(p => p.Key as string, p => p.Value);
+                .ToDictionary(p => p.Key.ToString(), p => p.Value);
 
             var value = firstPair.Value;
             return value is string path
