@@ -117,52 +117,66 @@ namespace Willykc.Templ.Editor
                 ? targetPath
                 : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
 
-            var errors = new List<TemplScaffoldError>();
-            var functionConflictErrors = functionConflicts
-                .Select(c => new TemplScaffoldError(TemplScaffoldErrorType.Undefined,
-                $"Found duplicate template function name: {c}"));
-            errors.AddRange(functionConflictErrors);
-
-            ProcessDynamicScaffold(scaffold, input, selection, errors);
-
-            if (scaffold.Root?.Children.Count == 0)
+            var validationContext = new ValidationContext()
             {
-                AddError(errors, $"Found empty tree for scaffold {scaffold.name}",
-                    TemplScaffoldErrorType.Undefined);
-            }
+                input = input,
+                path = targetPath,
+                selection = selection,
+                errors = new List<TemplScaffoldError>()
+            };
 
-            if (errors.Count > 0)
+            CollectDuplicateTemplateFunctionsErrors(validationContext);
+            ProcessDynamicScaffold(scaffold, validationContext);
+            CheckForEmptyScaffoldTree(scaffold, validationContext);
+
+            if (validationContext.errors.Count > 0)
             {
-                return errors.ToArray();
+                return validationContext.errors.ToArray();
             }
 
             var showProgressIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarValidatingInfo);
 
-            CollectScaffoldErrors(scaffold.Root,
-                targetPath, input, selection, showProgressIncrement, errors);
+            CollectScaffoldErrors(scaffold.Root, validationContext, showProgressIncrement);
             editorUtility.ClearProgressBar();
-            return errors.ToArray();
+            return validationContext.errors.ToArray();
+        }
+
+        private void CheckForEmptyScaffoldTree(
+            TemplScaffold scaffold,
+            ValidationContext validationContext)
+        {
+            if (scaffold.Root?.Children.Count == 0)
+            {
+                AddError(validationContext.errors, $"Found empty tree for scaffold {scaffold.name}",
+                    TemplScaffoldErrorType.Undefined);
+            }
+        }
+
+        private void CollectDuplicateTemplateFunctionsErrors(ValidationContext validationContext)
+        {
+            var functionConflictErrors = functionConflicts
+                .Select(c => new TemplScaffoldError(TemplScaffoldErrorType.Undefined,
+                $"Found duplicate template function name: {c}"));
+            validationContext.errors.AddRange(functionConflictErrors);
         }
 
         private void ProcessDynamicScaffold(
             TemplScaffold scaffold,
-            ScriptableObject input,
-            Object selection,
-            List<TemplScaffoldError> errors)
+            ValidationContext validationContext)
         {
             if (!(scaffold is TemplDynamicScaffold dynamicScaffold))
             {
                 return;
             }
 
-            var context = GetContext(input, selection);
+            var templateContext = GetTemplateContext(validationContext);
             var templateText = dynamicScaffold.TreeTemplate.Text;
             var renderedText = string.Empty;
 
             if (string.IsNullOrWhiteSpace(templateText))
             {
-                AddError(errors,
+                AddError(validationContext.errors,
                     $"Empty tree template for dynamic scaffold {scaffold.name}",
                     TemplScaffoldErrorType.Template);
                 return;
@@ -171,12 +185,12 @@ namespace Willykc.Templ.Editor
             try
             {
                 var template = Template.Parse(templateText);
-                renderedText = template.Render(context);
+                renderedText = template.Render(templateContext);
                 dynamicScaffold.Deserialize(renderedText);
             }
             catch (Exception e)
             {
-                AddError(errors,
+                AddError(validationContext.errors,
                     "Error parsing tree for dynamic scaffold " +
                     $"{scaffold.name}:\n{renderedText}",
                     TemplScaffoldErrorType.Template, e);
@@ -229,70 +243,86 @@ namespace Willykc.Templ.Editor
 
         private void CollectScaffoldErrors(
             TemplScaffoldNode node,
-            string targetNodePath,
-            ScriptableObject input,
-            Object selection,
-            Action showProgressIncrement,
-            List<TemplScaffoldError> errors)
+            ValidationContext validationContext,
+            Action showProgressIncrement)
         {
-            var context = GetContext(input, selection);
+            var templateContext = GetTemplateContext(validationContext);
+            CollectRenderNameErrors(node, validationContext, templateContext);
 
-            if (!(node is TemplScaffoldRoot))
-            {
-                node.RenderedName = RenderTemplate(node, node.name, context,
-                TemplScaffoldErrorType.Filename, errors);
-                ValidateRenderedName(node, errors);
-            }
+            validationContext.path = node is TemplScaffoldRoot
+                ? validationContext.path
+                : $"{validationContext.path}/{node.RenderedName}";
 
-            var renderedPath = node is TemplScaffoldRoot
-                ? targetNodePath
-                : $"{targetNodePath}/{node.RenderedName}";
-
-            if (!(node is TemplScaffoldRoot) && fileSystem.FileExists(renderedPath))
-            {
-                var error = new TemplScaffoldError(TemplScaffoldErrorType.Overwrite, renderedPath);
-                errors.Add(error);
-            }
+            CheckForFileOverwrite(node, validationContext);
 
             if (node is TemplScaffoldFile fileNode &&
-                TryGetContext(fileNode, input, selection, renderedPath, errors, out context))
+                TryGetContext(fileNode, validationContext, out templateContext))
             {
-                CollectFileNodeErrors(fileNode, context, errors);
+                CollectFileNodeErrors(fileNode, templateContext, validationContext);
             }
 
             showProgressIncrement();
-
-            if (IsNameDuplicated(node))
-            {
-                AddError(errors, "Different sister node with the same name found for node " +
-                    node.NodePath, TemplScaffoldErrorType.Filename);
-            }
+            CheckForDuplicateNodeNames(node, validationContext);
 
             foreach (var child in node.Children)
             {
-                CollectScaffoldErrors(child, renderedPath,
-                    input, selection, showProgressIncrement, errors);
+                CollectScaffoldErrors(child, validationContext, showProgressIncrement);
+            }
+        }
+
+        private void CheckForDuplicateNodeNames(
+            TemplScaffoldNode node,
+            ValidationContext validationContext)
+        {
+            if (IsNameDuplicated(node))
+            {
+                AddError(validationContext.errors,
+                    "Different sister node with the same name found for node " +
+                    node.NodePath, TemplScaffoldErrorType.Filename);
+            }
+        }
+
+        private void CollectRenderNameErrors(
+            TemplScaffoldNode node,
+            ValidationContext validationContext,
+            TemplateContext context)
+        {
+            if (!(node is TemplScaffoldRoot))
+            {
+                node.RenderedName = RenderTemplate(node, node.name, context,
+                TemplScaffoldErrorType.Filename, validationContext.errors);
+                ValidateRenderedName(node, validationContext.errors);
+            }
+        }
+
+        private void CheckForFileOverwrite(
+            TemplScaffoldNode node,
+            ValidationContext validationContext)
+        {
+            if (!(node is TemplScaffoldRoot) && fileSystem.FileExists(validationContext.path))
+            {
+                var error = new TemplScaffoldError(TemplScaffoldErrorType.Overwrite,
+                    validationContext.path);
+                validationContext.errors.Add(error);
             }
         }
 
         private bool TryGetContext(
             TemplScaffoldFile fileNode,
-            ScriptableObject input,
-            Object selection,
-            string renderedPath,
-            List<TemplScaffoldError> errors,
-            out TemplateContext context)
+            ValidationContext validationContext,
+            out TemplateContext templateContext)
         {
-            context = null;
+            templateContext = null;
 
             try
             {
-                context = GetContext(input, selection, renderedPath, fileNode.NodeInputs);
+                templateContext = GetTemplateContext(validationContext, fileNode.NodeInputs);
                 return true;
             }
             catch (Exception e)
             {
-                AddError(errors, $"Error preparing context for node {fileNode.NodePath}",
+                AddError(validationContext.errors,
+                    $"Error preparing context for node {fileNode.NodePath}",
                     TemplScaffoldErrorType.Undefined, e);
                 return false;
             }
@@ -301,16 +331,17 @@ namespace Willykc.Templ.Editor
         private void CollectFileNodeErrors(
             TemplScaffoldFile fileNode,
             TemplateContext context,
-            List<TemplScaffoldError> errors)
+            ValidationContext validationContext)
         {
             if (fileNode.Template && !fileNode.Template.HasErrors)
             {
                 fileNode.RenderedTemplate = RenderTemplate(fileNode, fileNode.Template.Text,
-                    context, TemplScaffoldErrorType.Template, errors);
+                    context, TemplScaffoldErrorType.Template, validationContext.errors);
             }
             else
             {
-                AddError(errors, $"Null or invalid template found for node {fileNode.NodePath}",
+                AddError(validationContext.errors,
+                    $"Null or invalid template found for node {fileNode.NodePath}",
                     TemplScaffoldErrorType.Template);
             }
         }
@@ -338,28 +369,26 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private TemplateContext GetContext(
-            ScriptableObject input,
-            Object selection,
-            string renderedPath = null,
+        private TemplateContext GetTemplateContext(
+            ValidationContext validationContext,
             IDictionary<string, object> nodeInputs = null)
         {
             nodeInputs ??= new Dictionary<string, object>();
             var scriptObject = new ScriptObject();
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
-            scriptObject.Add(InputName, input);
-            scriptObject.Add(SelectionName, selection);
-            scriptObject.Add(OutputAssetPathName, renderedPath);
+            scriptObject.Add(InputName, validationContext.input);
+            scriptObject.Add(SelectionName, validationContext.selection);
+            scriptObject.Add(OutputAssetPathName, validationContext.path);
 
             foreach (var nodeInput in nodeInputs)
             {
                 scriptObject.Add(nodeInput.Key, nodeInput.Value);
             }
 
-            var context = new TemplateContext();
-            context.PushGlobal(scriptObject);
-            return context;
+            var templateContext = new TemplateContext();
+            templateContext.PushGlobal(scriptObject);
+            return templateContext;
         }
 
         private string RenderTemplate(
@@ -427,5 +456,13 @@ namespace Willykc.Templ.Editor
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToArray();
+
+        private struct ValidationContext
+        {
+            internal ScriptableObject input;
+            internal Object selection;
+            internal string path;
+            internal List<TemplScaffoldError> errors;
+        }
     }
 }
