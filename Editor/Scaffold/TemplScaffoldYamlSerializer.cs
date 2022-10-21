@@ -43,11 +43,11 @@ namespace Willykc.Templ.Editor.Scaffold
             YamlSerializer = new Serializer(settings);
         }
 
-        internal static string SerializeTree(TemplScaffoldRoot root)
+        internal static string SerializeTree(TemplScaffoldRoot root, bool useGuids = false)
         {
             root = root ?? throw new ArgumentNullException(nameof(root));
 
-            var dtoTree = BuildDtoTree(root);
+            var dtoTree = BuildDtoTree(root, useGuids);
 
             return YamlSerializer.Serialize(dtoTree);
         }
@@ -66,7 +66,7 @@ namespace Willykc.Templ.Editor.Scaffold
             return root;
         }
 
-        private static List<object> BuildDtoTree(TemplScaffoldNode node)
+        private static List<object> BuildDtoTree(TemplScaffoldNode node, bool useGuids)
         {
             var childrenList = new List<object>();
 
@@ -75,8 +75,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 var childDto = new Dictionary<string, object>();
 
                 var value = child is TemplScaffoldFile file
-                    ? AssetDatabase.GetAssetPath(file.Template) as object
-                    : BuildDtoTree(child);
+                    ? GetTemplateReference(file, useGuids)
+                    : BuildDtoTree(child, useGuids);
 
                 childDto.Add(child.name, value);
 
@@ -84,6 +84,14 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             return childrenList;
+        }
+
+        private static object GetTemplateReference(TemplScaffoldFile file, bool useGuids)
+        {
+            var path = AssetDatabase.GetAssetPath(file.Template);
+            return useGuids
+                ? AssetDatabase.AssetPathToGUID(path)
+                : path;
         }
 
         private static List<TemplScaffoldNode> ReadDtoTree(object dtoTree)
@@ -127,8 +135,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 .ToDictionary(p => p.Key.ToString(), p => p.Value);
 
             var value = firstPair.Value;
-            return value is string path
-                ? GetFileNode(name, path, nodeInputs)
+            return value is string reference
+                ? GetFileNode(name, reference, nodeInputs)
                 : GetDirectoryNode(name, value);
         }
 
@@ -142,9 +150,19 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private static TemplScaffoldNode GetFileNode(
             string name,
-            string path,
+            string reference,
             IDictionary<string, object> nodeInputs)
         {
+            var path = GUID.TryParse(reference, out _)
+                ? AssetDatabase.GUIDToAssetPath(reference)
+                : reference;
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new FileNotFoundException(
+                    $"Could not find template asset with guid '{reference}'");
+            }
+
             if (!File.Exists(path))
             {
                 throw new FileNotFoundException($"Could not find template asset at {path}");

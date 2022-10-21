@@ -56,8 +56,11 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ScribanIconPath = "Packages/com.willykc.templ/Icons/sbn_logo.png";
         private const string ScaffoldIconPath =
             "Packages/com.willykc.templ/Icons/scaffold_logo.png";
-        private const string CopyYamlMenuName = "CONTEXT/" + nameof(TemplScaffold) +
+        private const string ContextPrefix = "CONTEXT/";
+        private const string CopyYamlMenuName = ContextPrefix + nameof(TemplScaffold) +
             "/Copy YAML Tree";
+        private const string CopyYamlWithGuidsMenuName = ContextPrefix + nameof(TemplScaffold) +
+            "/Copy YAML Tree with GUIDs";
 
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
@@ -345,7 +348,16 @@ namespace Willykc.Templ.Editor.Scaffold
                 TemplScaffoldYamlSerializer.SerializeTree(scaffold.Root);
         }
 
+        [MenuItem(CopyYamlWithGuidsMenuName)]
+        private static void YamlWithGuidsToClipboard(MenuCommand menuCommand)
+        {
+            var scaffold = menuCommand.context as TemplScaffold;
+            EditorGUIUtility.systemCopyBuffer =
+                TemplScaffoldYamlSerializer.SerializeTree(scaffold.Root, useGuids: true);
+        }
+
         [MenuItem(CopyYamlMenuName, isValidateFunction: true)]
+        [MenuItem(CopyYamlWithGuidsMenuName, isValidateFunction: true)]
         private static bool ValidateYamlToClipboardMenu(MenuCommand menuCommand) =>
             menuCommand.context.GetType() == typeof(TemplScaffold);
     }
