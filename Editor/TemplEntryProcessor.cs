@@ -23,8 +23,6 @@ using UnityEditor;
 
 namespace Willykc.Templ.Editor
 {
-    using static TemplEditorInitialization;
-
     [InitializeOnLoad]
     internal sealed class TemplEntryProcessor : AssetPostprocessor
     {
@@ -39,7 +37,7 @@ namespace Willykc.Templ.Editor
                 Abstraction.SessionState.Instance,
                 Abstraction.Logger.Instance,
                 Abstraction.SettingsProvider.Instance,
-                TypeCache);
+                Abstraction.TemplateFunctionProvider.Instance);
         }
 
         private static void OnPostprocessAllAssets(

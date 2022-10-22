@@ -41,7 +41,6 @@ namespace Willykc.Templ.Editor
         private readonly ISessionState sessionState;
         private readonly ILogger log;
         private readonly ISettingsProvider settingsProvider;
-        private readonly Type[] typeCache;
 
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
@@ -52,7 +51,7 @@ namespace Willykc.Templ.Editor
             ISessionState sessionState,
             ILogger log,
             ISettingsProvider settingsProvider,
-            Type[] typeCache)
+            ITemplateFunctionProvider templateFunctionProvider)
         {
             this.assetDatabase = assetDatabase ??
                 throw new ArgumentNullException(nameof(assetDatabase));
@@ -64,10 +63,12 @@ namespace Willykc.Templ.Editor
                 throw new ArgumentNullException(nameof(log));
             this.settingsProvider = settingsProvider ??
                 throw new ArgumentNullException(nameof(settingsProvider));
-            this.typeCache = typeCache ??
-                throw new ArgumentNullException(nameof(typeCache));
-            functions = GetTemplateFunctions();
-            functionConflicts = GetFunctionNameConflicts();
+            templateFunctionProvider = templateFunctionProvider ??
+                throw new ArgumentNullException(nameof(templateFunctionProvider));
+
+            functions = templateFunctionProvider.GetTemplateFunctionTypes().ToList();
+            functionConflicts = templateFunctionProvider.GetDuplicateTemplateFunctionNames();
+
             if (functionConflicts.Length > 0)
             {
                 log.Error("Function name conflicts detected: " +
@@ -81,11 +82,13 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             if (IsSettingsChanged(changes))
             {
                 RenderChangedEntries();
                 return;
             }
+
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
                 .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)));
             FlagDeferredEntries(entriesToRender, changes);
@@ -98,11 +101,14 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             var deferred = sessionState.GetString(TemplDeferredKey);
+
             if (string.IsNullOrWhiteSpace(deferred))
             {
                 return;
             }
+
             var deferredEntries = settingsProvider.GetSettings().ValidEntries
                 .Where(e => deferred.Contains(e.guid));
             RenderEntries(deferredEntries);
@@ -115,6 +121,7 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             FlagInputDeletedEntries(path);
         }
 
@@ -124,7 +131,9 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             var existing = sessionState.GetString(TemplChangedKey);
+
             if (!existing.Contains(entry.guid))
             {
                 sessionState.SetString(TemplChangedKey, existing + entry.guid);
@@ -137,6 +146,7 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
@@ -152,26 +162,9 @@ namespace Willykc.Templ.Editor
                 log.Error("Templates will not render due to function name conflicts");
                 return true;
             }
+
             return false;
         }
-
-        private List<Type> GetTemplateFunctions() =>
-            typeCache
-            .Where(t => Attribute.GetCustomAttribute(t, typeof(TemplFunctionsAttribute)) != null &&
-            t.IsAbstract &&
-            t.IsSealed)
-            .ToList();
-
-        private string[] GetFunctionNameConflicts() =>
-            functions
-            .SelectMany(t => t.GetMethods())
-            .Union(typeof(TemplFunctions).GetMethods())
-            .Where(m => m.IsStatic)
-            .Select(m => m.Name)
-            .GroupBy(n => n)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToArray();
 
         private bool IsSettingsChanged(AssetsPaths changes)
         {
@@ -182,10 +175,12 @@ namespace Willykc.Templ.Editor
         private void RenderChangedEntries()
         {
             var changed = sessionState.GetString(TemplChangedKey);
+
             if (string.IsNullOrWhiteSpace(changed))
             {
                 return;
             }
+
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
                 .Where(e => changed.Contains(e.guid));
             RenderEntries(entriesToRender);
@@ -199,6 +194,7 @@ namespace Willykc.Templ.Editor
                 DecomposeChanges(changes, e).All(c => !e.IsTemplateChanged(c)))
                 .Select(e => e.guid);
             var deferredFlags = string.Concat(deferred);
+
             if (!string.IsNullOrWhiteSpace(deferredFlags))
             {
                 sessionState.SetString(TemplDeferredKey, deferredFlags);
@@ -211,6 +207,7 @@ namespace Willykc.Templ.Editor
                 .Where(e => e.ShouldRender(new AssetChange(ChangeType.Delete, path)))
                 .Select(e => e.guid);
             var deferredFlags = string.Concat(deferred);
+
             if (!string.IsNullOrWhiteSpace(deferredFlags))
             {
                 sessionState.SetString(TemplDeferredKey, deferredFlags);
@@ -235,10 +232,12 @@ namespace Willykc.Templ.Editor
             var templatePaths = settingsProvider.GetSettings().ValidEntries
                 .Select(e => assetDatabase.GetAssetPath(e.template))
                 .ToArray();
+
             foreach (var entry in entriesToRender)
             {
                 RenderEntry(entry, inputPaths, templatePaths);
             }
+
             if (entriesToRender.Any() && settingsProvider.GetSettings().HasInvalidEntries)
             {
                 log.Warn("Invalid settings found");
@@ -251,6 +250,7 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             try
             {
                 var context = GetContext(entry);
@@ -274,18 +274,21 @@ namespace Willykc.Templ.Editor
                     $"Did not render template at {entry.FullPath}");
                 return false;
             }
+
             if (templatePaths.Contains(entry.OutputAssetPath))
             {
                 log.Error("Overwriting a template in settings is not allowed. " +
                     $"Did not render template at {entry.FullPath}");
                 return false;
             }
+
             if (entry.OutputAssetPath == assetDatabase.GetAssetPath(settingsProvider.GetSettings()))
             {
                 log.Error("Overwriting settings is not allowed. " +
                     $"Did not render template at {entry.FullPath}");
                 return false;
             }
+
             return true;
         }
 

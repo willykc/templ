@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
-using System;
 using System.IO;
 
 namespace Willykc.Templ.Editor.Tests
@@ -50,7 +49,7 @@ namespace Willykc.Templ.Editor.Tests
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
-        private Type[] typeCache;
+        private TemplateFunctionProviderMock templateFunctionProviderMock;
         private TemplSettings settings;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
@@ -66,7 +65,6 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeSetUp]
         public void BeforeAll()
         {
-            typeCache = new Type[0];
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
             testErrorTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestErrorTemplatePath, out _);
@@ -98,7 +96,7 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                typeCache);
+                templateFunctionProviderMock = new TemplateFunctionProviderMock());
 
             settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = settings;

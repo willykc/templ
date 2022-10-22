@@ -48,7 +48,6 @@ namespace Willykc.Templ.Editor
         private readonly IFileSystem fileSystem;
         private readonly ILogger log;
         private readonly IEditorUtility editorUtility;
-        private readonly Type[] typeCache;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
 
@@ -56,7 +55,7 @@ namespace Willykc.Templ.Editor
             IFileSystem fileSystem,
             ILogger log,
             IEditorUtility editorUtility,
-            Type[] typeCache)
+            ITemplateFunctionProvider templateFunctionProvider)
         {
             this.fileSystem = fileSystem ??
                 throw new ArgumentNullException(nameof(fileSystem));
@@ -64,10 +63,12 @@ namespace Willykc.Templ.Editor
                 throw new ArgumentNullException(nameof(log));
             this.editorUtility = editorUtility ??
                 throw new ArgumentNullException(nameof(editorUtility));
-            this.typeCache = typeCache ??
-                throw new ArgumentNullException(nameof(typeCache));
-            functions = GetTemplateFunctions();
-            functionConflicts = GetFunctionNameConflicts();
+            templateFunctionProvider = templateFunctionProvider ??
+                throw new ArgumentNullException(nameof(templateFunctionProvider));
+
+            functions = templateFunctionProvider.GetTemplateFunctionTypes().ToList();
+            functionConflicts = templateFunctionProvider.GetDuplicateTemplateFunctionNames();
+
             if (functionConflicts.Length > 0)
             {
                 log.Error("Function name conflicts detected: " +
@@ -438,24 +439,6 @@ namespace Willykc.Templ.Editor
             var error = new TemplScaffoldError(type, message);
             errors.Add(error);
         }
-
-        private List<Type> GetTemplateFunctions() =>
-            typeCache
-            .Where(t => Attribute.GetCustomAttribute(t, typeof(TemplFunctionsAttribute)) != null &&
-            t.IsAbstract &&
-            t.IsSealed)
-            .ToList();
-
-        private string[] GetFunctionNameConflicts() =>
-            functions
-            .SelectMany(t => t.GetMethods())
-            .Union(typeof(TemplFunctions).GetMethods())
-            .Where(m => m.IsStatic)
-            .Select(m => m.Name)
-            .GroupBy(n => n)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToArray();
 
         private struct ValidationContext
         {

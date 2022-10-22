@@ -29,7 +29,6 @@ using Object = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using static TemplEditorInitialization;
     using FileSystem = Abstraction.FileSystem;
     using ILogger = Abstraction.ILogger;
     using Logger = Abstraction.Logger;
@@ -49,7 +48,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 FileSystem.Instance,
                 Log,
                 Abstraction.EditorUtility.Instance,
-                TypeCache);
+                Abstraction.TemplateFunctionProvider.Instance);
         }
 
         internal static async void GenerateScaffold(
