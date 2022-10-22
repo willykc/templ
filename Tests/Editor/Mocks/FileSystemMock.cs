@@ -28,8 +28,11 @@ namespace Willykc.Templ.Editor.Tests.Mocks
     internal sealed class FileSystemMock : IFileSystem
     {
         internal List<string> Path { get; } = new List<string>();
+        internal List<string> DirectoryPath { get; } = new List<string>();
         internal List<string> Contents { get; } = new List<string>();
+        internal List<string> FileExists { get; } = new List<string>();
         internal int WriteAllTextCount { get; private set; }
+        internal int CreateDirectoryCount { get; private set; }
 
         void IFileSystem.WriteAllText(string path, string contents)
         {
@@ -40,13 +43,11 @@ namespace Willykc.Templ.Editor.Tests.Mocks
 
         void IFileSystem.CreateDirectory(string path)
         {
-            throw new System.NotImplementedException();
+            DirectoryPath.Add(path);
+            CreateDirectoryCount++;
         }
 
-        bool IFileSystem.FileExists(string renderedPath)
-        {
-            throw new System.NotImplementedException();
-        }
+        bool IFileSystem.FileExists(string path) => FileExists.Contains(path);
 
         internal void Clear()
         {

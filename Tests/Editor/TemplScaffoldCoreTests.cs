@@ -20,40 +20,68 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
+    using Scaffold;
 
     internal class TemplScaffoldCoreTests
     {
+        internal const string TestScaffoldPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffold.asset";
+        internal const string TestScaffoldTemplatePath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
+        internal const string TestTargetPath = "Assets/Some/Path";
+
         private TemplScaffoldCore subject;
+        private object testInput;
+        private Object testSelection;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
+        private EditorUtilityMock editorUtilityMock;
+        private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private TemplScaffold testScaffold;
+        private ScribanAsset testScaffoldTemplate;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
+            testScaffoldTemplate =
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
+            testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
         }
 
         [SetUp]
         public void BeforeEach()
         {
+            subject = new TemplScaffoldCore(
+                fileSystemMock = new FileSystemMock(),
+                loggerMock = new LoggerMock(),
+                editorUtilityMock = new EditorUtilityMock(),
+                templateFunctionProviderMock = new TemplateFunctionProviderMock());
+
+            testInput = new { name = "roach" };
+            testSelection = testScaffold;
         }
 
-        [TearDown]
-        public void AfterEach()
+        [OneTimeTearDown]
+        public void AfterAll()
         {
+            TemplTestUtility.DeleteTestAsset(testScaffoldTemplate);
+            TemplTestUtility.DeleteTestAsset(testScaffold);
         }
 
         [Test]
-        public void Given_When_Then()
+        public void GivenValidScaffold_WhenValidating_ThenItShouldNotReturnErrors()
         {
-            // Setup
-
             // Act
+            var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath,
+                testInput, testSelection);
 
             // Verify
+            Assert.IsEmpty(errors);
         }
     }
 }

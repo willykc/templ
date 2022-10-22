@@ -25,14 +25,17 @@ namespace Willykc.Templ.Editor.Tests.Mocks
 
     internal sealed class EditorUtilityMock : IEditorUtility
     {
+        internal int ClearProgressBarCount { get; private set; }
+        internal int DisplayProgressBarCount { get; private set; }
+
         void IEditorUtility.ClearProgressBar()
         {
-            throw new System.NotImplementedException();
+            ClearProgressBarCount++;
         }
 
         void IEditorUtility.DisplayProgressBar(string title, string info, float progress)
         {
-            throw new System.NotImplementedException();
+            DisplayProgressBarCount++;
         }
     }
 }

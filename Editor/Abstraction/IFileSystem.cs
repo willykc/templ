@@ -25,6 +25,6 @@ namespace Willykc.Templ.Editor.Abstraction
     {
         void WriteAllText(string path, string contents);
         void CreateDirectory(string path);
-        bool FileExists(string renderedPath);
+        bool FileExists(string path);
     }
 }
