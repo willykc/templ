@@ -1,0 +1,7 @@
+- TestDirectory:
+    {{~ for item in Input.elements ~}}
+    - {{item | string.upcase}}:
+        - {{item}}.txt: 123163d8e239dda4993b73291555da3c
+          item:
+            name: {{item}}
+    {{~ end ~}}

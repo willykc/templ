@@ -33,9 +33,14 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffold.asset";
         internal const string TestScaffoldTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
+        internal const string TestDynamicScaffoldPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestDynamicScaffold.asset";
+        internal const string TestTreeTemplatePath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTreeTemplate.sbn";
         internal const string TestTargetPath = "Assets/Some/Path";
 
         private const string InputName = "roach";
+        private static readonly string[] Elements = new[] { "one", "two" };
 
         private TemplScaffoldCore subject;
         private object testInput;
@@ -45,6 +50,8 @@ namespace Willykc.Templ.Editor.Tests
         private EditorUtilityMock editorUtilityMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private TemplScaffold testScaffold;
+        private ScribanAsset testTreeTemplate;
+        private TemplScaffold testDynamicScaffold;
         private ScribanAsset testScaffoldTemplate;
 
         [OneTimeSetUp]
@@ -53,6 +60,10 @@ namespace Willykc.Templ.Editor.Tests
             testScaffoldTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
             testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
+            testTreeTemplate =
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTreeTemplatePath, out _);
+            testDynamicScaffold =
+                TemplTestUtility.CreateTestAsset<TemplScaffold>(TestDynamicScaffoldPath, out _);
         }
 
         [SetUp]
@@ -64,7 +75,7 @@ namespace Willykc.Templ.Editor.Tests
                 editorUtilityMock = new EditorUtilityMock(),
                 templateFunctionProviderMock = new TemplateFunctionProviderMock());
 
-            testInput = new { name = InputName };
+            testInput = new { name = InputName, elements = Elements };
             testSelection = testScaffold;
         }
 
@@ -73,6 +84,8 @@ namespace Willykc.Templ.Editor.Tests
         {
             TemplTestUtility.DeleteTestAsset(testScaffoldTemplate);
             TemplTestUtility.DeleteTestAsset(testScaffold);
+            TemplTestUtility.DeleteTestAsset(testTreeTemplate);
+            TemplTestUtility.DeleteTestAsset(testDynamicScaffold);
         }
 
         [Test]
@@ -114,6 +127,17 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+        }
+
+        [Test]
+        public void GivenValidDynamicScaffold_WhenValidating_ThenItShouldNotReturnErrors()
+        {
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold, TestTargetPath,
+                testInput, testSelection);
+
+            // Verify
+            Assert.IsEmpty(errors, "Unexpected errors");
         }
     }
 }
