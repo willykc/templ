@@ -101,5 +101,19 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
             Assert.IsTrue(errors[0].Message == existPath, "Wrong error message");
         }
+
+        [Test]
+        public void GivenEmptyScaffold_WhenValidating_ThenItShouldReturnErrors()
+        {
+            // Setup
+            var emptyScaffold = ScriptableObject.CreateInstance<TemplScaffold>();
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(emptyScaffold, TestTargetPath,
+                testInput, testSelection);
+
+            // Verify
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+        }
     }
 }
