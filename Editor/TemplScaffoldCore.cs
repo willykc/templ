@@ -32,6 +32,7 @@ namespace Willykc.Templ.Editor
 {
     using Abstraction;
     using Scaffold;
+    using static TemplSettings;
 
     internal sealed class TemplScaffoldCore
     {
@@ -39,7 +40,6 @@ namespace Willykc.Templ.Editor
 
         private const string InputName = "Input";
         private const string SelectionName = "Selection";
-        private const string OutputAssetPathName = "OutputAssetPath";
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
 
@@ -380,7 +380,7 @@ namespace Willykc.Templ.Editor
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
             scriptObject.Add(InputName, validationContext.input);
             scriptObject.Add(SelectionName, validationContext.selection);
-            scriptObject.Add(OutputAssetPathName, validationContext.path);
+            scriptObject.Add(NameOfOutputAssetPath, validationContext.path);
 
             foreach (var nodeInput in nodeInputs)
             {

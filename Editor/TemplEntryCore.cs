@@ -30,6 +30,7 @@ namespace Willykc.Templ.Editor
 {
     using Abstraction;
     using Entry;
+    using static TemplSettings;
 
     internal sealed class TemplEntryCore
     {
@@ -298,7 +299,7 @@ namespace Willykc.Templ.Editor
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
             scriptObject.Add(entry.InputFieldName, entry.TheInputValue);
-            scriptObject.Add(nameof(entry.OutputAssetPath), entry.OutputAssetPath);
+            scriptObject.Add(NameOfOutputAssetPath, entry.OutputAssetPath);
             var context = new TemplateContext();
             context.PushGlobal(scriptObject);
             return context;
