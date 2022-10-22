@@ -21,11 +21,11 @@
  */
 using NUnit.Framework;
 using System.IO;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
-    using UnityEngine;
 
     internal class TemplEntryCoreTests
     {
