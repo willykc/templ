@@ -35,7 +35,7 @@ namespace Willykc.Templ.Editor
         private const float Half = .5f;
 
         internal static readonly Color InvalidColor = new Color(1, .3f, .3f, 1);
-        internal static readonly Color ValidColor = Color.white;
+        internal static readonly Color ValidColor = new Color(.824f, .824f, .824f, 1);
 
         private static readonly float Line = EditorGUIUtility.singleLineHeight;
         private static readonly float DoubleLine = EditorGUIUtility.singleLineHeight * Double;
