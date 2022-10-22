@@ -35,6 +35,8 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
         internal const string TestTargetPath = "Assets/Some/Path";
 
+        private const string InputName = "roach";
+
         private TemplScaffoldCore subject;
         private object testInput;
         private Object testSelection;
@@ -62,7 +64,7 @@ namespace Willykc.Templ.Editor.Tests
                 editorUtilityMock = new EditorUtilityMock(),
                 templateFunctionProviderMock = new TemplateFunctionProviderMock());
 
-            testInput = new { name = "roach" };
+            testInput = new { name = InputName };
             testSelection = testScaffold;
         }
 
@@ -81,7 +83,23 @@ namespace Willykc.Templ.Editor.Tests
                 testInput, testSelection);
 
             // Verify
-            Assert.IsEmpty(errors);
+            Assert.IsEmpty(errors, "Unexpected errors");
+        }
+
+        [Test]
+        public void GivenExistingFiles_WhenValidating_ThenItShouldReturnOverwriteErrors()
+        {
+            // Setup
+            var existPath = $"{TestTargetPath}/NewDirectory{InputName}/NewFile{testScaffold.name}";
+            fileSystemMock.FileExists.Add(existPath);
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath,
+                testInput, testSelection);
+
+            // Verify
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
+            Assert.IsTrue(errors[0].Message == existPath, "Wrong error message");
         }
     }
 }
