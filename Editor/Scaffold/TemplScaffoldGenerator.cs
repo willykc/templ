@@ -54,7 +54,7 @@ namespace Willykc.Templ.Editor.Scaffold
         internal static async void GenerateScaffold(
             TemplScaffold scaffold,
             string targetPath,
-            ScriptableObject input = null,
+            object input = null,
             Object selection = null)
         {
             scaffold = scaffold
@@ -72,7 +72,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             IsGenerating = true;
 
-            if (scaffold.DefaultInput && !input)
+            if (scaffold.DefaultInput && input == null)
             {
                 ShowScaffoldInputForm(scaffold, targetPath, selection);
                 return;
@@ -116,7 +116,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private static async Task<bool> ValidateAndGenerateScaffold(
             TemplScaffold scaffold,
             string targetPath,
-            ScriptableObject input,
+            object input,
             Object selection,
             CancellationToken token)
         {

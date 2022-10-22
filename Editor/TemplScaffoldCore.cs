@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
@@ -79,7 +78,7 @@ namespace Willykc.Templ.Editor
         internal string[] GenerateScaffold(
             TemplScaffold scaffold,
             string targetPath,
-            ScriptableObject input = null,
+            object input = null,
             Object selection = null,
             string[] skipPaths = null)
         {
@@ -108,7 +107,7 @@ namespace Willykc.Templ.Editor
         internal TemplScaffoldError[] ValidateScaffoldGeneration(
             TemplScaffold scaffold,
             string targetPath,
-            ScriptableObject input = null,
+            object input = null,
             Object selection = null)
         {
             scaffold = scaffold
@@ -442,7 +441,7 @@ namespace Willykc.Templ.Editor
 
         private struct ValidationContext
         {
-            internal ScriptableObject input;
+            internal object input;
             internal Object selection;
             internal string path;
             internal List<TemplScaffoldError> errors;
