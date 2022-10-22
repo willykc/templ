@@ -86,9 +86,9 @@ namespace Willykc.Templ.Editor.Tests
         {
             changes = new AssetsPaths(
                 new[] { string.Empty },
-                new string[0],
-                new string[0],
-                new string[0]);
+                new[] { string.Empty },
+                new[] { string.Empty },
+                new[] { string.Empty });
 
             subject = new TemplEntryCore(
                 assetDatabaseMock = new AssetDatabaseMock(),
