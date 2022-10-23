@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor.Tests
         private static readonly string[] Elements = new[] { "one", "two" };
 
         private TemplScaffoldCore subject;
-        private dynamic testInput;
+        private InputType testInput;
         private Object testSelection;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
@@ -86,7 +86,13 @@ namespace Willykc.Templ.Editor.Tests
                 editorUtilityMock = new EditorUtilityMock(),
                 templateFunctionProviderMock = new TemplateFunctionProviderMock());
 
-            testInput = new { name = InputName, elements = Elements };
+            testInput = new InputType()
+            {
+                name = InputName,
+                elements = Elements,
+                induce_runtime_error = false
+            };
+
             testSelection = testScaffold;
         }
 
@@ -102,7 +108,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenValidScaffold_WhenValidating_ThenItShouldNotReturnErrors()
+        public void GivenValidScaffold_WhenValidating_ThenShouldNotReturnErrors()
         {
             // Act
             var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath,
@@ -113,7 +119,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenExistingFiles_WhenValidating_ThenItShouldReturnOverwriteErrors()
+        public void GivenExistingFiles_WhenValidating_ThenShouldReturnOverwriteErrors()
         {
             // Setup
             var existPath = $"{TestTargetPath}/NewDirectory{InputName}/NewFile{testScaffold.name}";
@@ -124,12 +130,13 @@ namespace Willykc.Templ.Editor.Tests
                 testInput, testSelection);
 
             // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
             Assert.IsTrue(errors[0].Message == existPath, "Wrong error message");
         }
 
         [Test]
-        public void GivenEmptyScaffold_WhenValidating_ThenItShouldReturnErrors()
+        public void GivenEmptyScaffold_WhenValidating_ThenShouldReturnErrors()
         {
             // Setup
             var emptyScaffold = ScriptableObject.CreateInstance<TemplScaffold>();
@@ -139,11 +146,12 @@ namespace Willykc.Templ.Editor.Tests
                 testInput, testSelection);
 
             // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
         }
 
         [Test]
-        public void GivenValidDynamicScaffold_WhenValidating_ThenItShouldNotReturnErrors()
+        public void GivenValidDynamicScaffold_WhenValidating_ThenShouldNotReturnErrors()
         {
             // Act
             var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold, TestTargetPath,
@@ -153,9 +161,8 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsEmpty(errors, "Unexpected errors");
         }
 
-
         [Test]
-        public void GivenDynamicScaffoldWithNoTemplate_WhenValidating_ThenItShouldReturnErrors()
+        public void GivenDynamicScaffoldWithNoTemplate_WhenValidating_ThenShouldReturnErrors()
         {
             // Setup
             var emptyScaffold = ScriptableObject.CreateInstance<TemplDynamicScaffold>();
@@ -165,19 +172,42 @@ namespace Willykc.Templ.Editor.Tests
                 testInput, testSelection);
 
             // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
         }
 
-
         [Test]
-        public void GivenDynamicScaffoldWithEmptyTemplate_WhenValidating_ThenItShouldReturnErrors()
+        public void GivenDynamicScaffoldWithEmptyTemplate_WhenValidating_ThenShouldReturnErrors()
         {
             // Act
             var errors = subject.ValidateScaffoldGeneration(testDynamicScaffoldWithEmptyTemplate,
                 TestTargetPath, testInput, testSelection);
 
             // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+        }
+
+        [Test]
+        public void GivenDynamicScaffoldWithErrors_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Setup
+            testInput.induce_runtime_error = true;
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+        }
+
+        private struct InputType
+        {
+            public string name;
+            public string[] elements;
+            public bool induce_runtime_error;
         }
     }
 }

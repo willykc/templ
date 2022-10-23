@@ -1,3 +1,4 @@
+{{~ if Input.induce_runtime_error ~}}{{nothing.invalid}}{{~ end ~}}
 - TestDirectory:
     {{~ for item in Input.elements ~}}
     - {{item | string.upcase}}:

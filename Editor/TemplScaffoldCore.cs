@@ -88,7 +88,7 @@ namespace Willykc.Templ.Editor
             if (errors.Count(e => e.Type != TemplScaffoldErrorType.Overwrite) > 0)
             {
                 log.Error($"Found errors when generating {scaffold.name} scaffold at {targetPath}");
-                return new string[0];
+                return EmptyStringArray;
             }
 
             var paths = new List<string>();
