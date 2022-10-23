@@ -1,4 +1,7 @@
 {{~ if Input.induce_runtime_error ~}}{{nothing.invalid}}{{~ end ~}}
+{{~ if Input.induce_broken_reference_error ~}}
+- brokenReference.txt: 2342123421de
+{{~ end ~}}
 - TestDirectory:
     {{~ for item in Input.elements ~}}
     - {{item | string.upcase}}:

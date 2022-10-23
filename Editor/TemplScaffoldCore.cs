@@ -170,7 +170,7 @@ namespace Willykc.Templ.Editor
                 return;
             }
 
-            if(!dynamicScaffold.TreeTemplate || dynamicScaffold.TreeTemplate.HasErrors)
+            if (!dynamicScaffold.TreeTemplate || dynamicScaffold.TreeTemplate.HasErrors)
             {
                 AddError(validationContext.errors,
                     $"Null or invalid tree template for dynamic scaffold {scaffold.name}",

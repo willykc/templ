@@ -89,9 +89,7 @@ namespace Willykc.Templ.Editor.Tests
             testInput = new InputType()
             {
                 name = InputName,
-                elements = Elements,
-                induce_runtime_error = false,
-                induce_duplicate_error = false
+                elements = Elements
             };
 
             testSelection = testScaffold;
@@ -132,8 +130,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
-            Assert.IsTrue(errors[0].Message == existPath, "Wrong error message");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
+            Assert.That(errors[0].Message == existPath, "Wrong error");
         }
 
         [Test]
@@ -148,7 +146,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Found empty tree"), "Wrong error");
         }
 
         [Test]
@@ -174,7 +173,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Null or invalid tree template"), "Wrong error");
         }
 
         [Test]
@@ -186,7 +186,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Empty tree template"), "Wrong error");
         }
 
         [Test]
@@ -201,7 +202,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Error parsing tree"), "Wrong error");
         }
 
         [Test]
@@ -216,7 +218,24 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Different sister node"), "Wrong error");
+        }
+
+        [Test]
+        public void GivenDynamicScaffoldWithBrokenReference_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Setup
+            testInput.induce_broken_reference_error = true;
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Could not find template"), "Wrong error");
         }
 
         private struct InputType
@@ -225,6 +244,7 @@ namespace Willykc.Templ.Editor.Tests
             public string[] elements;
             public bool induce_runtime_error;
             public bool induce_duplicate_error;
+            public bool induce_broken_reference_error;
         }
     }
 }
