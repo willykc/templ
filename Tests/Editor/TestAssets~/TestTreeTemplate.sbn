@@ -11,4 +11,7 @@
         - {{item}}.txt: 123163d8e239dda4993b73291555da3c
           item:
             name: {{item}}
+{{~ if Input.induce_context_error ~}}
+          Input: "test"
+{{~ end ~}}
     {{~ end ~}}
