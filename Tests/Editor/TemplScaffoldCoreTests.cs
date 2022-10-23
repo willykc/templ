@@ -139,5 +139,20 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsEmpty(errors, "Unexpected errors");
         }
+
+
+        [Test]
+        public void GivenDynamicScaffoldWithNoTemplate_WhenValidating_ThenItShouldReturnErrors()
+        {
+            // Setup
+            var emptyScaffold = ScriptableObject.CreateInstance<TemplDynamicScaffold>();
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(emptyScaffold, TestTargetPath,
+                testInput, testSelection);
+
+            // Verify
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+        }
     }
 }

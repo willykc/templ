@@ -170,6 +170,14 @@ namespace Willykc.Templ.Editor
                 return;
             }
 
+            if(!dynamicScaffold.TreeTemplate || dynamicScaffold.TreeTemplate.HasErrors)
+            {
+                AddError(validationContext.errors,
+                    $"Null or invalid tree template for dynamic scaffold {scaffold.name}",
+                    TemplScaffoldErrorType.Template);
+                return;
+            }
+
             var templateContext = GetTemplateContext(validationContext);
             var templateText = dynamicScaffold.TreeTemplate.Text;
             var renderedText = string.Empty;
