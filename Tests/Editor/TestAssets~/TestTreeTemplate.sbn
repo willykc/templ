@@ -2,6 +2,9 @@
 {{~ if Input.induce_broken_reference_error ~}}
 - brokenReference.txt: 2342123421de
 {{~ end ~}}
+{{~ if Input.induce_empty_filename_error ~}}
+- {%{'{{}}'}%}: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
 - TestDirectory:
     {{~ for item in Input.elements ~}}
     - {{item | string.upcase}}:

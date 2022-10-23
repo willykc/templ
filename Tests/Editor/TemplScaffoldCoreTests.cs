@@ -273,6 +273,22 @@ namespace Willykc.Templ.Editor.Tests
             Assert.That(errors[0].Message.Contains("Error preparing context"), "Wrong error");
         }
 
+        [Test]
+        public void GivenDynamicScaffoldWithEmptyNodeName_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Setup
+            testInput.induce_empty_filename_error = true;
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Empty Filename found"), "Wrong error");
+        }
+
         private struct InputType
         {
             public string name;
@@ -281,6 +297,7 @@ namespace Willykc.Templ.Editor.Tests
             public bool induce_duplicate_error;
             public bool induce_broken_reference_error;
             public bool induce_context_error;
+            public bool induce_empty_filename_error;
         }
     }
 }
