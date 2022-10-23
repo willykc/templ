@@ -268,6 +268,11 @@ namespace Willykc.Templ.Editor
             {
                 CollectFileNodeErrors(fileNode, templateContext, validationContext);
             }
+            else if (node is TemplScaffoldDirectory && node.Children.Count == 0)
+            {
+                AddError(validationContext.errors, $"Empty directory node {node.NodePath}",
+                    TemplScaffoldErrorType.Undefined);
+            }
 
             showProgressIncrement();
             CheckForDuplicateNodeNames(node, validationContext);

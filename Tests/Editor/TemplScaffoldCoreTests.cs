@@ -42,6 +42,8 @@ namespace Willykc.Templ.Editor.Tests
             "TestDynamicScaffoldWithEmptyTemplate.asset";
         private const string TestEmptyTreeTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyTreeTemplate.sbn";
+        private const string TestEmptyDirectoryScaffoldPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyDirectoryScaffold.asset";
         private const string TestTargetPath = "Assets/Some/Path";
         private const string InputName = "roach";
 
@@ -60,6 +62,7 @@ namespace Willykc.Templ.Editor.Tests
         private ScribanAsset testEmptyTreeTemplate;
         private ScribanAsset testScaffoldTemplate;
         private TemplScaffold testDynamicScaffoldWithEmptyTemplate;
+        private TemplScaffold testEmptyDirectoryScaffold;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -75,6 +78,8 @@ namespace Willykc.Templ.Editor.Tests
                 .CreateTestAsset<ScribanAsset>(TestEmptyTreeTemplatePath, out _);
             testDynamicScaffoldWithEmptyTemplate = TemplTestUtility
                 .CreateTestAsset<TemplScaffold>(TestDynamicScaffoldWithEmptyTemplatePath, out _);
+            testEmptyDirectoryScaffold = TemplTestUtility
+                .CreateTestAsset<TemplScaffold>(TestEmptyDirectoryScaffoldPath, out _);
         }
 
         [SetUp]
@@ -104,6 +109,7 @@ namespace Willykc.Templ.Editor.Tests
             TemplTestUtility.DeleteTestAsset(testDynamicScaffold);
             TemplTestUtility.DeleteTestAsset(testEmptyTreeTemplate);
             TemplTestUtility.DeleteTestAsset(testDynamicScaffoldWithEmptyTemplate);
+            TemplTestUtility.DeleteTestAsset(testEmptyDirectoryScaffold);
         }
 
         [Test]
@@ -236,6 +242,19 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Could not find template"), "Wrong error");
+        }
+
+        [Test]
+        public void GivenScaffoldWithEmptyDirectory_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testEmptyDirectoryScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Empty directory node"), "Wrong error");
         }
 
         private struct InputType
