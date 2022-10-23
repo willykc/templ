@@ -54,6 +54,8 @@ namespace Willykc.Templ.Editor.Tests
         private TemplScaffoldCore subject;
         private InputType testInput;
         private Object testSelection;
+        private string expectedDirectoryPath;
+        private string expectedFilePath;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
         private EditorUtilityMock editorUtilityMock;
@@ -103,6 +105,8 @@ namespace Willykc.Templ.Editor.Tests
             };
 
             testSelection = testScaffold;
+            expectedDirectoryPath = $"{TestTargetPath}/NewDirectory{InputName}";
+            expectedFilePath = $"{expectedDirectoryPath}/NewFile{testScaffold.name}";
         }
 
         [OneTimeTearDown]
@@ -133,8 +137,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenExistingFiles_WhenValidating_ThenShouldReturnOverwriteErrors()
         {
             // Setup
-            var existPath = $"{TestTargetPath}/NewDirectory{InputName}/NewFile{testScaffold.name}";
-            fileSystemMock.FileExists.Add(existPath);
+            fileSystemMock.FileExists.Add(expectedFilePath);
 
             // Act
             var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath,
@@ -143,7 +146,7 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.That(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
-            Assert.That(errors[0].Message == existPath, "Wrong error");
+            Assert.That(errors[0].Message == expectedFilePath, "Wrong error");
         }
 
         [Test]
@@ -354,6 +357,19 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Null or invalid template"), "Wrong error");
+        }
+
+        [Test]
+        public void GivenValidScaffold_WhenGenerating_ThenShouldReturnPaths()
+        {
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(paths, "Paths expected");
+            Assert.That(paths[0] == expectedDirectoryPath, "Wrong path");
+            Assert.That(paths[1] == expectedFilePath, "Wrong path");
         }
 
         private struct InputType
