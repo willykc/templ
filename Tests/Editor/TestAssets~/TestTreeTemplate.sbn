@@ -2,6 +2,9 @@
 - TestDirectory:
     {{~ for item in Input.elements ~}}
     - {{item | string.upcase}}:
+{{~ if Input.induce_duplicate_error ~}}
+        - {{item}}.txt: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
         - {{item}}.txt: 123163d8e239dda4993b73291555da3c
           item:
             name: {{item}}

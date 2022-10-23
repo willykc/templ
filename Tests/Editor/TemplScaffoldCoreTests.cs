@@ -90,7 +90,8 @@ namespace Willykc.Templ.Editor.Tests
             {
                 name = InputName,
                 elements = Elements,
-                induce_runtime_error = false
+                induce_runtime_error = false,
+                induce_duplicate_error = false
             };
 
             testSelection = testScaffold;
@@ -203,11 +204,27 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
         }
 
+        [Test]
+        public void GivenDynamicScaffoldWithDuplicateNodes_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Setup
+            testInput.induce_duplicate_error = true;
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+        }
+
         private struct InputType
         {
             public string name;
             public string[] elements;
             public bool induce_runtime_error;
+            public bool induce_duplicate_error;
         }
     }
 }
