@@ -44,6 +44,8 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyTreeTemplate.sbn";
         private const string TestEmptyDirectoryScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyDirectoryScaffold.asset";
+        private const string TestNullTemplateScaffoldPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestNullTemplateScaffold.asset";
         private const string TestTargetPath = "Assets/Some/Path";
         private const string InputName = "roach";
 
@@ -63,6 +65,7 @@ namespace Willykc.Templ.Editor.Tests
         private ScribanAsset testScaffoldTemplate;
         private TemplScaffold testDynamicScaffoldWithEmptyTemplate;
         private TemplScaffold testEmptyDirectoryScaffold;
+        private TemplScaffold testNullTemplateScaffold;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -80,6 +83,8 @@ namespace Willykc.Templ.Editor.Tests
                 .CreateTestAsset<TemplScaffold>(TestDynamicScaffoldWithEmptyTemplatePath, out _);
             testEmptyDirectoryScaffold = TemplTestUtility
                 .CreateTestAsset<TemplScaffold>(TestEmptyDirectoryScaffoldPath, out _);
+            testNullTemplateScaffold = TemplTestUtility
+                .CreateTestAsset<TemplScaffold>(TestNullTemplateScaffoldPath, out _);
         }
 
         [SetUp]
@@ -110,6 +115,7 @@ namespace Willykc.Templ.Editor.Tests
             TemplTestUtility.DeleteTestAsset(testEmptyTreeTemplate);
             TemplTestUtility.DeleteTestAsset(testDynamicScaffoldWithEmptyTemplate);
             TemplTestUtility.DeleteTestAsset(testEmptyDirectoryScaffold);
+            TemplTestUtility.DeleteTestAsset(testNullTemplateScaffold);
         }
 
         [Test]
@@ -335,6 +341,19 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Error rendering Filename"), "Wrong error");
+        }
+
+        [Test]
+        public void GivenScaffoldWithNullTemplate_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testNullTemplateScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Null or invalid template"), "Wrong error");
         }
 
         private struct InputType
