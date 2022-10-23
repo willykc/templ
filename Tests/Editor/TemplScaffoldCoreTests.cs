@@ -29,21 +29,26 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplScaffoldCoreTests
     {
-        internal const string TestScaffoldPath =
+        private const string TestScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffold.asset";
-        internal const string TestScaffoldTemplatePath =
+        private const string TestScaffoldTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
-        internal const string TestDynamicScaffoldPath =
+        private const string TestDynamicScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestDynamicScaffold.asset";
-        internal const string TestTreeTemplatePath =
+        private const string TestTreeTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTreeTemplate.sbn";
-        internal const string TestTargetPath = "Assets/Some/Path";
-
+        private const string TestDynamicScaffoldWithEmptyTemplatePath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/" +
+            "TestDynamicScaffoldWithEmptyTemplate.asset";
+        private const string TestEmptyTreeTemplatePath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyTreeTemplate.sbn";
+        private const string TestTargetPath = "Assets/Some/Path";
         private const string InputName = "roach";
+
         private static readonly string[] Elements = new[] { "one", "two" };
 
         private TemplScaffoldCore subject;
-        private object testInput;
+        private dynamic testInput;
         private Object testSelection;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
@@ -52,18 +57,24 @@ namespace Willykc.Templ.Editor.Tests
         private TemplScaffold testScaffold;
         private ScribanAsset testTreeTemplate;
         private TemplScaffold testDynamicScaffold;
+        private ScribanAsset testEmptyTreeTemplate;
         private ScribanAsset testScaffoldTemplate;
+        private TemplScaffold testDynamicScaffoldWithEmptyTemplate;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
-            testScaffoldTemplate =
-                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
+            testScaffoldTemplate = TemplTestUtility
+                .CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
             testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
-            testTreeTemplate =
-                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTreeTemplatePath, out _);
-            testDynamicScaffold =
-                TemplTestUtility.CreateTestAsset<TemplScaffold>(TestDynamicScaffoldPath, out _);
+            testTreeTemplate = TemplTestUtility
+                .CreateTestAsset<ScribanAsset>(TestTreeTemplatePath, out _);
+            testDynamicScaffold = TemplTestUtility
+                .CreateTestAsset<TemplScaffold>(TestDynamicScaffoldPath, out _);
+            testEmptyTreeTemplate = TemplTestUtility
+                .CreateTestAsset<ScribanAsset>(TestEmptyTreeTemplatePath, out _);
+            testDynamicScaffoldWithEmptyTemplate = TemplTestUtility
+                .CreateTestAsset<TemplScaffold>(TestDynamicScaffoldWithEmptyTemplatePath, out _);
         }
 
         [SetUp]
@@ -86,6 +97,8 @@ namespace Willykc.Templ.Editor.Tests
             TemplTestUtility.DeleteTestAsset(testScaffold);
             TemplTestUtility.DeleteTestAsset(testTreeTemplate);
             TemplTestUtility.DeleteTestAsset(testDynamicScaffold);
+            TemplTestUtility.DeleteTestAsset(testEmptyTreeTemplate);
+            TemplTestUtility.DeleteTestAsset(testDynamicScaffoldWithEmptyTemplate);
         }
 
         [Test]
@@ -150,6 +163,18 @@ namespace Willykc.Templ.Editor.Tests
             // Act
             var errors = subject.ValidateScaffoldGeneration(emptyScaffold, TestTargetPath,
                 testInput, testSelection);
+
+            // Verify
+            Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+        }
+
+
+        [Test]
+        public void GivenDynamicScaffoldWithEmptyTemplate_WhenValidating_ThenItShouldReturnErrors()
+        {
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffoldWithEmptyTemplate,
+                TestTargetPath, testInput, testSelection);
 
             // Verify
             Assert.IsTrue(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
