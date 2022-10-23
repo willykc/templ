@@ -274,7 +274,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenDynamicScaffoldWithEmptyNodeName_WhenValidating_ThenShouldReturnErrors()
+        public void GivenDynamicScaffoldWithEmptyFilename_WhenValidating_ThenShouldReturnErrors()
         {
             // Setup
             testInput.induce_empty_filename_error = true;
@@ -286,7 +286,23 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
-            Assert.That(errors[0].Message.Contains("Empty Filename found"), "Wrong error");
+            Assert.That(errors[0].Message.Contains("Empty Filename found for"), "Wrong error");
+        }
+
+        [Test]
+        public void GivenDynamicScaffoldWithEmptyNodeName_WhenValidating_ThenShouldReturnErrors()
+        {
+            // Setup
+            testInput.induce_empty_nodename_error = true;
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testDynamicScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Empty Filename found in"), "Wrong error");
         }
 
         private struct InputType
@@ -298,6 +314,7 @@ namespace Willykc.Templ.Editor.Tests
             public bool induce_broken_reference_error;
             public bool induce_context_error;
             public bool induce_empty_filename_error;
+            public bool induce_empty_nodename_error;
         }
     }
 }
