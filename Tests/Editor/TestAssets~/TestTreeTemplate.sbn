@@ -11,6 +11,9 @@
 {{~ if Input.induce_invalid_filename_error ~}}
 - invalid/.txt: 123163d8e239dda4993b73291555da3c
 {{~ end ~}}
+{{~ if Input.induce_parse_error ~}}
+- {%{'{{}'}%}: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
 - TestDirectory:
     {{~ for item in Input.elements ~}}
     - {{item | string.upcase}}:
