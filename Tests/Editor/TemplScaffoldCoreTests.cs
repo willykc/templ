@@ -145,7 +145,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Overwrite, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Overwrite, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message == expectedFilePath, "Wrong error");
         }
 
@@ -161,7 +161,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Undefined, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Found empty tree"), "Wrong error");
         }
 
@@ -188,7 +188,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Null or invalid tree template"), "Wrong error");
         }
 
@@ -201,7 +201,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Empty tree template"), "Wrong error");
         }
 
@@ -217,7 +217,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Error parsing tree"), "Wrong error");
         }
 
@@ -233,7 +233,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Filename, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Different sister node"), "Wrong error");
         }
 
@@ -249,7 +249,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Could not find template"), "Wrong error");
         }
 
@@ -262,7 +262,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Undefined, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Empty directory node"), "Wrong error");
         }
 
@@ -278,7 +278,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Undefined, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Undefined, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Error preparing context"), "Wrong error");
         }
 
@@ -294,7 +294,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Filename, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Empty Filename found for"), "Wrong error");
         }
 
@@ -310,7 +310,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Filename, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Empty Filename found in"), "Wrong error");
         }
 
@@ -326,7 +326,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Filename, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Invalid characters found"), "Wrong error");
         }
 
@@ -342,7 +342,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Filename, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Filename, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Error rendering Filename"), "Wrong error");
         }
 
@@ -355,12 +355,12 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(errors, "Errors expected");
-            Assert.That(errors[0].Type == TemplScaffoldErrorType.Template, "Wrong error type");
+            Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Null or invalid template"), "Wrong error");
         }
 
         [Test]
-        public void GivenValidScaffold_WhenGenerating_ThenShouldReturnPaths()
+        public void GivenValidScaffold_WhenGenerating_ThenShouldReturnCorrectPaths()
         {
             // Act
             var paths = subject.GenerateScaffold(testScaffold,
@@ -368,8 +368,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsNotEmpty(paths, "Paths expected");
-            Assert.That(paths[0] == expectedDirectoryPath, "Wrong path");
-            Assert.That(paths[1] == expectedFilePath, "Wrong path");
+            Assert.AreEqual(expectedDirectoryPath, paths[0], "Wrong path");
+            Assert.AreEqual(expectedFilePath, paths[1], "Wrong path");
         }
 
         private struct InputType
