@@ -29,10 +29,12 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplScaffoldCoreTests
     {
-        private const string TestScaffoldPath =
+        internal const string TestScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffold.asset";
-        private const string TestScaffoldTemplatePath =
+        internal const string TestScaffoldTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
+        internal const string TestTargetPath = "Assets/Some/Path";
+
         private const string TestDynamicScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestDynamicScaffold.asset";
         private const string TestTreeTemplatePath =
@@ -46,7 +48,6 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEmptyDirectoryScaffold.asset";
         private const string TestNullTemplateScaffoldPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestNullTemplateScaffold.asset";
-        private const string TestTargetPath = "Assets/Some/Path";
         private const string InputName = "roach";
 
         private static readonly string[] Elements = new[] { "one", "two" };
@@ -438,7 +439,7 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Should not create file");
         }
 
-        private struct InputType
+        internal struct InputType
         {
             public string name;
             public string[] elements;
