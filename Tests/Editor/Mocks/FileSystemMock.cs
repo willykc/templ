@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
 using System.Collections.Generic;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
@@ -33,9 +34,14 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal List<string> FileExists { get; } = new List<string>();
         internal int WriteAllTextCount { get; private set; }
         internal int CreateDirectoryCount { get; private set; }
+        internal bool ThrowException { get; set; }
 
         void IFileSystem.WriteAllText(string path, string contents)
         {
+            if (ThrowException)
+            {
+                throw new Exception();
+            }
             Path.Add(path);
             Contents.Add(contents);
             WriteAllTextCount++;

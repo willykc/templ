@@ -400,6 +400,21 @@ namespace Willykc.Templ.Editor.Tests
                 "Wrong directory created");
         }
 
+        [Test]
+        public void GivenIOError_WhenGenerating_ThenShouldLogError()
+        {
+            // Setup
+            fileSystemMock.ThrowException = true;
+
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount,
+                "Unexpected number of created files");
+        }
+
         private struct InputType
         {
             public string name;

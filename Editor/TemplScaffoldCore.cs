@@ -230,15 +230,22 @@ namespace Willykc.Templ.Editor
                 ? targetNodePath
                 : $"{targetNodePath}/{node.RenderedName}";
 
-            if (node is TemplScaffoldDirectory)
+            try
             {
-                fileSystem.CreateDirectory(renderedPath);
-                paths.Add(renderedPath);
+                if (node is TemplScaffoldDirectory)
+                {
+                    fileSystem.CreateDirectory(renderedPath);
+                    paths.Add(renderedPath);
+                }
+                else if (node is TemplScaffoldFile fileNode && !skipPaths.Contains(renderedPath))
+                {
+                    fileSystem.WriteAllText(renderedPath, fileNode.RenderedTemplate);
+                    paths.Add(renderedPath);
+                }
             }
-            else if (node is TemplScaffoldFile fileNode && !skipPaths.Contains(renderedPath))
+            catch (Exception e)
             {
-                fileSystem.WriteAllText(renderedPath, fileNode.RenderedTemplate);
-                paths.Add(renderedPath);
+                log.Error($"Error creating node {node.NodePath} at {renderedPath}", e);
             }
 
             showProgressIncrement();
