@@ -376,7 +376,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidScaffold_WhenGenerating_ThenShouldCreateDirectories()
         {
             // Act
-            var paths = subject.GenerateScaffold(testScaffold,
+            subject.GenerateScaffold(testScaffold,
                 TestTargetPath, testInput, testSelection);
 
             // Verify
@@ -390,7 +390,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidScaffold_WhenGenerating_ThenShouldCreateFiles()
         {
             // Act
-            var paths = subject.GenerateScaffold(testScaffold,
+            subject.GenerateScaffold(testScaffold,
                 TestTargetPath, testInput, testSelection);
 
             // Verify
@@ -407,7 +407,7 @@ namespace Willykc.Templ.Editor.Tests
             fileSystemMock.ThrowException = true;
 
             // Act
-            var paths = subject.GenerateScaffold(testScaffold,
+            subject.GenerateScaffold(testScaffold,
                 TestTargetPath, testInput, testSelection);
 
             // Verify
