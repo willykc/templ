@@ -372,6 +372,34 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(expectedFilePath, paths[1], "Wrong path");
         }
 
+        [Test]
+        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateDirectories()
+        {
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(1, fileSystemMock.CreateDirectoryCount,
+                "Unexpected number of created directories");
+            Assert.AreEqual(expectedDirectoryPath, fileSystemMock.DirectoryPath[0],
+                "Wrong directory created");
+        }
+
+        [Test]
+        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateFiles()
+        {
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
+                "Unexpected number of created files");
+            Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0],
+                "Wrong directory created");
+        }
+
         private struct InputType
         {
             public string name;
