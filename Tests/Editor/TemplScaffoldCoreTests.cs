@@ -396,8 +396,7 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
                 "Unexpected number of created files");
-            Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0],
-                "Wrong directory created");
+            Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0], "Wrong directory created");
         }
 
         [Test]
@@ -411,8 +410,7 @@ namespace Willykc.Templ.Editor.Tests
                 TestTargetPath, testInput, testSelection);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount,
-                "Unexpected number of created files");
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of created files");
         }
 
         [Test]
@@ -423,8 +421,18 @@ namespace Willykc.Templ.Editor.Tests
                 TestTargetPath, testInput, testSelection);
 
             // Verify
-            Assert.AreEqual(2, loggerMock.ErrorCount,
-                "Unexpected number of created files");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Unexpected number of created files");
+        }
+
+        [Test]
+        public void GivenSkipPaths_WhenGenerating_ThenShouldNotCreateFiles()
+        {
+            // Act
+            subject.GenerateScaffold(testEmptyDirectoryScaffold,
+                TestTargetPath, testInput, testSelection, new[] { expectedFilePath });
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Should not create file");
         }
 
         private struct InputType
