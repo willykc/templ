@@ -56,18 +56,19 @@ namespace Willykc.Templ.Editor.Tests
         private Object testSelection;
         private string expectedDirectoryPath;
         private string expectedFilePath;
+        private string expectedContent;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
         private EditorUtilityMock editorUtilityMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private TemplScaffold testScaffold;
-        private ScribanAsset testTreeTemplate;
         private TemplScaffold testDynamicScaffold;
-        private ScribanAsset testEmptyTreeTemplate;
-        private ScribanAsset testScaffoldTemplate;
         private TemplScaffold testDynamicScaffoldWithEmptyTemplate;
         private TemplScaffold testEmptyDirectoryScaffold;
         private TemplScaffold testNullTemplateScaffold;
+        private ScribanAsset testTreeTemplate;
+        private ScribanAsset testEmptyTreeTemplate;
+        private ScribanAsset testScaffoldTemplate;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -87,6 +88,11 @@ namespace Willykc.Templ.Editor.Tests
                 .CreateTestAsset<TemplScaffold>(TestEmptyDirectoryScaffoldPath, out _);
             testNullTemplateScaffold = TemplTestUtility
                 .CreateTestAsset<TemplScaffold>(TestNullTemplateScaffoldPath, out _);
+
+            testSelection = testScaffold;
+            expectedDirectoryPath = $"{TestTargetPath}/NewDirectory{InputName}";
+            expectedFilePath = $"{expectedDirectoryPath}/NewFile{testScaffold.name}";
+            expectedContent = $"Hello {InputName} {testScaffold.name}: {expectedFilePath}";
         }
 
         [SetUp]
@@ -103,10 +109,6 @@ namespace Willykc.Templ.Editor.Tests
                 name = InputName,
                 elements = Elements
             };
-
-            testSelection = testScaffold;
-            expectedDirectoryPath = $"{TestTargetPath}/NewDirectory{InputName}";
-            expectedFilePath = $"{expectedDirectoryPath}/NewFile{testScaffold.name}";
         }
 
         [OneTimeTearDown]
@@ -373,7 +375,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateDirectories()
+        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateCorrectDirectories()
         {
             // Act
             subject.GenerateScaffold(testScaffold,
@@ -387,7 +389,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateFiles()
+        public void GivenValidScaffold_WhenGenerating_ThenShouldCreateCorrectFiles()
         {
             // Act
             subject.GenerateScaffold(testScaffold,
@@ -396,7 +398,8 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
                 "Unexpected number of created files");
-            Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0], "Wrong directory created");
+            Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0], "Wrong file created");
+            Assert.AreEqual(expectedContent, fileSystemMock.Contents[0], "Wrong file contents");
         }
 
         [Test]
@@ -410,7 +413,7 @@ namespace Willykc.Templ.Editor.Tests
                 TestTargetPath, testInput, testSelection);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of created files");
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors");
         }
 
         [Test]
@@ -421,7 +424,7 @@ namespace Willykc.Templ.Editor.Tests
                 TestTargetPath, testInput, testSelection);
 
             // Verify
-            Assert.AreEqual(2, loggerMock.ErrorCount, "Unexpected number of created files");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Unexpected number of errors");
         }
 
         [Test]
