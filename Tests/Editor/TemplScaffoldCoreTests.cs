@@ -415,6 +415,18 @@ namespace Willykc.Templ.Editor.Tests
                 "Unexpected number of created files");
         }
 
+        [Test]
+        public void GivenScaffoldValidationErrors_WhenGenerating_ThenShouldLogErrors()
+        {
+            // Act
+            subject.GenerateScaffold(testEmptyDirectoryScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(2, loggerMock.ErrorCount,
+                "Unexpected number of created files");
+        }
+
         private struct InputType
         {
             public string name;
