@@ -38,6 +38,9 @@ namespace Willykc.Templ.Editor
         internal const string NameOfOutputAssetPath = nameof(TemplEntry.OutputAssetPath);
         internal const string DefaultConfigFolder = "Assets/Editor/TemplData";
 
+        internal static readonly string[] EmptyStringArray = new string[0];
+        internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
+
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
 

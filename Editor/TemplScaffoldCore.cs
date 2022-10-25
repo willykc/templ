@@ -42,8 +42,6 @@ namespace Willykc.Templ.Editor
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
 
-        private static readonly string[] EmptyStringArray = new string[0];
-
         private readonly IFileSystem fileSystem;
         private readonly ILogger log;
         private readonly IEditorUtility editorUtility;

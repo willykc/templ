@@ -24,6 +24,8 @@ namespace Willykc.Templ.Editor
     internal static class TemplStringExtensions
     {
         internal static string Capitalize(this string input) =>
-            char.ToUpperInvariant(input[0]) + input.Substring(1);
+            !string.IsNullOrEmpty(input)
+            ? char.ToUpperInvariant(input[0]) + input.Substring(1)
+            : string.Empty;
     }
 }

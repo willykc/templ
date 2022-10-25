@@ -309,14 +309,14 @@ namespace Willykc.Templ.Editor
         {
             var imported = entry.DeclaresChangeType(ChangeType.Import)
                 ? changes.importedAssets.Select(p => new AssetChange(ChangeType.Import, p))
-                : new AssetChange[0];
+                : EmptyAssetChangeArray;
             var moved = entry.DeclaresChangeType(ChangeType.Move)
                 ? changes.movedAssets.Select((p, i) =>
                 new AssetChange(ChangeType.Move, p, changes.movedFromAssetPaths[i]))
-                : new AssetChange[0];
+                : EmptyAssetChangeArray;
             var deleted = entry.DeclaresChangeType(ChangeType.Delete)
                 ? changes.deletedAssets.Select(p => new AssetChange(ChangeType.Delete, p))
-                : new AssetChange[0];
+                : EmptyAssetChangeArray;
             return imported
                 .Union(moved)
                 .Union(deleted)
