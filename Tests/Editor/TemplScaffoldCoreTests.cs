@@ -439,6 +439,34 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Should not create file");
         }
 
+        [Test]
+        public void GivenValidScaffold_WhenValidating_ThenShouldShowProgress()
+        {
+            // Act
+            subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath,
+                testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(3, editorUtilityMock.DisplayProgressBarCount,
+                "Unexpected number of calls to display progress bar");
+            Assert.AreEqual(1, editorUtilityMock.ClearProgressBarCount,
+                "Unexpected number of calls to clear progress bar");
+        }
+
+        [Test]
+        public void GivenValidScaffold_WhenGenerating_ThenShouldShowProgress()
+        {
+            // Act
+            subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(6, editorUtilityMock.DisplayProgressBarCount,
+                "Unexpected number of calls to display progress bar");
+            Assert.AreEqual(2, editorUtilityMock.ClearProgressBarCount,
+                "Unexpected number of calls to clear progress bar");
+        }
+
         internal struct InputType
         {
             public string name;
