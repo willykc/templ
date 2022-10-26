@@ -27,5 +27,18 @@ namespace Willykc.Templ.Editor
             !string.IsNullOrEmpty(input)
             ? char.ToUpperInvariant(input[0]) + input.Substring(1)
             : string.Empty;
+
+        internal static string ReplaceFirst(this string input, string search, string replace) =>
+            string.IsNullOrEmpty(input) ||
+            string.IsNullOrEmpty(search) ||
+            string.IsNullOrEmpty(replace) ||
+            (input.IndexOf(search) is int pos && pos < 0)
+            ? input
+            : input.Substring(0, pos) + replace + input.Substring(pos + search.Length);
+
+        internal static string RemoveLast(this string input, int count) =>
+            string.IsNullOrEmpty(input) || input.Length < count
+            ? string.Empty
+            : input.Remove(input.Length - count);
     }
 }

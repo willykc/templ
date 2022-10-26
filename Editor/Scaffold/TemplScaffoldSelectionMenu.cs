@@ -29,7 +29,10 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         private const string MenuName = "Assets/Generate Templ Scaffold";
         private const string AssetsPath = "Assets/";
-        private const string AssetExtension = ".asset";
+        private const string AssetsPrefix = "Assets > ";
+        private const string PackagesPath = "Packages/";
+        private const string PackagesPrefix = "Packages > ";
+        private const int AssetExtensionLength = 6;
 
         private static readonly Rect EmptyRect = new Rect();
         private static readonly Vector2 Size = new Vector2(1, 1);
@@ -46,7 +49,9 @@ namespace Willykc.Templ.Editor.Scaffold
 
         [MenuItem(MenuName, isValidateFunction: true)]
         private static bool ValidateShowScaffoldsMenu() =>
-            TemplSettings.Instance && TemplSettings.Instance.ValidScaffolds.Count > 0;
+            TemplSettings.Instance &&
+            TemplSettings.Instance.ValidScaffolds.Count > 0 &&
+            !Selection.activeObject.IsReadOnly();
 
         private void Awake() => settings = TemplSettings.Instance;
 
@@ -59,8 +64,9 @@ namespace Willykc.Templ.Editor.Scaffold
             foreach (var scaffold in settings.ValidScaffolds.Distinct())
             {
                 var path = AssetDatabase.GetAssetPath(scaffold)
-                    .Replace(AssetsPath, string.Empty)
-                    .Replace(AssetExtension, string.Empty);
+                    .ReplaceFirst(AssetsPath, AssetsPrefix)
+                    .ReplaceFirst(PackagesPath, PackagesPrefix)
+                    .RemoveLast(AssetExtensionLength);
                 menu.AddItem(new GUIContent(path), false, OnScaffoldSelected, scaffold);
             }
 

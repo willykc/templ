@@ -40,5 +40,21 @@ namespace Willykc.Templ.Editor
                 ? Path.GetDirectoryName(path)
                 : Path.Combine(path);
         }
+
+        internal static bool IsReadOnly(this Object asset)
+        {
+            var path = AssetDatabase.GetAssetPath(asset);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return true;
+            }
+
+            var info = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(path);
+
+            return info != null &&
+                info.source != UnityEditor.PackageManager.PackageSource.Embedded &&
+                info.source != UnityEditor.PackageManager.PackageSource.Local;
+        }
     }
 }
