@@ -74,6 +74,24 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
 
+        [Test]
+        public void GivenNewScaffold_WhenMovingNodes_ThenShowTriggerChangedEvent()
+        {
+            // Setup
+            var rootArray = new[] { root };
+            subject.AddScaffoldDirectoryNode(rootArray);
+            subject.AddScaffoldFileNode(rootArray);
+            var directoryNode = subject.Root.Children[0];
+            var fileNode = subject.Root.Children[1];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.MoveScaffoldNodes(directoryNode, 0, new[] { fileNode });
+
+            // Verify
+            Assert.IsTrue(changedTriggered, "Change event did not trigger");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
