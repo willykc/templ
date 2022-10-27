@@ -49,7 +49,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenAddingFileNodes_ThenShowTriggerChangedEvent()
+        public void GivenNewScaffold_WhenAddingFileNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
             subject.Change += OnChanged;
@@ -62,7 +62,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenAddingDirectoryNodes_ThenShowTriggerChangedEvent()
+        public void GivenNewScaffold_WhenAddingDirectoryNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
             subject.Change += OnChanged;
@@ -75,7 +75,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenMovingNodes_ThenShowTriggerChangedEvent()
+        public void GivenNewScaffold_WhenMovingNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
             var rootArray = new[] { root };
@@ -93,7 +93,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenRemovingNodes_ThenShowTriggerChangedEvent()
+        public void GivenNewScaffold_WhenRemovingNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
             var rootArray = new[] { root };
@@ -109,7 +109,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenCloningNodes_ThenShowTriggerChangedEvent()
+        public void GivenNewScaffold_WhenCloningNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
             var rootArray = new[] { root };
