@@ -45,5 +45,24 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.NotNull(root, "Expected not null root");
         }
+
+        [Test]
+        public void GivenNewScaffold_WhenAddingFileNodes_ThenShowTriggerChangedEvent()
+        {
+            // Setup
+            var changedTriggered = false;
+            subject.Change += OnChanged;
+
+            void OnChanged(IReadOnlyList<TemplScaffoldNode> _)
+            {
+                changedTriggered = true;
+            }
+
+            // Act
+            subject.AddScaffoldFileNode(new[] { root });
+
+            // Verify
+            Assert.IsTrue(changedTriggered, "Change event did not trigger");
+        }
     }
 }
