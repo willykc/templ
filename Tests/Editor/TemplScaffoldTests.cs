@@ -31,10 +31,12 @@ namespace Willykc.Templ.Editor.Tests
     {
         private TemplScaffold subject;
         private TemplScaffoldRoot root;
+        private bool changedTriggered;
 
         [SetUp]
         public void BeforeEach()
         {
+            changedTriggered = false;
             subject = ScriptableObject.CreateInstance<TemplScaffold>();
             root = subject.Root;
         }
@@ -50,13 +52,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenNewScaffold_WhenAddingFileNodes_ThenShowTriggerChangedEvent()
         {
             // Setup
-            var changedTriggered = false;
             subject.Change += OnChanged;
-
-            void OnChanged(IReadOnlyList<TemplScaffoldNode> _)
-            {
-                changedTriggered = true;
-            }
 
             // Act
             subject.AddScaffoldFileNode(new[] { root });
@@ -64,5 +60,20 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
+
+        [Test]
+        public void GivenNewScaffold_WhenAddingDirectoryNodes_ThenShowTriggerChangedEvent()
+        {
+            // Setup
+            subject.Change += OnChanged;
+
+            // Act
+            subject.AddScaffoldDirectoryNode(new[] { root });
+
+            // Verify
+            Assert.IsTrue(changedTriggered, "Change event did not trigger");
+        }
+
+        private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
