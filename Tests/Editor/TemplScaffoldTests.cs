@@ -24,29 +24,26 @@ using NUnit.Framework;
 namespace Willykc.Templ.Editor.Tests
 {
     using Scaffold;
+    using System.Collections.Generic;
+    using UnityEngine;
 
     internal class TemplScaffoldTests
     {
         private TemplScaffold subject;
-
-        [OneTimeSetUp]
-        public void BeforeAll()
-        {
-        }
+        private TemplScaffoldRoot root;
 
         [SetUp]
         public void BeforeEach()
         {
+            subject = ScriptableObject.CreateInstance<TemplScaffold>();
+            root = subject.Root;
         }
 
         [Test]
-        public void Given_When_Then()
+        public void GivenNewScaffold_WhenInstantiated_ThenRootShouldNotBeNull()
         {
-            // Setup
-
-            // Act
-
             // Verify
+            Assert.NotNull(root, "Expected not null root");
         }
     }
 }
