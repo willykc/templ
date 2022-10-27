@@ -92,6 +92,22 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
 
+        [Test]
+        public void GivenNewScaffold_WhenRemovingNodes_ThenShowTriggerChangedEvent()
+        {
+            // Setup
+            var rootArray = new[] { root };
+            subject.AddScaffoldDirectoryNode(rootArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.RemoveScaffoldNodes(new[] { directoryNode });
+
+            // Verify
+            Assert.IsTrue(changedTriggered, "Change event did not trigger");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
