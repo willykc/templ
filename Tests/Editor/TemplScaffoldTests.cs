@@ -124,12 +124,18 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
 
-
         [Test]
-        public void GivenNewScaffold_WhenInstantiated_ThenRootShouldBeValid()
+        public void GivenNewScaffold_WhenInstantiated_ThenShouldBeValid()
         {
             // Verify
             Assert.IsTrue(subject.IsValid, "Expected valid scaffold");
+        }
+
+        [Test]
+        public void GivenNewScaffold_WhenInstantiated_ThenDefaultInputShouldBeNull()
+        {
+            // Verify
+            Assert.IsNull(subject.DefaultInput, "Expected null default input");
         }
 
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
