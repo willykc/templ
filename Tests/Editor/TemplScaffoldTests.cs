@@ -124,6 +124,14 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
 
+
+        [Test]
+        public void GivenNewScaffold_WhenInstantiated_ThenRootShouldBeValid()
+        {
+            // Verify
+            Assert.IsTrue(subject.IsValid, "Expected valid scaffold");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
