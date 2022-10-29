@@ -42,7 +42,8 @@ namespace Willykc.Templ.Editor.Tests
         {
             testScaffoldTemplate = TemplTestUtility
                 .CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
-            loadedSubject = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
+            loadedSubject = TemplTestUtility
+                .CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
         }
 
         [SetUp]
