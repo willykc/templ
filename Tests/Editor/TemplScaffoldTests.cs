@@ -438,6 +438,24 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(fileNode, directoryNode.Children[0], "Unexpected child");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenCloningRoot_ThenShouldNotCloneIt()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.AddScaffoldFileNode(new[] { directoryNode });
+            var fileNode = directoryNode.Children[0];
+
+            // Act
+            subject.CloneScaffoldNodes(new[] { subject.Root });
+
+            // Verify
+            Assert.AreEqual(3, subject.Root.NodeCount, "Unexpected total number of nodes");
+            Assert.AreEqual(directoryNode, subject.Root.Children[0], "Unexpected child");
+            Assert.AreEqual(fileNode, directoryNode.Children[0], "Unexpected child");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
