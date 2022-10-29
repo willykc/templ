@@ -360,7 +360,7 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             // Verify
-            Assert.Throws(typeof(ArgumentException), Act);
+            Assert.Throws(typeof(ArgumentException), Act, "Expected ArgumentException thrown");
         }
 
         [Test]
@@ -379,7 +379,7 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             // Verify
-            Assert.Throws(typeof(ArgumentException), Act);
+            Assert.Throws(typeof(ArgumentException), Act, "Expected ArgumentException thrown");
         }
 
         [Test]
@@ -398,7 +398,8 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             // Verify
-            Assert.Throws(typeof(InvalidOperationException), Act);
+            Assert.Throws(typeof(InvalidOperationException), Act,
+                "Expected InvalidOperationException thrown");
         }
 
         [Test]
@@ -417,7 +418,8 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             // Verify
-            Assert.Throws(typeof(InvalidOperationException), Act);
+            Assert.Throws(typeof(InvalidOperationException), Act,
+                "Expected InvalidOperationException thrown");
         }
 
         [Test]
