@@ -98,7 +98,17 @@ namespace Willykc.Templ.Editor.Tests
             var containsTemplate = loadedSubject.ContainsTemplate(testTreeTemplate);
 
             // Verify
-            Assert.IsTrue(containsTemplate, "Expected valid dynamic scaffold");
+            Assert.IsTrue(containsTemplate, "Expected contained template");
+        }
+
+        [Test]
+        public void GivenNewDynamicScaffold_WhenCheckingIfTemplateContained_ThenShouldBeFalse()
+        {
+            // Act
+            var containsTemplate = subject.ContainsTemplate(testTreeTemplate);
+
+            // Verify
+            Assert.IsFalse(containsTemplate, "Expected not contained template");
         }
     }
 }
