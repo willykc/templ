@@ -160,7 +160,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenScaffoldWithNodes_WhenAddingFileNodes_ThenShouldAddFileChildToInputNode()
+        public void GivenScaffoldWithNodes_WhenAddingFileNodes_ThenShouldAddToInputNode()
         {
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
@@ -173,6 +173,23 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(1, directoryNode.Children.Count, "Unexpected number of children");
             Assert.That(directoryNode.Children[0], Is.TypeOf<TemplScaffoldFile>(),
+                "Unexpected child type");
+        }
+
+        [Test]
+        public void GivenScaffoldWithNodes_WhenAddingDirectoryNodes_ThenShouldAddToInputNode()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.AddScaffoldDirectoryNode(new[] { directoryNode });
+
+            // Verify
+            Assert.AreEqual(1, directoryNode.Children.Count, "Unexpected number of children");
+            Assert.That(directoryNode.Children[0], Is.TypeOf<TemplScaffoldDirectory>(),
                 "Unexpected child type");
         }
 
