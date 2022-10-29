@@ -159,6 +159,23 @@ namespace Willykc.Templ.Editor.Tests
                 "Unexpected child type");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenAddingFileNodes_ThenShouldAddFileChildToInputNode()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.AddScaffoldFileNode(new[] { directoryNode });
+
+            // Verify
+            Assert.AreEqual(1, directoryNode.Children.Count, "Unexpected number of children");
+            Assert.That(directoryNode.Children[0], Is.TypeOf<TemplScaffoldFile>(),
+                "Unexpected child type");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
