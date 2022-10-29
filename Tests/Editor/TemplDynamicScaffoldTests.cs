@@ -77,5 +77,12 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsFalse(subject.IsValid, "Expected invalid dynamic scaffold");
         }
+
+        [Test]
+        public void GivenValidDynamicScaffold_WhenCheckingValidity_ThenShouldBeTrue()
+        {
+            // Verify
+            Assert.IsTrue(loadedSubject.IsValid, "Expected valid dynamic scaffold");
+        }
     }
 }
