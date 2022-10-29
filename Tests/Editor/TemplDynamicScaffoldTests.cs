@@ -74,15 +74,31 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenNewDynamicScaffold_WhenInstantiated_ThenShouldBeInvalid()
         {
+            // Act
+            var isValid = subject.IsValid;
+
             // Verify
-            Assert.IsFalse(subject.IsValid, "Expected invalid dynamic scaffold");
+            Assert.IsFalse(isValid, "Expected invalid dynamic scaffold");
         }
 
         [Test]
         public void GivenValidDynamicScaffold_WhenCheckingValidity_ThenShouldBeTrue()
         {
+            // Act
+            var isValid = loadedSubject.IsValid;
+
             // Verify
-            Assert.IsTrue(loadedSubject.IsValid, "Expected valid dynamic scaffold");
+            Assert.IsTrue(isValid, "Expected valid dynamic scaffold");
+        }
+
+        [Test]
+        public void GivenDynamicScaffoldWithTemplate_WhenCheckingIfContained_ThenShouldBeTrue()
+        {
+            // Act
+            var containsTemplate = loadedSubject.ContainsTemplate(testTreeTemplate);
+
+            // Verify
+            Assert.IsTrue(containsTemplate, "Expected valid dynamic scaffold");
         }
     }
 }
