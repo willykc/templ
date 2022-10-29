@@ -305,6 +305,24 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsFalse(containsTemplate, "Expected template contained");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenAddingNodeToFileNode_ThenShouldAddItToParentNode()
+        {
+            // Setup
+            subject.AddScaffoldFileNode(emptyNodeArray);
+            var fileNode = subject.Root.Children[0];
+
+            // Act
+            subject.AddScaffoldFileNode(new[] { fileNode });
+
+            // Verify
+            Assert.AreEqual(2, subject.Root.Children.Count, "Unexpected number of root children");
+            Assert.That(subject.Root.Children[0], Is.TypeOf<TemplScaffoldFile>(),
+                "Unexpected child type");
+            Assert.That(subject.Root.Children[1], Is.TypeOf<TemplScaffoldFile>(),
+                "Unexpected child type");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
