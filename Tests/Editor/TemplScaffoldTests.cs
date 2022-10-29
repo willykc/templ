@@ -400,6 +400,25 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws(typeof(InvalidOperationException), Act);
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenMovingToFileNode_ThenShouldThrowException()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            subject.AddScaffoldFileNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            var fileNode = subject.Root.Children[1];
+
+            void Act()
+            {
+                // Act
+                subject.MoveScaffoldNodes(fileNode, 0, new[] { directoryNode });
+            }
+
+            // Verify
+            Assert.Throws(typeof(InvalidOperationException), Act);
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
