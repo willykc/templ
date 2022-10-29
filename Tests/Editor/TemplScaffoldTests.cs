@@ -34,14 +34,14 @@ namespace Willykc.Templ.Editor.Tests
         private TemplScaffoldNode[] emptyNodeArray;
         private bool changedTriggered;
         private ScribanAsset testScaffoldTemplate;
-        private TemplScaffold testScaffold;
+        private TemplScaffold loadedSubject;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             testScaffoldTemplate = TemplTestUtility
                 .CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
-            testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
+            loadedSubject = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
         }
 
         [SetUp]
@@ -56,7 +56,7 @@ namespace Willykc.Templ.Editor.Tests
         public void AfterAll()
         {
             TemplTestUtility.DeleteTestAsset(testScaffoldTemplate);
-            TemplTestUtility.DeleteTestAsset(testScaffold);
+            TemplTestUtility.DeleteTestAsset(loadedSubject);
         }
 
         [Test]
@@ -266,7 +266,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidScaffold_WhenCheckingValidity_ThenShouldBeTrue()
         {
             // Act
-            var isValid = testScaffold.IsValid;
+            var isValid = loadedSubject.IsValid;
 
             // Verify
             Assert.IsTrue(isValid, "Expected valid scaffold");
@@ -283,6 +283,26 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(isValid, "Expected invalid scaffold");
+        }
+
+        [Test]
+        public void GivenScaffoldWithTemplate_WhenCheckingIfContained_ThenShouldReturnTrue()
+        {
+            // Act
+            var containsTemplate = loadedSubject.ContainsTemplate(testScaffoldTemplate);
+
+            // Verify
+            Assert.IsTrue(containsTemplate, "Expected template contained");
+        }
+
+        [Test]
+        public void GivenScaffoldWithoutTemplate_WhenCheckingIfContained_ThenShouldReturnFalse()
+        {
+            // Act
+            var containsTemplate = subject.ContainsTemplate(testScaffoldTemplate);
+
+            // Verify
+            Assert.IsFalse(containsTemplate, "Expected template contained");
         }
 
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
