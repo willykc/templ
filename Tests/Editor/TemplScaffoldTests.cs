@@ -362,6 +362,25 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws(typeof(ArgumentException), Act);
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenMovingToIndexOutOfRange_ThenShouldThrowException()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            subject.AddScaffoldFileNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            var fileNode = subject.Root.Children[1];
+
+            void Act()
+            {
+                // Act
+                subject.MoveScaffoldNodes(directoryNode, 5, new[] { fileNode });
+            }
+
+            // Verify
+            Assert.Throws(typeof(ArgumentException), Act);
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
