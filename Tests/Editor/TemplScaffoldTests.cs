@@ -339,8 +339,8 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(changedTriggered, "Unexpected change event trigger");
-            Assert.AreEqual(directoryNode, subject.Root.Children[0], "Unexpected child type");
-            Assert.AreEqual(fileNode, subject.Root.Children[1], "Unexpected child type");
+            Assert.AreEqual(directoryNode, subject.Root.Children[0], "Unexpected child");
+            Assert.AreEqual(fileNode, subject.Root.Children[1], "Unexpected child");
         }
 
         [Test]
@@ -417,6 +417,25 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.Throws(typeof(InvalidOperationException), Act);
+        }
+
+        [Test]
+        public void GivenScaffoldWithNodes_WhenCloningEmptyArray_ThenShouldNotChangeScaffold()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.AddScaffoldFileNode(new[] { directoryNode });
+            var fileNode = directoryNode.Children[0];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.CloneScaffoldNodes(emptyNodeArray);
+
+            // Verify
+            Assert.IsFalse(changedTriggered, "Unexpected change event trigger");
+            Assert.AreEqual(directoryNode, subject.Root.Children[0], "Unexpected child");
+            Assert.AreEqual(fileNode, directoryNode.Children[0], "Unexpected child");
         }
 
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
