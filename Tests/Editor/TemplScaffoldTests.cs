@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -340,6 +341,25 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsFalse(changedTriggered, "Unexpected change event trigger");
             Assert.AreEqual(directoryNode, subject.Root.Children[0], "Unexpected child type");
             Assert.AreEqual(fileNode, subject.Root.Children[1], "Unexpected child type");
+        }
+
+        [Test]
+        public void GivenScaffoldWithNodes_WhenMovingToNegativeIndex_ThenShouldThrowException()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            subject.AddScaffoldFileNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            var fileNode = subject.Root.Children[1];
+
+            void Act()
+            {
+                // Act
+                subject.MoveScaffoldNodes(directoryNode, -1, new[] { fileNode });
+            }
+
+            // Verify
+            Assert.Throws(typeof(ArgumentException), Act);
         }
 
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
