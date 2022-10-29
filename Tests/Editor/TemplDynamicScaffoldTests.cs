@@ -64,5 +64,11 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNull(subject.Root, "Expected null root");
         }
 
+        [Test]
+        public void GivenNewDynamicScaffold_WhenInstantiated_ThenTreeTemplateShouldBeNull()
+        {
+            // Verify
+            Assert.IsNull(subject.TreeTemplate, "Expected null tree template");
+        }
     }
 }
