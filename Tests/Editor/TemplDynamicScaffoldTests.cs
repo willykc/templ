@@ -70,5 +70,12 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsNull(subject.TreeTemplate, "Expected null tree template");
         }
+
+        [Test]
+        public void GivenNewDynamicScaffold_WhenInstantiated_ThenShouldBeInvalid()
+        {
+            // Verify
+            Assert.IsFalse(subject.IsValid, "Expected invalid dynamic scaffold");
+        }
     }
 }
