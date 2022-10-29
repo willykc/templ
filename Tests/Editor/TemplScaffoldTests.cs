@@ -212,6 +212,22 @@ namespace Willykc.Templ.Editor.Tests
             Assert.That(directoryNode.Children[1], Is.EqualTo(fileNode), "Expected child");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenRemovingNodes_ThenShouldRemoveCorrectNode()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.RemoveScaffoldNodes(new[] { directoryNode });
+
+            // Verify
+            Assert.That(subject.Root.Children, Does.Not.Contains(directoryNode),
+                "Did not remove node");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
