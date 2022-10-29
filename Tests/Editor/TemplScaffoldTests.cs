@@ -165,7 +165,6 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
-            subject.Change += OnChanged;
 
             // Act
             subject.AddScaffoldFileNode(new[] { directoryNode });
@@ -182,7 +181,6 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
-            subject.Change += OnChanged;
 
             // Act
             subject.AddScaffoldDirectoryNode(new[] { directoryNode });
@@ -202,7 +200,6 @@ namespace Willykc.Templ.Editor.Tests
             var directoryNode = subject.Root.Children[0];
             subject.AddScaffoldFileNode(new[] { directoryNode });
             var fileNode = subject.Root.Children[1];
-            subject.Change += OnChanged;
 
             // Act
             subject.MoveScaffoldNodes(directoryNode, 1, new[] { fileNode });
@@ -218,7 +215,6 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
-            subject.Change += OnChanged;
 
             // Act
             subject.RemoveScaffoldNodes(new[] { directoryNode });
