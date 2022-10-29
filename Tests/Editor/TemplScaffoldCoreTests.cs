@@ -33,12 +33,12 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffold.asset";
         internal const string TestScaffoldTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestScaffoldTemplate.sbn";
+        internal const string TestDynamicScaffoldPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestDynamicScaffold.asset";
+        internal const string TestTreeTemplatePath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTreeTemplate.sbn";
         internal const string TestTargetPath = "Assets/Some/Path";
 
-        private const string TestDynamicScaffoldPath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestDynamicScaffold.asset";
-        private const string TestTreeTemplatePath =
-            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTreeTemplate.sbn";
         private const string TestDynamicScaffoldWithEmptyTemplatePath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/" +
             "TestDynamicScaffoldWithEmptyTemplate.asset";
