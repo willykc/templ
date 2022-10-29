@@ -30,22 +30,22 @@ namespace Willykc.Templ.Editor.Tests
     internal class TemplScaffoldTests
     {
         private TemplScaffold subject;
-        private TemplScaffoldRoot root;
+        private TemplScaffoldNode[] emptyNodeArray;
         private bool changedTriggered;
 
         [SetUp]
         public void BeforeEach()
         {
             changedTriggered = false;
+            emptyNodeArray = new TemplScaffoldNode[0];
             subject = ScriptableObject.CreateInstance<TemplScaffold>();
-            root = subject.Root;
         }
 
         [Test]
         public void GivenNewScaffold_WhenInstantiated_ThenRootShouldNotBeNull()
         {
             // Verify
-            Assert.NotNull(root, "Expected not null root");
+            Assert.NotNull(subject.Root, "Expected not null root");
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.Change += OnChanged;
 
             // Act
-            subject.AddScaffoldFileNode(new[] { root });
+            subject.AddScaffoldFileNode(emptyNodeArray);
 
             // Verify
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
@@ -68,19 +68,18 @@ namespace Willykc.Templ.Editor.Tests
             subject.Change += OnChanged;
 
             // Act
-            subject.AddScaffoldDirectoryNode(new[] { root });
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
 
             // Verify
             Assert.IsTrue(changedTriggered, "Change event did not trigger");
         }
 
         [Test]
-        public void GivenNewScaffold_WhenMovingNodes_ThenShouldTriggerChangedEvent()
+        public void GivenScaffoldWithNodes_WhenMovingNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
-            var rootArray = new[] { root };
-            subject.AddScaffoldDirectoryNode(rootArray);
-            subject.AddScaffoldFileNode(rootArray);
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            subject.AddScaffoldFileNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
             var fileNode = subject.Root.Children[1];
             subject.Change += OnChanged;
@@ -93,11 +92,10 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenRemovingNodes_ThenShouldTriggerChangedEvent()
+        public void GivenScaffoldWithNodes_WhenRemovingNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
-            var rootArray = new[] { root };
-            subject.AddScaffoldDirectoryNode(rootArray);
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
             subject.Change += OnChanged;
 
@@ -109,11 +107,10 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewScaffold_WhenCloningNodes_ThenShouldTriggerChangedEvent()
+        public void GivenScaffoldWithNodes_WhenCloningNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
-            var rootArray = new[] { root };
-            subject.AddScaffoldDirectoryNode(rootArray);
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
             subject.Change += OnChanged;
 
