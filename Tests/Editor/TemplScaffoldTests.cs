@@ -135,6 +135,18 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNull(subject.DefaultInput, "Expected null default input");
         }
 
+        [Test]
+        public void GivenNewScaffold_WhenAddingFileNodes_ThenShouldAddFileChildToRoot()
+        {
+            // Act
+            subject.AddScaffoldFileNode(emptyNodeArray);
+
+            // Verify
+            Assert.AreEqual(1, subject.Root.Children.Count, "Unexpected number of children");
+            Assert.That(subject.Root.Children[0], Is.TypeOf<TemplScaffoldFile>(),
+                "Unexpected child type");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
