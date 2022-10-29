@@ -20,8 +20,6 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
@@ -109,6 +107,26 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(containsTemplate, "Expected not contained template");
+        }
+
+        [Test]
+        public void GivenNewDynamicScaffold_WhenDeserializing_ThenShouldBuildTree()
+        {
+            // Setup
+            var directoryName = "TestDirectory";
+            var fileName = "test.txt";
+            var treeText = "- " + directoryName + ":\r\n    - " +
+                fileName + ": 44d4dcb342fdfb340bc506f0cc2bc93a\r\n";
+
+            // Act
+            subject.Deserialize(treeText);
+
+            // Verify
+            Assert.IsNotNull(subject.Root, "Root should not be null");
+            Assert.AreEqual(3, subject.Root.NodeCount, "Unexpected total node count");
+            Assert.AreEqual(directoryName, subject.Root.Children[0].name, "Unexpected node name");
+            Assert.AreEqual(fileName, subject.Root.Children[0].Children[0].name,
+                "Unexpected node name");
         }
     }
 }
