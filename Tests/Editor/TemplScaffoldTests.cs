@@ -20,18 +20,29 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Scaffold;
-    using System.Collections.Generic;
-    using UnityEngine;
+    using static TemplScaffoldCoreTests;
 
     internal class TemplScaffoldTests
     {
         private TemplScaffold subject;
         private TemplScaffoldNode[] emptyNodeArray;
         private bool changedTriggered;
+        private ScribanAsset testScaffoldTemplate;
+        private TemplScaffold testScaffold;
+
+        [OneTimeSetUp]
+        public void BeforeAll()
+        {
+            testScaffoldTemplate = TemplTestUtility
+                .CreateTestAsset<ScribanAsset>(TestScaffoldTemplatePath, out _);
+            testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
+        }
 
         [SetUp]
         public void BeforeEach()
@@ -39,6 +50,13 @@ namespace Willykc.Templ.Editor.Tests
             changedTriggered = false;
             emptyNodeArray = new TemplScaffoldNode[0];
             subject = ScriptableObject.CreateInstance<TemplScaffold>();
+        }
+
+        [OneTimeTearDown]
+        public void AfterAll()
+        {
+            TemplTestUtility.DeleteTestAsset(testScaffoldTemplate);
+            TemplTestUtility.DeleteTestAsset(testScaffold);
         }
 
         [Test]
@@ -242,6 +260,29 @@ namespace Willykc.Templ.Editor.Tests
                 "Cloned nodes should have equal names");
             Assert.AreEqual(fileNode.name, subject.Root.Children[1].Children[0].name,
                 "Cloned nodes should have equal names");
+        }
+
+        [Test]
+        public void GivenValidScaffold_WhenCheckingValidity_ThenShouldBeTrue()
+        {
+            // Act
+            var isValid = testScaffold.IsValid;
+
+            // Verify
+            Assert.IsTrue(isValid, "Expected valid scaffold");
+        }
+
+        [Test]
+        public void GivenInvalidScaffold_WhenCheckingValidity_ThenShouldBeFalse()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+
+            // Act
+            var isValid = subject.IsValid;
+
+            // Verify
+            Assert.IsFalse(isValid, "Expected invalid scaffold");
         }
 
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
