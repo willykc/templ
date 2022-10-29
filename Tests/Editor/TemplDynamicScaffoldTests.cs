@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using System;
 using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
@@ -110,7 +111,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenNewDynamicScaffold_WhenDeserializing_ThenShouldBuildTree()
+        public void GivenNewDynamicScaffold_WhenDeserializingValidYAML_ThenShouldBuildTree()
         {
             // Setup
             var directoryName = "TestDirectory";
@@ -127,6 +128,23 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(directoryName, subject.Root.Children[0].name, "Unexpected node name");
             Assert.AreEqual(fileName, subject.Root.Children[0].Children[0].name,
                 "Unexpected node name");
+        }
+
+        [Test]
+        public void GivenNewDynamicScaffold_WhenDeserializingInvalidYAML_ThenShouldThrowException()
+        {
+            // Setup
+            var treeText = "        - TestDirectory:" +
+                "\r\n    test.txt: 44d4dcb342fdfb340bc506f0cc2bc93a\r\n";
+
+            void Act()
+            {
+                // Act
+                subject.Deserialize(treeText);
+            }
+
+            // Verify
+            Assert.Throws(Is.AssignableTo<Exception>(), Act, "Expected exception");
         }
     }
 }
