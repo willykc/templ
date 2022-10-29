@@ -193,6 +193,25 @@ namespace Willykc.Templ.Editor.Tests
                 "Unexpected child type");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenMovingNodes_ThenShouldMoveThemCorrectly()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            subject.AddScaffoldFileNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.AddScaffoldFileNode(new[] { directoryNode });
+            var fileNode = subject.Root.Children[1];
+            subject.Change += OnChanged;
+
+            // Act
+            subject.MoveScaffoldNodes(directoryNode, 1, new[] { fileNode });
+
+            // Verify
+            Assert.That(subject.Root.Children, Does.Not.Contains(fileNode), "Unexpected child");
+            Assert.That(directoryNode.Children[1], Is.EqualTo(fileNode), "Expected child");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
