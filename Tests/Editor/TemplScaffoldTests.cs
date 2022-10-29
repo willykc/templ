@@ -224,6 +224,26 @@ namespace Willykc.Templ.Editor.Tests
                 "Did not remove node");
         }
 
+        [Test]
+        public void GivenScaffoldWithNodes_WhenCloningNodes_ThenShouldCloneCorrectly()
+        {
+            // Setup
+            subject.AddScaffoldDirectoryNode(emptyNodeArray);
+            var directoryNode = subject.Root.Children[0];
+            subject.AddScaffoldFileNode(new[] { directoryNode });
+            var fileNode = directoryNode.Children[0];
+
+            // Act
+            subject.CloneScaffoldNodes(new[] { directoryNode });
+
+            // Verify
+            Assert.AreEqual(5, subject.Root.NodeCount, "Unexpected total number of nodes");
+            Assert.AreEqual(directoryNode.name, subject.Root.Children[1].name,
+                "Cloned nodes should have equal names");
+            Assert.AreEqual(fileNode.name, subject.Root.Children[1].Children[0].name,
+                "Cloned nodes should have equal names");
+        }
+
         private void OnChanged(IReadOnlyList<TemplScaffoldNode> _) => changedTriggered = true;
     }
 }
