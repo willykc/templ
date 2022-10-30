@@ -24,6 +24,7 @@ using NUnit.Framework;
 namespace Willykc.Templ.Editor.Tests
 {
     using Scaffold;
+    using System;
     using static TemplScaffoldCoreTests;
     using subject = Scaffold.TemplScaffoldYamlSerializer;
 
@@ -90,6 +91,24 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(3, result.NodeCount, "Unexpected total number of nodes");
             Assert.AreEqual(directoryName, result.Children[0].name, "Unexpected node name");
             Assert.AreEqual(fileName, result.Children[0].Children[0].name, "Unexpected node name");
+        }
+
+        [Test]
+        public void GivenYAMLWithNoRootCollection_WhenDeserializing_ThenShouldThrowException()
+        {
+            // Setup
+            var serializedTree = "NewDirectory:\r\n    " +
+                "- NewFile: 123163d8e239dda4993b73291555da3c\r\n";
+
+            void Act()
+            {
+                // Act
+                subject.DeserializeTree(serializedTree);
+            }
+
+            // Verify
+            Assert.Throws(typeof(InvalidOperationException), Act,
+                "Expected InvalidOperationException thrown");
         }
     }
 }
