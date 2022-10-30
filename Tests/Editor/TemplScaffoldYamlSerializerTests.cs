@@ -20,11 +20,12 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using System;
+using System.IO;
 
 namespace Willykc.Templ.Editor.Tests
 {
     using Scaffold;
-    using System;
     using static TemplScaffoldCoreTests;
     using subject = Scaffold.TemplScaffoldYamlSerializer;
 
@@ -115,8 +116,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenYAMLWithNoDictionaryUnderNode_WhenDeserializing_ThenShouldThrowException()
         {
             // Setup
-            var serializedTree = "- NewDirectory:\r\n    " +
-                "- NewFile\r\n";
+            var serializedTree = "- NewDirectory:\r\n    - NewFile\r\n";
 
             void Act()
             {
@@ -127,6 +127,23 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.Throws(typeof(InvalidOperationException), Act,
                 "Expected InvalidOperationException thrown");
+        }
+
+        [Test]
+        public void GivenYAMLWithNoTemplateReference_WhenDeserializing_ThenShouldThrowException()
+        {
+            // Setup
+            var serializedTree = "- NewDirectory:\r\n    - NewFile:\r\n";
+
+            void Act()
+            {
+                // Act
+                subject.DeserializeTree(serializedTree);
+            }
+
+            // Verify
+            Assert.Throws(typeof(FileNotFoundException), Act,
+                "Expected FileNotFoundException thrown");
         }
     }
 }
