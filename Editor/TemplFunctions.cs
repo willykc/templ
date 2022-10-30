@@ -108,5 +108,18 @@ namespace Willykc.Templ.Editor
         public static string GetDirectoryName(string path) => Path.GetDirectoryName(path);
         #endregion
 
+        #region Utility
+        public static void Assert(bool condition, string message = default)
+        {
+            if (!condition)
+            {
+                message = string.IsNullOrWhiteSpace(message)
+                    ? message
+                    : $" with message: {message}";
+
+                throw new Exception($"Assertion failed{message}");
+            }
+        }
+        #endregion
     }
 }
