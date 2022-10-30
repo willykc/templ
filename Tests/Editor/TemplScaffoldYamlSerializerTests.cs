@@ -60,5 +60,18 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(expectedOutput, result, "Unexpected serialized text");
         }
+
+        [Test]
+        public void GivenValidScaffold_WhenSerializingWithoutGUIDs_ThenShouldUsePaths()
+        {
+            // Setup
+            var expectedEnd = "TestScaffoldTemplate.sbn\r\n";
+
+            // Act
+            var result = subject.SerializeTree(testScaffold.Root);
+
+            // Verify
+            Assert.That(result, Does.EndWith(expectedEnd), "Unexpected end of serialized text");
+        }
     }
 }
