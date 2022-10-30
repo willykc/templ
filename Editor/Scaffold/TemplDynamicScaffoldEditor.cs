@@ -71,14 +71,14 @@ namespace Willykc.Templ.Editor.Scaffold
                 .FindProperty(TemplDynamicScaffold.NameOfTreeTemplate);
 
             Undo.undoRedoPerformed += CheckValidity;
-            scaffold.FullReset += CheckValidity;
+            scaffold.AfterReset += CheckValidity;
             CheckValidity();
         }
 
         private void OnDisable()
         {
             Undo.undoRedoPerformed -= CheckValidity;
-            scaffold.FullReset -= CheckValidity;
+            scaffold.AfterReset -= CheckValidity;
         }
 
         private void CheckValidity() => isScaffoldValid = scaffold.IsValid;

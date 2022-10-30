@@ -52,7 +52,7 @@ namespace Willykc.Templ.Editor
         [SerializeField]
         private List<TemplScaffold> scaffolds;
 
-        internal event Action FullReset;
+        internal event Action AfterReset;
 
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
@@ -79,7 +79,7 @@ namespace Willykc.Templ.Editor
 
         private void Reset()
         {
-            FullReset?.Invoke();
+            AfterReset?.Invoke();
             entries?.Clear();
             scaffolds?.Clear();
         }

@@ -147,19 +147,19 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffoldTreeView = new TemplScaffoldTreeView(
                 treeViewState,
                 scaffold, ScaffoldIcon, DirectoryIcon, FileIcon);
-            scaffoldTreeView.BeforeDrop += OnBeforeScaffoldDrop;
+            scaffoldTreeView.BeforeDropped += OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
-            scaffold.Change += OnScaffoldChange;
-            scaffold.FullReset += OnScaffoldReset;
+            scaffold.Changed += OnScaffoldChange;
+            scaffold.AfterReset += OnScaffoldReset;
             OnUndoRedoPerformed();
         }
 
         private void OnDisable()
         {
-            scaffoldTreeView.BeforeDrop -= OnBeforeScaffoldDrop;
+            scaffoldTreeView.BeforeDropped -= OnBeforeScaffoldDrop;
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
-            scaffold.Change -= OnScaffoldChange;
-            scaffold.FullReset -= OnScaffoldReset;
+            scaffold.Changed -= OnScaffoldChange;
+            scaffold.AfterReset -= OnScaffoldReset;
             SessionState.SetString(SessionStateKeyPrefix + scaffold.GetInstanceID(),
                 JsonUtility.ToJson(scaffoldTreeView.state));
         }

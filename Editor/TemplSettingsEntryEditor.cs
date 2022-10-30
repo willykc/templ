@@ -69,7 +69,7 @@ namespace Willykc.Templ.Editor
             entryList.drawElementCallback += OnDrawEntryElement;
             entryList.onAddDropdownCallback += OnAddEntryDropdown;
             Undo.undoRedoPerformed += OnChangeEntries;
-            settings.FullReset += OnChangeEntries;
+            settings.AfterReset += OnChangeEntries;
             OnChangeEntries();
         }
 
@@ -78,7 +78,7 @@ namespace Willykc.Templ.Editor
             entryList.drawElementCallback -= OnDrawEntryElement;
             entryList.onAddDropdownCallback -= OnAddEntryDropdown;
             Undo.undoRedoPerformed -= OnChangeEntries;
-            settings.FullReset -= OnChangeEntries;
+            settings.AfterReset -= OnChangeEntries;
         }
 
         private void OnChangeEntries()

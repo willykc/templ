@@ -72,7 +72,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenNewScaffold_WhenAddingFileNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.AddScaffoldFileNode(emptyNodeArray);
@@ -85,7 +85,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenNewScaffold_WhenAddingDirectoryNodes_ThenShouldTriggerChangedEvent()
         {
             // Setup
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
@@ -102,7 +102,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.AddScaffoldFileNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
             var fileNode = subject.Root.Children[1];
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.MoveScaffoldNodes(directoryNode, 0, new[] { fileNode });
@@ -117,7 +117,7 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.RemoveScaffoldNodes(new[] { directoryNode });
@@ -132,7 +132,7 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             subject.AddScaffoldDirectoryNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.CloneScaffoldNodes(new[] { directoryNode });
@@ -333,7 +333,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.AddScaffoldFileNode(emptyNodeArray);
             var directoryNode = subject.Root.Children[0];
             var fileNode = subject.Root.Children[1];
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.MoveScaffoldNodes(directoryNode, 0, emptyNodeArray);
@@ -430,7 +430,7 @@ namespace Willykc.Templ.Editor.Tests
             var directoryNode = subject.Root.Children[0];
             subject.AddScaffoldFileNode(new[] { directoryNode });
             var fileNode = directoryNode.Children[0];
-            subject.Change += OnChanged;
+            subject.Changed += OnChanged;
 
             // Act
             subject.CloneScaffoldNodes(emptyNodeArray);

@@ -42,8 +42,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly IReadOnlyDictionary<Type, Texture2D> icons;
         private readonly TemplScaffoldRowView rowView;
 
-        internal event Action BeforeDrop;
-        internal event Action AfterDrop;
+        internal event Action BeforeDropped;
 
         internal TemplScaffoldTreeView(TreeViewState treeViewState,
             TemplScaffold scaffold,
@@ -63,8 +62,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 { typeof(TemplScaffoldDirectory), directoryIcon }
             };
             rowView = new TemplScaffoldRowView();
-            scaffold.Change += OnScaffoldChange;
-            scaffold.FullReset += Reload;
+            scaffold.Changed += OnScaffoldChange;
+            scaffold.AfterReset += Reload;
             showAlternatingRowBackgrounds = true;
             showBorder = true;
         }
@@ -245,15 +244,13 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffoldNode parent,
             int insertIndex)
         {
-            BeforeDrop?.Invoke();
+            BeforeDropped?.Invoke();
 
             var draggedNodes = draggedItems
                 .Select(i => i.Node)
                 .ToArray();
 
             scaffold.MoveScaffoldNodes(parent, insertIndex, draggedNodes);
-
-            AfterDrop?.Invoke();
         }
 
         private bool IsValidDrag(TemplScaffoldTreeViewItem parent,

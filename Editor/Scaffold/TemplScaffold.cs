@@ -40,8 +40,8 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private static readonly List<TemplScaffoldNode> EmptyList = new List<TemplScaffoldNode>(0);
 
-        internal event Action FullReset;
-        internal event Action<IReadOnlyList<TemplScaffoldNode>> Change;
+        internal event Action AfterReset;
+        internal event Action<IReadOnlyList<TemplScaffoldNode>> Changed;
 
         [SerializeField]
         protected ScriptableObject defaultInput;
@@ -56,7 +56,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             root = GetNewRoot();
             defaultInput = null;
-            FullReset?.Invoke();
+            AfterReset?.Invoke();
         }
 
         internal void AddScaffoldFileNode(TemplScaffoldNode[] nodes)
@@ -69,7 +69,7 @@ namespace Willykc.Templ.Editor.Scaffold
             var newNodes = nodes
                 .Select(n => AddNode<TemplScaffoldFile>(n, DefaultFileName))
                 .ToList();
-            Change?.Invoke(newNodes);
+            Changed?.Invoke(newNodes);
         }
 
         internal void AddScaffoldDirectoryNode(TemplScaffoldNode[] nodes)
@@ -82,7 +82,7 @@ namespace Willykc.Templ.Editor.Scaffold
             var newNodes = nodes
                 .Select(n => AddNode<TemplScaffoldDirectory>(n, DefaultDirectoryName))
                 .ToList();
-            Change?.Invoke(newNodes);
+            Changed?.Invoke(newNodes);
         }
 
         internal void RemoveScaffoldNodes(TemplScaffoldNode[] nodes)
@@ -92,7 +92,7 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 node.Parent?.RemoveChild(node);
             }
-            Change?.Invoke(EmptyList);
+            Changed?.Invoke(EmptyList);
         }
 
         internal void MoveScaffoldNodes(
@@ -132,7 +132,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             parent.InsertChildrenRange(insertIndex, draggedNodes);
-            Change?.Invoke(draggedNodes);
+            Changed?.Invoke(draggedNodes);
         }
 
         internal void CloneScaffoldNodes(TemplScaffoldNode[] nodes)
@@ -145,7 +145,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 .Where(n => !(n is TemplScaffoldRoot))
                 .Select(n => n.Clone())
                 .ToList();
-            Change?.Invoke(clones);
+            Changed?.Invoke(clones);
         }
 
         internal virtual bool ContainsTemplate(ScribanAsset template) =>
