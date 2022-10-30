@@ -120,6 +120,14 @@ namespace Willykc.Templ.Editor
                 throw new Exception($"Assertion failed{message}");
             }
         }
+
+        public static string CamelCase(string text) => text.ToCamelCase();
+
+        public static string PascalCase(string text) => text.ToPascalCase();
+
+        public static string KebabCase(string text) => text.ToKebabCase();
+
+        public static string SnakeCase(string text) => text.ToSnakeCase();
         #endregion
 
         #region Asset Database
