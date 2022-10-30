@@ -121,5 +121,22 @@ namespace Willykc.Templ.Editor
             }
         }
         #endregion
+
+        #region Asset Database
+        public static string GetAssetPath(UnityEngine.Object asset) =>
+            AssetDatabase.GetAssetPath(asset);
+
+        public static string GetAssetGuid(UnityEngine.Object asset) =>
+            AssetDatabase.AssetPathToGUID(GetAssetPath(asset));
+
+        public static string GetAssetFileId(UnityEngine.Object asset) =>
+            AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset, out var _, out long id)
+            ? id.ToString()
+            : string.Empty;
+
+        public static string GetAssetInstanceID(UnityEngine.Object asset) => asset
+            ? asset.GetInstanceID().ToString()
+            : string.Empty;
+        #endregion
     }
 }
