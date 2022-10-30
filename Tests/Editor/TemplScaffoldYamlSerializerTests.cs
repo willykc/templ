@@ -73,5 +73,23 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.That(result, Does.EndWith(expectedEnd), "Unexpected end of serialized text");
         }
+
+        [Test]
+        public void GivenValidYAML_WhenDeserializing_ThenShouldProduceCorrectTree()
+        {
+            // Setup
+            var directoryName = "NewDirectory";
+            var fileName = "NewFile";
+            var serializedTree = $"- {directoryName}:\r\n    " +
+                $"- {fileName}: 123163d8e239dda4993b73291555da3c\r\n";
+
+            // Act
+            var result = subject.DeserializeTree(serializedTree);
+
+            // Verify
+            Assert.AreEqual(3, result.NodeCount, "Unexpected total number of nodes");
+            Assert.AreEqual(directoryName, result.Children[0].name, "Unexpected node name");
+            Assert.AreEqual(fileName, result.Children[0].Children[0].name, "Unexpected node name");
+        }
     }
 }
