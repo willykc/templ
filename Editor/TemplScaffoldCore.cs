@@ -39,6 +39,7 @@ namespace Willykc.Templ.Editor
 
         private const string InputName = "Input";
         private const string SelectionName = "Selection";
+        private const string SeedName = "Seed";
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
 
@@ -117,6 +118,7 @@ namespace Willykc.Templ.Editor
 
             var validationContext = new ValidationContext()
             {
+                seed = Guid.NewGuid().ToString(),
                 input = input,
                 path = targetPath,
                 selection = selection,
@@ -398,6 +400,7 @@ namespace Willykc.Templ.Editor
             scriptObject.Add(InputName, validationContext.input);
             scriptObject.Add(SelectionName, validationContext.selection);
             scriptObject.Add(NameOfOutputAssetPath, validationContext.path);
+            scriptObject.Add(SeedName, validationContext.seed);
 
             foreach (var nodeInput in nodeInputs)
             {
@@ -463,6 +466,7 @@ namespace Willykc.Templ.Editor
             internal Object selection;
             internal string path;
             internal List<TemplScaffoldError> errors;
+            internal string seed;
         }
     }
 }

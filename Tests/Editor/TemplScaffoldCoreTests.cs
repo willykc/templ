@@ -93,7 +93,7 @@ namespace Willykc.Templ.Editor.Tests
             testSelection = testScaffold;
             expectedDirectoryPath = $"{TestTargetPath}/NewDirectory{InputName}";
             expectedFilePath = $"{expectedDirectoryPath}/NewFile{testScaffold.name}";
-            expectedContent = $"Hello {InputName} {testScaffold.name}: {expectedFilePath}";
+            expectedContent = $"Hello {InputName} {testScaffold.name}: {expectedFilePath} seed: ";
         }
 
         [SetUp]
@@ -400,7 +400,20 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
                 "Unexpected number of created files");
             Assert.AreEqual(expectedFilePath, fileSystemMock.Path[0], "Wrong file created");
-            Assert.AreEqual(expectedContent, fileSystemMock.Contents[0], "Wrong file contents");
+            Assert.That(fileSystemMock.Contents[0], Does.StartWith(expectedContent),
+                "Wrong file contents");
+        }
+
+        [Test]
+        public void GivenValidScaffold_WhenGenerating_ThenShouldIncludeSeedInContext()
+        {
+            // Act
+            subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            var seed = fileSystemMock.Contents[0].Replace(expectedContent, string.Empty);
+            Assert.That(System.Guid.TryParse(seed, out var _), "Expected GUID as seed");
         }
 
         [Test]
