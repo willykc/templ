@@ -335,13 +335,13 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
         {
-            Undo.RecordObject(scaffold, name);
+            Undo.RegisterCompleteObjectUndo(scaffold, name);
             var selectedNodes = scaffoldTreeView.GetNodeSelection();
             action(selectedNodes);
         }
 
         private void OnBeforeScaffoldDrop() =>
-            Undo.RecordObject(scaffold, nameof(scaffold.MoveScaffoldNodes));
+            Undo.RegisterCompleteObjectUndo(scaffold, nameof(scaffold.MoveScaffoldNodes));
 
         [MenuItem(CopyYamlMenuName)]
         private static void YamlToClipboard(MenuCommand menuCommand)
