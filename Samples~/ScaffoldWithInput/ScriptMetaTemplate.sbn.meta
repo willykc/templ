@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2411f0bc533b87e4b8473f5a27126baf
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "fileFormatVersion: 2\r\nguid: {{Seed | string.md5}}\r\nMonoImporter:\r\n 
+    externalObjects: {}\r\n  serializedVersion: 2\r\n  defaultReferences: []\r\n 
+    executionOrder: 0\r\n  icon: {instanceID: 0}\r\n  userData: \r\n  assetBundleName:
+    \r\n  assetBundleVariant: \r\n"
+  parsingErrors: []

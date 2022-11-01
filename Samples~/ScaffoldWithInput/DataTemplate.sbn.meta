@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0e32bc370f3f8f44a90e292c5f92dab3
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "%YAML 1.1\r\n%TAG !u! tag:unity3d.com,2011:\r\n--- !u!114 &11400000\r\nMonoBehaviour:\r\n 
+    m_ObjectHideFlags: 0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance:
+    {fileID: 0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  m_GameObject: {fileID: 0}\r\n 
+    m_Enabled: 1\r\n  m_EditorHideFlags: 0\r\n  m_Script: {fileID: 11500000, guid:
+    {{Seed | string.md5}}, type: 3}\r\n  m_Name: {{Input.module}}Data\r\n  m_EditorClassIdentifier:
+    \r\n  data: {{Input.module | string.upcase}}\r\n"
+  parsingErrors: []

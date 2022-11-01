@@ -60,6 +60,11 @@
       "displayName": "Extensions",
       "description": "Contains sample custom entry and custom functions for a text template",
       "path": "Samples~/Extensions"
+    },
+    {
+      "displayName": "Scaffold with Input",
+      "description": "Contains sample scaffold with default input scriptable object",
+      "path": "Samples~/ScaffoldWithInput"
     }
   ]
 }
