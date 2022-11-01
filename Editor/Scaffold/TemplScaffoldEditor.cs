@@ -170,8 +170,11 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffoldTreeView.SetSelection(NoIDs);
         }
 
-        private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes) =>
+        private void OnScaffoldChange(IReadOnlyList<TemplScaffoldNode> nodes)
+        {
             CheckValidity();
+            EditorUtility.SetDirty(scaffold);
+        }
 
         private void OnChangeNodeFields() => CheckValidity();
 
