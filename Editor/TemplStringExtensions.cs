@@ -53,48 +53,40 @@ namespace Willykc.Templ.Editor
             : input.Remove(input.Length - count);
 
         internal static string ToSnakeCase(this string text) =>
-            ConvertCase(text,
+            ConvertCase(text, Underscore,
                 first: char.ToLowerInvariant,
-                currentSeparator: _ => Underscore,
-                previousSeparator: char.ToLowerInvariant,
-                nextUpper: char.ToLowerInvariant,
-                nextUpperSuffix: _ => Underscore,
+                afterSeparator: char.ToLowerInvariant,
                 anyOther: char.ToLowerInvariant);
 
         internal static string ToKebabCase(this string text) =>
-            ConvertCase(text,
+            ConvertCase(text, Dash,
                 first: char.ToLowerInvariant,
-                currentSeparator: _ => Dash,
-                previousSeparator: char.ToLowerInvariant,
-                nextUpper: char.ToLowerInvariant,
-                nextUpperSuffix: _ => Dash,
+                afterSeparator: char.ToLowerInvariant,
                 anyOther: char.ToLowerInvariant);
 
         internal static string ToPascalCase(this string text) =>
-            ConvertCase(text,
+            ConvertCase(text, default,
                 first: char.ToUpperInvariant,
-                currentSeparator: _ => default,
-                previousSeparator: char.ToUpperInvariant,
-                nextUpper: c => c,
-                nextUpperSuffix: _ => default,
+                afterSeparator: char.ToUpperInvariant,
                 anyOther: c => c);
 
         internal static string ToCamelCase(this string text) =>
-            ConvertCase(text,
+            ConvertCase(text, default,
                 first: char.ToLowerInvariant,
-                currentSeparator: _ => default,
-                previousSeparator: char.ToUpperInvariant,
-                nextUpper: c => c,
-                nextUpperSuffix: _ => default,
+                afterSeparator: char.ToUpperInvariant,
+                anyOther: c => c);
+
+        internal static string ToTitleCase(this string text) =>
+            ConvertCase(text, Whitespace,
+                first: char.ToUpperInvariant,
+                afterSeparator: char.ToUpperInvariant,
                 anyOther: c => c);
 
         private static string ConvertCase(
             string text,
+            char separator,
             Func<char, char> first,
-            Func<char, char> currentSeparator,
-            Func<char, char> previousSeparator,
-            Func<char, char> nextUpper,
-            Func<char, char> nextUpperSuffix,
+            Func<char, char> afterSeparator,
             Func<char, char> anyOther)
         {
             text = Sanitize(text);
@@ -110,16 +102,16 @@ namespace Willykc.Templ.Editor
                 }
                 else if (Separators.Contains(previous))
                 {
-                    SafeAppend(builder, previousSeparator(current));
+                    SafeAppend(builder, afterSeparator(current));
                 }
                 else if (Separators.Contains(current))
                 {
-                    SafeAppend(builder, currentSeparator(current));
+                    SafeAppend(builder, separator);
                 }
                 else if (char.IsUpper(next))
                 {
-                    SafeAppend(builder, nextUpper(current));
-                    SafeAppend(builder, nextUpperSuffix(current));
+                    SafeAppend(builder, anyOther(current));
+                    SafeAppend(builder, separator);
                 }
                 else
                 {

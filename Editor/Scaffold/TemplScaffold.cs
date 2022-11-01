@@ -59,7 +59,7 @@ namespace Willykc.Templ.Editor.Scaffold
             AfterReset?.Invoke();
         }
 
-        internal void AddScaffoldFileNode(TemplScaffoldNode[] nodes)
+        internal void AddScaffoldFileNodes(TemplScaffoldNode[] nodes)
         {
             nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             if (nodes.Length == 0)
@@ -72,7 +72,7 @@ namespace Willykc.Templ.Editor.Scaffold
             Changed?.Invoke(newNodes);
         }
 
-        internal void AddScaffoldDirectoryNode(TemplScaffoldNode[] nodes)
+        internal void AddScaffoldDirectoryNodes(TemplScaffoldNode[] nodes)
         {
             nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
             if (nodes.Length == 0)

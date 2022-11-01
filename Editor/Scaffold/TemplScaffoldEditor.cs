@@ -62,6 +62,16 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string CopyYamlWithGuidsMenuName = ContextPrefix + nameof(TemplScaffold) +
             "/Copy YAML Tree with GUIDs";
 
+        private static readonly string RemoveNodesActionName =
+            nameof(TemplScaffold.RemoveScaffoldNodes).ToTitleCase();
+        private static readonly string CloneNodesActionName =
+            nameof(TemplScaffold.CloneScaffoldNodes).ToTitleCase();
+        private static readonly string AddFileNodeActionName =
+            nameof(TemplScaffold.AddScaffoldFileNodes).ToTitleCase();
+        private static readonly string AddDirectoryActionName =
+            nameof(TemplScaffold.AddScaffoldDirectoryNodes).ToTitleCase();
+        private static readonly string MoveNodesActionName =
+            nameof(TemplScaffold.MoveScaffoldNodes).ToTitleCase();
         private static readonly int[] NoIDs = new int[] { };
         private static readonly string ErrorMessage = "Invalid nodes detected. All node fields " +
             $"must have values. {nameof(TemplScaffoldFile.Template)}s must be " +
@@ -200,39 +210,37 @@ namespace Willykc.Templ.Editor.Scaffold
         private void DrawLeftToolbar()
         {
             GUI.enabled = RootHasChildren;
-            DrawButton(ExpandCollapseButtonContent, MiniButtonStyle, _ => ToggleExpandCollapse(),
-                nameof(ToggleExpandCollapse));
+            DrawButton(ExpandCollapseButtonContent, MiniButtonStyle, _ => ToggleExpandCollapse());
             GUI.enabled = IsRootSelected;
             DrawButton(EditButtonContent, MiniButtonStyle, _ => scaffoldTreeView.EditSelectedNode(),
-                nameof(scaffoldTreeView.EditSelectedNode),
-                KeyPress(KeyCode.F2) || KeyPress(KeyCode.Return));
+                keyPress: KeyPress(KeyCode.F2) || KeyPress(KeyCode.Return));
             GUI.enabled = true;
         }
 
         private void DrawRightToolbar()
         {
             DrawButton(DirectoryButtonContent, LeftButtonStyle, AddScaffoldDirectoryNode,
-                nameof(scaffold.AddScaffoldDirectoryNode));
+                AddDirectoryActionName);
             DrawButton(FileButtonContent, MidButtonStyle, AddScaffoldFileNode,
-                nameof(scaffold.AddScaffoldFileNode));
+                AddFileNodeActionName);
             GUI.enabled = IsRootSelected;
             DrawButton(CloneButtonContent, MidButtonStyle, scaffold.CloneScaffoldNodes,
-                nameof(scaffold.CloneScaffoldNodes),
+                CloneNodesActionName,
                 (Event.current.command || Event.current.control) && KeyPress(KeyCode.D));
             DrawButton(DeleteButtonContent, RightButtonStyle, scaffold.RemoveScaffoldNodes,
-                nameof(scaffold.RemoveScaffoldNodes), KeyPress(KeyCode.Delete));
+                RemoveNodesActionName, KeyPress(KeyCode.Delete));
             GUI.enabled = true;
         }
 
         private void AddScaffoldFileNode(TemplScaffoldNode[] parents)
         {
-            scaffold.AddScaffoldFileNode(parents);
+            scaffold.AddScaffoldFileNodes(parents);
             scaffoldTreeView.EditSelectedNode();
         }
 
         private void AddScaffoldDirectoryNode(TemplScaffoldNode[] parents)
         {
-            scaffold.AddScaffoldDirectoryNode(parents);
+            scaffold.AddScaffoldDirectoryNodes(parents);
             scaffoldTreeView.EditSelectedNode();
         }
 
@@ -258,7 +266,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private void DrawButton(GUIContent content,
             GUIStyle style,
             Action<TemplScaffoldNode[]> action,
-            string name,
+            string name = null,
             bool keyPress = false)
         {
             var maxWidth = GUILayout.MaxWidth(ToolbarButtonWidth);
@@ -335,13 +343,16 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void ScaffoldAction(Action<TemplScaffoldNode[]> action, string name)
         {
-            Undo.RegisterCompleteObjectUndo(scaffold, name);
+            if (name != null)
+            {
+                Undo.RegisterCompleteObjectUndo(scaffold, name);
+            }
             var selectedNodes = scaffoldTreeView.GetNodeSelection();
             action(selectedNodes);
         }
 
         private void OnBeforeScaffoldDrop() =>
-            Undo.RegisterCompleteObjectUndo(scaffold, nameof(scaffold.MoveScaffoldNodes));
+            Undo.RegisterCompleteObjectUndo(scaffold, MoveNodesActionName);
 
         [MenuItem(CopyYamlMenuName)]
         private static void YamlToClipboard(MenuCommand menuCommand)
