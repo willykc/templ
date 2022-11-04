@@ -373,8 +373,6 @@ namespace Willykc.Templ.Editor
             TemplScaffoldNode node,
             List<TemplScaffoldError> errors)
         {
-            var message = string.Empty;
-
             if (string.IsNullOrWhiteSpace(node.RenderedName))
             {
                 AddError(errors, $"Empty {nameof(TemplScaffoldErrorType.Filename)} found for " +

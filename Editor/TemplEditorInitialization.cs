@@ -37,8 +37,8 @@ namespace Willykc.Templ.Editor
         private const string Log4netName = "log4net";
         private const string NUnitName = "nunit";
         private const string UnityplasticName = "unityplastic";
+        private const string TemplTestsName = "Willykc.Templ.Editor.Tests";
         private const string TemplInitKey = "templ.init";
-        private const string TemplTestsKey = "Willykc.Templ.Editor.Tests";
 
         private static string currentDir;
         private static Type[] typeCache;
@@ -75,6 +75,6 @@ namespace Willykc.Templ.Editor
             !assembly.FullName.StartsWith(Log4netName) &&
             !assembly.FullName.StartsWith(NUnitName) &&
             !assembly.FullName.StartsWith(UnityplasticName) &&
-            !assembly.FullName.StartsWith(TemplTestsKey);
+            !assembly.FullName.StartsWith(TemplTestsName);
     }
 }
