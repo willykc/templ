@@ -105,6 +105,8 @@ namespace Willykc.Templ.Editor
         public static string GetFileNameWithoutExtension(string path) =>
             Path.GetFileNameWithoutExtension(path);
 
+        public static string GetFileExtension(string path) => Path.GetExtension(path);
+
         public static string GetDirectoryName(string path) => Path.GetDirectoryName(path);
         #endregion
 
