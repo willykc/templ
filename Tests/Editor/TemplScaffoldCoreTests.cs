@@ -93,7 +93,8 @@ namespace Willykc.Templ.Editor.Tests
             testSelection = testScaffold;
             expectedDirectoryPath = $"{TestTargetPath}/NewDirectory{InputName}";
             expectedFilePath = $"{expectedDirectoryPath}/NewFile{testScaffold.name}";
-            expectedContent = $"Hello {InputName} {testScaffold.name}: {expectedFilePath} seed: ";
+            expectedContent = $"Hello {InputName} {testScaffold.name}: {expectedFilePath} " +
+                $"root: {TestTargetPath} seed: ";
         }
 
         [SetUp]

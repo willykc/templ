@@ -1,1 +1,1 @@
-Hello {{Input.name}} {{Selection.name}}: {{OutputAssetPath}} seed: {{Seed}}
+Hello {{Input.name}} {{Selection.name}}: {{OutputAssetPath}} root: {{RootPath}} seed: {{Seed}}
