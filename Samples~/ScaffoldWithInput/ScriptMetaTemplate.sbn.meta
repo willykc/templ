@@ -8,7 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
-  text: "fileFormatVersion: 2\r\nguid: {{Seed | string.md5}}\r\nMonoImporter:\r\n 
+  text: "fileFormatVersion: 2\r\nguid: {{RootPath + Input.module | string.md5}}\r\nMonoImporter:\r\n 
     externalObjects: {}\r\n  serializedVersion: 2\r\n  defaultReferences: []\r\n 
     executionOrder: 0\r\n  icon: {instanceID: 0}\r\n  userData: \r\n  assetBundleName:
     \r\n  assetBundleVariant: \r\n"

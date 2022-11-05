@@ -12,6 +12,6 @@ ScriptedImporter:
     m_ObjectHideFlags: 0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance:
     {fileID: 0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  m_GameObject: {fileID: 0}\r\n 
     m_Enabled: 1\r\n  m_EditorHideFlags: 0\r\n  m_Script: {fileID: 11500000, guid:
-    {{Seed | string.md5}}, type: 3}\r\n  m_Name: {{Input.module}}Data\r\n  m_EditorClassIdentifier:
+    {{RootPath + Input.module | string.md5}}, type: 3}\r\n  m_Name: {{Input.module}}Data\r\n  m_EditorClassIdentifier:
     \r\n  data: {{Input.module | string.upcase}}\r\n"
   parsingErrors: []

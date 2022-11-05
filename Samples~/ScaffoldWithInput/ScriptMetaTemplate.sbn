@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: {{Seed | string.md5}}
+guid: {{RootPath + Input.module | string.md5}}
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
