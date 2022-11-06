@@ -31,22 +31,16 @@ namespace Willykc.Templ.Editor
         private const string ProceedButtonName = "Proceed";
         private const string QuitButtonName = "X";
 
-        private readonly static string Message = "Thanks for installing Templ. " +
+        private static readonly string Message = "Thanks for installing Templ. " +
             $"By clicking {ProceedButtonName}, you agree to create the " +
             $"{nameof(TemplSettings)} file at {TemplSettings.DefaultConfigFolder}.";
-        private readonly static string Note = $"NOTE: You can also create it " +
+        private static readonly string Note = $"NOTE: You can also create it " +
             $"later by navigating to the {TemplSettingsEditor.MenuName} menu.";
 
         internal static void ShowPopupCentered()
         {
             ConsentPopup window = CreateInstance<ConsentPopup>();
-            Rect main = EditorGUIUtility.GetMainWindowPosition();
-            Rect pos = new Rect(0, 0, Width, Height);
-            float centerWidth = (main.width - pos.width) * 0.5f;
-            float centerHeight = (main.height - pos.height) * 0.5f;
-            pos.x = main.x + centerWidth;
-            pos.y = main.y + centerHeight;
-            window.position = pos;
+            window.Center(Width, Height);
             window.ShowPopup();
         }
 
@@ -54,7 +48,7 @@ namespace Willykc.Templ.Editor
         {
             if (GUI.Button(new Rect(position.width - 40, 10, 30, 25), QuitButtonName))
             {
-                this.Close();
+                Close();
             }
             GUILayout.Space(60);
             var style = new GUIStyle(EditorStyles.wordWrappedLabel)
@@ -68,7 +62,7 @@ namespace Willykc.Templ.Editor
             if (GUILayout.Button(ProceedButtonName))
             {
                 Selection.activeObject = TemplSettings.CreateNewSettings();
-                this.Close();
+                Close();
             }
         }
     }

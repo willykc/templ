@@ -4,8 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Willykc.Templ.Editor",
-        "Willykc.Templ.Editor.Tests.Mocks"
+        "Willykc.Templ.Editor"
     ],
     "includePlatforms": [
         "Editor"

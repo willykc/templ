@@ -105,7 +105,48 @@ namespace Willykc.Templ.Editor
         public static string GetFileNameWithoutExtension(string path) =>
             Path.GetFileNameWithoutExtension(path);
 
+        public static string GetFileExtension(string path) => Path.GetExtension(path);
+
         public static string GetDirectoryName(string path) => Path.GetDirectoryName(path);
+        #endregion
+
+        #region Utility
+        public static void Assert(bool condition, string message = default)
+        {
+            if (!condition)
+            {
+                message = string.IsNullOrWhiteSpace(message)
+                    ? message
+                    : $" with message: {message}";
+
+                throw new Exception($"Assertion failed{message}");
+            }
+        }
+
+        public static string CamelCase(string text) => text.ToCamelCase();
+
+        public static string PascalCase(string text) => text.ToPascalCase();
+
+        public static string KebabCase(string text) => text.ToKebabCase();
+
+        public static string SnakeCase(string text) => text.ToSnakeCase();
+        #endregion
+
+        #region Asset Database
+        public static string GetAssetPath(UnityEngine.Object asset) =>
+            AssetDatabase.GetAssetPath(asset);
+
+        public static string GetAssetGuid(UnityEngine.Object asset) =>
+            AssetDatabase.AssetPathToGUID(GetAssetPath(asset));
+
+        public static string GetAssetFileId(UnityEngine.Object asset) =>
+            AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset, out var _, out long id)
+            ? id.ToString()
+            : string.Empty;
+
+        public static string GetAssetInstanceID(UnityEngine.Object asset) => asset
+            ? asset.GetInstanceID().ToString()
+            : string.Empty;
         #endregion
     }
 }

@@ -28,9 +28,19 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using Entry;
+    using Scaffold;
+
     internal sealed class TemplSettings : ScriptableObject
     {
+        internal const string NameOfEntries = nameof(entries);
+        internal const string NameOfScaffolds = nameof(scaffolds);
+        internal const string NameOfOutputAssetPath = nameof(TemplEntry.OutputAssetPath);
         internal const string DefaultConfigFolder = "Assets/Editor/TemplData";
+
+        internal static readonly string[] EmptyStringArray = new string[0];
+        internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
+
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
 
@@ -39,12 +49,16 @@ namespace Willykc.Templ.Editor
         [SerializeReference]
         private List<TemplEntry> entries = new List<TemplEntry>();
 
-        internal event Action OnReset;
+        [SerializeField]
+        private List<TemplScaffold> scaffolds;
+
+        internal event Action AfterReset;
 
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
 
         internal IReadOnlyList<TemplEntry> Entries => entries;
+        internal IReadOnlyList<TemplScaffold> Scaffolds => scaffolds;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?
@@ -55,7 +69,20 @@ namespace Willykc.Templ.Editor
             .ToArray()
             ?? new TemplEntry[] { };
 
+        internal IReadOnlyList<TemplScaffold> ValidScaffolds =>
+            scaffolds?
+            .Where(s => s && s.IsValid)
+            .ToArray()
+            ?? new TemplScaffold[] { };
+
         internal bool HasInvalidEntries => Entries.Count != ValidEntries.Count;
+
+        private void Reset()
+        {
+            AfterReset?.Invoke();
+            entries?.Clear();
+            scaffolds?.Clear();
+        }
 
         internal static TemplSettings CreateNewSettings()
         {
@@ -71,12 +98,6 @@ namespace Willykc.Templ.Editor
             AssetDatabase.SaveAssets();
             EditorBuildSettings.AddConfigObject(DefaultConfigObjectName, settings, true);
             return settings;
-        }
-
-        private void Reset()
-        {
-            OnReset?.Invoke();
-            entries.Clear();
         }
 
         private static TemplSettings GetSettings() =>

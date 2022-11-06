@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3e585b81f2ad394381b58014968e56e, type: 3}
+  m_Name: Module
+  m_EditorClassIdentifier: 
+  defaultInput: {fileID: 11400000, guid: e495ada5e78e0cf4a853c23fa7585f39, type: 2}
+  root:
+    id: 0
+  references:
+    version: 1
+    00000000:
+      type: {class: TemplScaffoldRoot, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: Root
+        children:
+        - id: 1
+        parent:
+          id: 2
+    00000001:
+      type: {class: TemplScaffoldDirectory, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: '{{Input.module}}Module'
+        children:
+        - id: 3
+        - id: 4
+        - id: 5
+        parent:
+          id: 0
+    00000002:
+      type: {class: , ns: , asm: }
+    00000003:
+      type: {class: TemplScaffoldDirectory, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: Scripts
+        children:
+        - id: 6
+        - id: 7
+        parent:
+          id: 1
+    00000004:
+      type: {class: TemplScaffoldDirectory, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: SerializedData
+        children:
+        - id: 8
+        parent:
+          id: 1
+    00000005:
+      type: {class: TemplScaffoldFile, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: '{{Input.module}}.asmdef'
+        children: []
+        parent:
+          id: 1
+        template: {fileID: 8120740285201943533, guid: 7619ee7182bb5714bbb4e355da479025, type: 3}
+    00000006:
+      type: {class: TemplScaffoldFile, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: '{{Input.module}}Data.cs'
+        children: []
+        parent:
+          id: 3
+        template: {fileID: 8120740285201943533, guid: 9044f54712b906b47bad9b883c5548da, type: 3}
+    00000007:
+      type: {class: TemplScaffoldFile, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: '{{Input.module}}Data.cs.meta'
+        children: []
+        parent:
+          id: 3
+        template: {fileID: 8120740285201943533, guid: 2411f0bc533b87e4b8473f5a27126baf, type: 3}
+    00000008:
+      type: {class: TemplScaffoldFile, ns: Willykc.Templ.Editor.Scaffold, asm: Willykc.Templ.Editor}
+      data:
+        name: '{{Input.module}}Data.asset'
+        children: []
+        parent:
+          id: 4
+        template: {fileID: 8120740285201943533, guid: 0e32bc370f3f8f44a90e292c5f92dab3, type: 3}

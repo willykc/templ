@@ -1,0 +1,53 @@
+fileFormatVersion: 2
+guid: 5a0a26defbb197441a65d688133e64f8
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "{{- Assert (Selection | GetAssetPath | GetFileExtension | string.downcase)
+    == '.png' 'selection must be a png asset' -}}\r\n%YAML 1.1\r\n%TAG !u! tag:unity3d.com,2011:\r\n---
+    !u!1 &1006427929995991170\r\nGameObject:\r\n  m_ObjectHideFlags: 0\r\n  m_CorrespondingSourceObject:
+    {fileID: 0}\r\n  m_PrefabInstance: {fileID: 0}\r\n  m_PrefabAsset: {fileID: 0}\r\n 
+    serializedVersion: 6\r\n  m_Component:\r\n  - component: {fileID: 4653655697312833353}\r\n 
+    - component: {fileID: 7560762856311474453}\r\n  m_Layer: 0\r\n  m_Name: image\r\n 
+    m_TagString: Untagged\r\n  m_Icon: {fileID: 0}\r\n  m_NavMeshLayer: 0\r\n  m_StaticEditorFlags:
+    0\r\n  m_IsActive: 1\r\n--- !u!4 &4653655697312833353\r\nTransform:\r\n  m_ObjectHideFlags:
+    0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance: {fileID:
+    0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  m_GameObject: {fileID: 1006427929995991170}\r\n 
+    m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}\r\n  m_LocalPosition: {x: 0, y:
+    0, z: 0}\r\n  m_LocalScale: {x: 1, y: 1, z: 1}\r\n  m_Children: []\r\n  m_Father:
+    {fileID: 5677556130641163636}\r\n  m_RootOrder: 0\r\n  m_LocalEulerAnglesHint:
+    {x: 0, y: 0, z: 0}\r\n--- !u!212 &7560762856311474453\r\nSpriteRenderer:\r\n 
+    m_ObjectHideFlags: 0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance:
+    {fileID: 0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  m_GameObject: {fileID: 1006427929995991170}\r\n 
+    m_Enabled: 1\r\n  m_CastShadows: 0\r\n  m_ReceiveShadows: 0\r\n  m_DynamicOccludee:
+    1\r\n  m_MotionVectors: 1\r\n  m_LightProbeUsage: 1\r\n  m_ReflectionProbeUsage:
+    1\r\n  m_RayTracingMode: 0\r\n  m_RayTraceProcedural: 0\r\n  m_RenderingLayerMask:
+    1\r\n  m_RendererPriority: 0\r\n  m_Materials:\r\n  - {fileID: 10754, guid: 0000000000000000f000000000000000,
+    type: 0}\r\n  m_StaticBatchInfo:\r\n    firstSubMesh: 0\r\n    subMeshCount:
+    0\r\n  m_StaticBatchRoot: {fileID: 0}\r\n  m_ProbeAnchor: {fileID: 0}\r\n  m_LightProbeVolumeOverride:
+    {fileID: 0}\r\n  m_ScaleInLightmap: 1\r\n  m_ReceiveGI: 1\r\n  m_PreserveUVs:
+    0\r\n  m_IgnoreNormalsForChartDetection: 0\r\n  m_ImportantGI: 0\r\n  m_StitchLightmapSeams:
+    1\r\n  m_SelectedEditorRenderState: 0\r\n  m_MinimumChartSize: 4\r\n  m_AutoUVMaxDistance:
+    0.5\r\n  m_AutoUVMaxAngle: 89\r\n  m_LightmapParameters: {fileID: 0}\r\n  m_SortingLayerID:
+    0\r\n  m_SortingLayer: 0\r\n  m_SortingOrder: 0\r\n  m_Sprite: {fileID: 21300000,
+    guid: {{Selection | GetAssetGuid}}, type: 3}\r\n  m_Color: {r: 1, g: 0, b: 0,
+    a: 1}\r\n  m_FlipX: 1\r\n  m_FlipY: 0\r\n  m_DrawMode: 0\r\n  m_Size: {x: 4.76,
+    y: 5.12}\r\n  m_AdaptiveModeThreshold: 0.5\r\n  m_SpriteTileMode: 0\r\n  m_WasSpriteAssigned:
+    1\r\n  m_MaskInteraction: 0\r\n  m_SpriteSortPoint: 0\r\n--- !u!1 &2558756624333381288\r\nGameObject:\r\n 
+    m_ObjectHideFlags: 0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance:
+    {fileID: 0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  serializedVersion: 6\r\n  m_Component:\r\n 
+    - component: {fileID: 5677556130641163636}\r\n  m_Layer: 0\r\n  m_Name: {{Selection.name}}\r\n 
+    m_TagString: Untagged\r\n  m_Icon: {fileID: 0}\r\n  m_NavMeshLayer: 0\r\n  m_StaticEditorFlags:
+    0\r\n  m_IsActive: 1\r\n--- !u!4 &5677556130641163636\r\nTransform:\r\n  m_ObjectHideFlags:
+    0\r\n  m_CorrespondingSourceObject: {fileID: 0}\r\n  m_PrefabInstance: {fileID:
+    0}\r\n  m_PrefabAsset: {fileID: 0}\r\n  m_GameObject: {fileID: 2558756624333381288}\r\n 
+    m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\r\n  m_LocalPosition: {x: 0, y: 0,
+    z: 0}\r\n  m_LocalScale: {x: 1, y: 1, z: 1}\r\n  m_Children:\r\n  - {fileID:
+    4653655697312833353}\r\n  m_Father: {fileID: 0}\r\n  m_RootOrder: 0\r\n  m_LocalEulerAnglesHint:
+    {x: 0, y: 0, z: 0}\r\n"
+  parsingErrors: []
