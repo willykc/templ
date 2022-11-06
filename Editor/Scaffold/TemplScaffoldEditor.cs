@@ -161,7 +161,7 @@ namespace Willykc.Templ.Editor.Scaffold
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             scaffold.Changed += OnScaffoldChange;
             scaffold.AfterReset += OnScaffoldReset;
-            OnUndoRedoPerformed();
+            ReloadTreeView();
         }
 
         private void OnDisable()
@@ -176,7 +176,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnScaffoldReset()
         {
-            OnUndoRedoPerformed();
+            ReloadTreeView();
             scaffoldTreeView.SetSelection(NoIDs);
         }
 
@@ -258,6 +258,12 @@ namespace Willykc.Templ.Editor.Scaffold
         }
 
         private void OnUndoRedoPerformed()
+        {
+            OnDisable();
+            OnEnable();
+        }
+
+        private void ReloadTreeView()
         {
             CheckValidity();
             scaffoldTreeView.Reload();
