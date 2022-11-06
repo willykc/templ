@@ -6,6 +6,7 @@ Integrates [Scriban](https://github.com/scriban/scriban/) template engine with U
 
 * Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.
 * Automatic generation when input assets or templates change.
+* Generation of scaffold tree structures with directories and files.
 * Extensible design allows custom inputs and template functions.
 
 ## Unity version support
@@ -28,11 +29,82 @@ The **TemplSettings** asset can always be located by clicking on the *Windows/Te
 
 Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Templ/Scriban Template*.
 
-Add and configure entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). Templ includes by default two entry types: **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
+## Live Entries
+
+Live entries allow automatic generation of assets whenever *input* assets change.
+
+Add and configure live entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). Templ includes by default two entry types: **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
 **ScriptableObjectEntry** takes as input any scriptable object and must be referred to in templates as `scriptableObject`.
 
 **AssemblyDefinitionEntry** takes as input any assembly definition and must be referred to in templates as `assembly`.
+
+## Scaffolds
+
+Scaffolds are tree structures representing hierarchies of directories and files that can be generated anywhere in the project hierarchy.
+
+Create new scaffold definitions by selecting *Create/Templ/Scaffold Definition* or *Create/Templ/Dynamic Scaffold Definition*
+
+Use the toolbar in the standard scaffold inspector to create, clone or delete directory and file nodes under the *Root* node.
+
+Nodes can be moved by dragging and dropping them anywhere in the scaffold tree.
+
+Double-click on any node to open it for edits. Node names support Scriban statements, and will be rendered during generation. Templates can be assigned to file nodes in edit mode.
+
+Every scaffold change can be undone/redone as any other operation in the Unity editor.
+
+### Generating a scaffold
+
+Add any scaffold to the *Selectable Scaffolds* list in **TemplSettings** to enable it for generation.
+
+Select *Generate Templ Scaffold* from the context menu after right-clicking any existing asset in the project hierarchy. The selected asset will be exposed to the scaffold as **Selection**, and can be accessed in templates and node names.
+
+A selection menu will be shown with all valid scaffolds in the *Selectable Scaffolds* list.
+
+Select the scaffold you wish to generate. If the selected scaffold is configured with a default input, a dialog will be shown where input values can be edited before generation. Press the button below to generate the scaffold. If the selected scaffold is not configured with a default input, then the scaffold will be generated immediately after selected.
+
+Scaffolds can be regenerated in the same directory. Just before regeneration, a dialog will be shown to allow selecting which assets should be overwritten or skipped.
+
+### Default Input
+
+Create any scriptable object to define a default input for a scaffold.
+
+Any value contained in the serialized scriptable object instance will be shown as a default value when generating the scaffold.
+
+Custom inspectors for default input scriptable objects will be shown when generating scaffolds.
+
+### Dynamic Scaffolds
+
+Dynamic scaffolds enable more flexibility by allowing the tree structure be adjusted dynamically based on input values.
+
+Instead of an editable tree structure in the inspector, dynamic scaffold only require to be configured with a tree template whose output should be a YAML representation of the scaffold tree.
+
+The following is a sample of a scaffold tree represented in YAML format:
+
+```yaml
+- DirectoryName:
+    - file.txt: Path/To/Template.sbn
+    - SubdirectoryName:
+        - anotherFile.txt: Path/To/AnotherTemplate.sbn
+          variable: value
+- rootLevelFile.txt: Path/To/RootLevelTemplate.sbn
+```
+
+When a dynamic scaffold is generated, the tree template must output a YAML tree compliant with the data structure shown in the sample above.
+
+Any key/value pairs defined under templates in the YAML tree, such as `variable: value` in the sample, will be exposed to the template as is.
+
+Templates can be referenced in YAML by asset paths or GUIDs.
+
+Any standard scaffold can serve as the basis for a dynamic scaffold by opening the context menu in the scaffold inspector and selecting *Copy YAML Tree* or *Copy YAML Tree with GUIDs*.
+
+## Reserved Keywords
+
+* **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
+* **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
+* **Selection**: Exposed to scaffold templates only, it is the selected asset when generating the scaffold.
+* **Seed**: Exposed to scaffold templates only, it is a unique GUID for the scaffold generation.
+* **RootPath**: Exposed to scaffold templates only, is is the root path of the scaffold generation.
 
 ## Scriban
 
@@ -48,7 +120,7 @@ The Scriban license can be found [here](https://github.com/scriban/scriban/blob/
 
 The included samples showcase some of Templ's use cases.
 
-The following output file extensions should be used when configuring samples:
+The following output file extensions should be used when configuring live entries from samples:
 
 * **ScriptableObject to XML**: *.xml*
 * **ScriptableObject to Code**: *.cs*
