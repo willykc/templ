@@ -18,7 +18,7 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.4.6",
+    "org.nuget.scriban": "5.5.0",
     "org.nuget.sharpyaml": "2.1.0"
   },
   "unity": "2020.3",
