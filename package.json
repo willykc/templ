@@ -70,6 +70,11 @@
       "displayName": "Scaffold with Selection",
       "description": "Contains sample scaffold to generate prefabs for selected image",
       "path": "Samples~/ScaffoldWithSelection"
+    },
+    {
+      "displayName": "Dynamic Scaffold with Input",
+      "description": "Contains sample dynamic scaffold with default input scriptable object",
+      "path": "Samples~/DynamicScaffold"
     }
   ]
 }

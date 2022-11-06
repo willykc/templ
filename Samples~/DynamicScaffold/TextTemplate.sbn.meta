@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 8dff8e3ac78e9f34fb181476f120526b
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: Message for -- {{level | KebabCase}} -- level
+  parsingErrors: []

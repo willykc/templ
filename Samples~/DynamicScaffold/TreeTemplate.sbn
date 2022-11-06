@@ -1,0 +1,15 @@
+{{~ if Input.group | array.size > 0 ~}}
+- Group:
+    {{~ for item in Input.group ~}}
+    - {{item | CamelCase}}.txt: 8dff8e3ac78e9f34fb181476f120526b
+      level: {{item}}
+    {{~ end ~}}
+{{~ end ~}}
+{{~ if Input.primary ~}}
+- primary.txt: 8dff8e3ac78e9f34fb181476f120526b
+  level: primary
+{{~ end ~}}
+{{~ if Input.secondary ~}}
+- secondary.txt: 8dff8e3ac78e9f34fb181476f120526b
+  level: secondary
+{{~ end ~}}
