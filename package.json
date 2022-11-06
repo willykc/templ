@@ -7,7 +7,8 @@
     "template",
     "code",
     "generation",
-    "automatic"
+    "automatic",
+    "scaffold"
   ],
   "author": {
     "name": "Willy A. Kuster",
