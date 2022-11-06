@@ -30,23 +30,27 @@ namespace Willykc.Templ.Editor
     [CustomEditor(typeof(ScribanImporter))]
     internal sealed class ScribanImporterEditor : ScriptedImporterEditor
     {
-        private const string Label = "Template text";
         private const int Height = 200;
+        private const string Label = "Template text";
+        private const string NewLine = "\n";
         private const string WarningMessage = "This template is not currently referenced in " +
             "Templ settings.";
+        private const string ErrorMessage = "Template errors found:" + NewLine;
 
         private string text;
         private string path;
-        private string[] templatePaths = new string[0];
+        private bool isReferencedInSettings;
 
         public override void OnEnable()
         {
             base.OnEnable();
-            templatePaths = TemplSettings.Instance
-                ? TemplSettings.Instance.Entries
-                .Select(e => AssetDatabase.GetAssetPath(e.template))
-                .ToArray()
-                : new string[0];
+            var importer = serializedObject.targetObject as ScribanImporter;
+            path = importer.assetPath;
+            var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
+            var settings = TemplSettings.Instance;
+            isReferencedInSettings = settings &&
+                (settings.Entries.Any(e => e.template == asset) ||
+                settings.Scaffolds.Any(s => s && s.ContainsTemplate(asset)));
         }
 
         public override void OnInspectorGUI()
@@ -54,16 +58,17 @@ namespace Willykc.Templ.Editor
             serializedObject.Update();
             var importer = serializedObject.targetObject as ScribanImporter;
             var property = serializedObject.FindProperty(nameof(importer.text));
-            path = importer.assetPath;
+
             if (importer.parsingErrors.Length > 0)
             {
-                var errors = string.Join("\n", importer.parsingErrors);
-                EditorGUILayout.HelpBox($"Template errors found:\n{errors}", MessageType.Error);
+                var errors = string.Join(NewLine, importer.parsingErrors);
+                EditorGUILayout.HelpBox(ErrorMessage + errors, MessageType.Error);
             }
-            else if (!templatePaths.Contains(path))
+            else if (!isReferencedInSettings)
             {
                 EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
             }
+
             EditorGUILayout.LabelField(Label);
             property.stringValue = text =
                 EditorGUILayout.TextArea(importer.text, GUILayout.Height(Height));

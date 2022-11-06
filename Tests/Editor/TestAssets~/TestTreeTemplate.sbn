@@ -1,0 +1,29 @@
+{{~ if Input.induce_runtime_error ~}}{{nothing.invalid}}{{~ end ~}}
+{{~ if Input.induce_broken_reference_error ~}}
+- brokenReference.txt: 2342123421de
+{{~ end ~}}
+{{~ if Input.induce_empty_filename_error ~}}
+- {%{'{{}}'}%}: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
+{{~ if Input.induce_empty_nodename_error ~}}
+- '': 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
+{{~ if Input.induce_invalid_filename_error ~}}
+- invalid/.txt: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
+{{~ if Input.induce_parse_error ~}}
+- {%{'{{}'}%}: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
+- TestDirectory:
+    {{~ for item in Input.elements ~}}
+    - {{item | string.upcase}}:
+{{~ if Input.induce_duplicate_error ~}}
+        - {{item}}.txt: 123163d8e239dda4993b73291555da3c
+{{~ end ~}}
+        - {{item}}.txt: 123163d8e239dda4993b73291555da3c
+          item:
+            name: {{item}}
+{{~ if Input.induce_context_error ~}}
+          Input: "test"
+{{~ end ~}}
+    {{~ end ~}}

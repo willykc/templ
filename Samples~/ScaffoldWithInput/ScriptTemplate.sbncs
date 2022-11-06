@@ -1,0 +1,6 @@
+using UnityEngine;
+
+public class {{Input.module}}Data : ScriptableObject
+{
+    public string data;
+}

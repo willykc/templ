@@ -44,20 +44,20 @@ namespace Willykc.Templ.Editor
     {
         private const string DefaultExtension = "sbn";
         private const string FileName = "NewScribanTemplate";
-        private const string MenuName = "Assets/Create/Scriban Template";
+        private const string MenuName = "Assets/Create/Templ/Scriban Template";
         private const string DefaultTemplate = "Hello {{variable}}!";
 
         private readonly ILogger log;
 
-        public ScribanImporter()
+        internal ScribanImporter()
         {
             log = Logger.Instance;
         }
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         internal string text;
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         internal string[] parsingErrors;
 
         public override void OnImportAsset(AssetImportContext ctx)
@@ -66,11 +66,13 @@ namespace Willykc.Templ.Editor
             {
                 return;
             }
+
             var templateAsset = ScriptableObject.CreateInstance<ScribanAsset>()
                 .Init(text = File.ReadAllText(ctx.assetPath));
             parsingErrors = templateAsset.ParsingErrors;
             ctx.AddObjectToAsset(nameof(ScribanAsset), templateAsset);
             ctx.SetMainObject(templateAsset);
+
             if (templateAsset.HasErrors)
             {
                 var errors = string.Join("\n", parsingErrors);
@@ -92,16 +94,15 @@ namespace Willykc.Templ.Editor
 
         private static string GetNewTemplatePath(UnityObject selected)
         {
-            var assetPath = AssetDatabase.GetAssetPath(selected.GetInstanceID());
-            var dir = File.Exists(assetPath)
-                ? Path.GetDirectoryName(assetPath)
-                : Path.Combine(assetPath);
+            var dir = selected.GetAssetDirectoryPath();
             var newTemplatePath = Path.Combine(dir, $"{FileName}.{DefaultExtension}");
             var count = 0;
+
             while (File.Exists(newTemplatePath))
             {
-                newTemplatePath = Path.Combine(dir, $"{FileName}{++count}.{DefaultExtension}");
+                newTemplatePath = Path.Combine(dir, $"{FileName} {++count}.{DefaultExtension}");
             }
+
             return newTemplatePath;
         }
 
@@ -113,7 +114,10 @@ namespace Willykc.Templ.Editor
 
         private static void TriggerRename()
         {
-            var @event = new Event { keyCode = KeyCode.F2, type = EventType.KeyDown };
+            var renameKeyCode = Application.platform == RuntimePlatform.OSXEditor
+                ? KeyCode.Return
+                : KeyCode.F2;
+            var @event = new Event { keyCode = renameKeyCode, type = EventType.KeyDown };
             EditorWindow.focusedWindow.SendEvent(@event);
         }
 

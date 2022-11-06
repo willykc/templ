@@ -25,6 +25,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using static TemplSettings;
+
     public sealed class ScribanAsset : ScriptableObject
     {
         internal string Text => text;
@@ -45,7 +47,7 @@ namespace Willykc.Templ.Editor
                 ? template.Messages
                 .Select(m => $"{m.Type}: {m.Message}")
                 .ToArray()
-                : new string[0];
+                : EmptyStringArray;
             return this;
         }
     }

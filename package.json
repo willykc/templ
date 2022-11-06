@@ -1,13 +1,14 @@
 {
   "name": "com.willykc.templ",
-  "version": "0.1.1-preview",
+  "version": "0.2.0-preview",
   "displayName": "Templ",
-  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Extensible design allows custom inputs and template functions.",
+  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with directories and files.\n - Extensible design allows custom inputs and template functions.",
   "keywords": [
     "template",
     "code",
     "generation",
-    "automatic"
+    "automatic",
+    "scaffold"
   ],
   "author": {
     "name": "Willy A. Kuster",
@@ -18,7 +19,8 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.4.6"
+    "org.nuget.scriban": "5.5.0",
+    "org.nuget.sharpyaml": "2.1.0"
   },
   "unity": "2020.3",
   "documentationUrl": "https://github.com/willykc/templ/blob/main/README.md",
@@ -59,6 +61,21 @@
       "displayName": "Extensions",
       "description": "Contains sample custom entry and custom functions for a text template",
       "path": "Samples~/Extensions"
+    },
+    {
+      "displayName": "Scaffold with Input",
+      "description": "Contains sample scaffold with default input scriptable object",
+      "path": "Samples~/ScaffoldWithInput"
+    },
+    {
+      "displayName": "Scaffold with Selection",
+      "description": "Contains sample scaffold to generate prefabs for selected image",
+      "path": "Samples~/ScaffoldWithSelection"
+    },
+    {
+      "displayName": "Dynamic Scaffold with Input",
+      "description": "Contains sample dynamic scaffold with default input scriptable object",
+      "path": "Samples~/DynamicScaffold"
     }
   ]
 }

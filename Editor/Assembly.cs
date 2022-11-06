@@ -22,4 +22,3 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Willykc.Templ.Editor.Tests")]
-[assembly: InternalsVisibleTo("Willykc.Templ.Editor.Tests.Mocks")]

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0-preview] - 2022-11-06
+
+### Added
+
+- Scaffold editor
+- Dynamic Scaffold editor
+- Scaffold generation
+- Template functions for case transformations
+- Template functions for asset database operations
+
+### Changed
+
+- Simplified custom entry types
+- Renamed entries to live entries
+
 ## [0.1.1-preview] - 2022-08-26
 
 ### Changed
