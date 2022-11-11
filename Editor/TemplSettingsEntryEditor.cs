@@ -40,17 +40,23 @@ namespace Willykc.Templ.Editor
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
+        private const string NameOfDirectoryField = nameof(TemplEntry.directory);
+        private const string NameOfTemplateField = nameof(TemplEntry.template);
+        private const string NameOfFilenameField = nameof(TemplEntry.filename);
+
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
-            $"input. {nameof(TemplEntry.template).Capitalize()} must be valid. " +
-            $"{nameof(TemplEntry.filename).Capitalize()} field must not contain invalid " +
+            $"input. {NameOfTemplateField.Capitalize()} must be valid. " +
+            $"{NameOfDirectoryField.Capitalize()} must not be read only." +
+            $"{NameOfFilenameField.Capitalize()} field must not contain invalid " +
             "characters and must be unique under the same " +
-            $"{nameof(TemplEntry.directory).Capitalize()}. Templ will only render templates for " +
+            $"{NameOfDirectoryField.Capitalize()}. Templ will only render templates for " +
             "valid entries.";
 
         private ReorderableList entryList;
         private string[] fullPathDuplicates;
         private Type[] entryTypes;
+        private int[] readOnlyDirectoryIds;
         private SerializedProperty entriesProperty;
         private bool isValidEntries;
 
@@ -84,6 +90,7 @@ namespace Willykc.Templ.Editor
         private void OnChangeEntries()
         {
             CollectEntryDuplicates();
+            CollectReadOnlyDirectoryIds();
             CheckEntriesValidity();
         }
 
@@ -126,48 +133,65 @@ namespace Willykc.Templ.Editor
             var entry = settings.Entries[index];
             DrawHeaderLine(rect);
             rect.y += 4;
-            DrawFirstRow(rect, element, entry);
-            DrawSecondRow(rect, element, entry);
+
+            var inputFieldProperty = element.FindPropertyRelative(entry.InputFieldName);
+            var directoryProperty = element.FindPropertyRelative(NameOfDirectoryField);
+            var templateProperty = element.FindPropertyRelative(NameOfTemplateField);
+            var filenameProperty = element.FindPropertyRelative(NameOfFilenameField);
+
+            var previousDirectoryValue = directoryProperty.objectReferenceValue;
+
+            DrawFirstRow(rect, inputFieldProperty, directoryProperty, entry);
+            DrawSecondRow(rect, templateProperty, filenameProperty, entry);
 
             if (EditorGUI.EndChangeCheck())
             {
+                SanitizeDirectoryProperty(directoryProperty, previousDirectoryValue);
                 EntryCore.FlagChangedEntry(entry);
             }
         }
 
-        private void DrawFirstRow(Rect rect, SerializedProperty element, TemplEntry entry)
+        private void DrawFirstRow(
+            Rect rect,
+            SerializedProperty input,
+            SerializedProperty directory,
+            TemplEntry entry)
         {
             DrawPropertyField(new Rect(
                 rect.x,
                 rect.y,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(entry.InputFieldName),
+                input,
                 _ => entry.IsValidInput);
             DrawPropertyField(new Rect(
                 rect.x + (rect.width * Half) + Padding,
                 rect.y,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.directory)),
-                p => NotNullReference(p));
+                directory,
+                p => NotNullReference(p) && NotReadOnlyDirectory(p));
         }
 
-        private void DrawSecondRow(Rect rect, SerializedProperty element, TemplEntry entry)
+        private void DrawSecondRow(
+            Rect rect,
+            SerializedProperty template,
+            SerializedProperty filename,
+            TemplEntry entry)
         {
             DrawPropertyField(new Rect(
                 rect.x,
                 rect.y + Spacing + DoubleLine,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.template)),
+                template,
                 p => NotNullReference(p) && IsValidTemplate(p));
             DrawPropertyField(new Rect(
                 rect.x + (rect.width * Half) + Padding,
                 rect.y + Spacing + DoubleLine,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.filename)),
+                filename,
                 p => ValidFilename(p, entry));
         }
 
@@ -214,6 +238,12 @@ namespace Willykc.Templ.Editor
                 property, GUIContent.none);
         }
 
+        private void CollectReadOnlyDirectoryIds() =>
+            readOnlyDirectoryIds = settings.Entries
+            .Where(e => e.directory.IsReadOnly())
+            .Select(e => e.directory.GetInstanceID())
+            .ToArray();
+
         private void CollectEntryDuplicates() =>
             fullPathDuplicates = settings.Entries
             .Select(e => e.fullPathCache = e.FullPath)
@@ -221,6 +251,9 @@ namespace Willykc.Templ.Editor
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToArray();
+
+        private bool NotReadOnlyDirectory(SerializedProperty property) =>
+            !readOnlyDirectoryIds.Contains(property.objectReferenceValue.GetInstanceID());
 
         private void CheckEntriesValidity() =>
             isValidEntries = settings.Entries.All(e => e.IsValid) && fullPathDuplicates.Length == 0;
@@ -234,6 +267,17 @@ namespace Willykc.Templ.Editor
             return !string.IsNullOrWhiteSpace(property.stringValue) &&
             property.stringValue.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
             (!fullPathDuplicates?.Contains(entry.fullPathCache) ?? true);
+        }
+
+        private static void SanitizeDirectoryProperty(
+            SerializedProperty directoryProperty,
+            UnityEngine.Object previousDirectoryValue)
+        {
+            if (directoryProperty.objectReferenceValue is UnityEngine.Object directory &&
+                !AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(directory)))
+            {
+                directoryProperty.objectReferenceValue = previousDirectoryValue;
+            }
         }
 
         private static bool IsEntryType(Type type) =>

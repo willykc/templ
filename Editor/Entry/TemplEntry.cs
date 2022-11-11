@@ -58,6 +58,7 @@ namespace Willykc.Templ.Editor.Entry
             template &&
             !template.HasErrors &&
             directory &&
+            !directory.IsReadOnly() &&
             !string.IsNullOrWhiteSpace(filename) &&
             filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
 
