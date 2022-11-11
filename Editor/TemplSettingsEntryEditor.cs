@@ -47,7 +47,7 @@ namespace Willykc.Templ.Editor
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {NameOfTemplateField.Capitalize()} must be valid. " +
-            $"{NameOfDirectoryField.Capitalize()} must not be read only." +
+            $"{NameOfDirectoryField.Capitalize()} must not be read only. " +
             $"{NameOfFilenameField.Capitalize()} field must not contain invalid " +
             "characters and must be unique under the same " +
             $"{NameOfDirectoryField.Capitalize()}. Templ will only render templates for " +
