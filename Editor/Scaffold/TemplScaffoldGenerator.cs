@@ -38,7 +38,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private static readonly ILogger Log;
         private static readonly TemplScaffoldCore ScaffoldCore;
 
-        private static bool IsGenerating;
+        internal static bool IsGenerating { get; private set; }
 
         static TemplScaffoldGenerator()
         {

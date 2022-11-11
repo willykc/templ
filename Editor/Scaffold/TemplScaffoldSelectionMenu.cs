@@ -51,6 +51,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private static bool ValidateShowScaffoldsMenu() =>
             TemplSettings.Instance &&
             TemplSettings.Instance.ValidScaffolds.Count > 0 &&
+            !TemplScaffoldGenerator.IsGenerating &&
             !Selection.activeObject.IsReadOnly();
 
         private void Awake() => settings = TemplSettings.Instance;
