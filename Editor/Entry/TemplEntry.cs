@@ -32,26 +32,31 @@ namespace Willykc.Templ.Editor.Entry
     [Serializable]
     public abstract class TemplEntry
     {
+        internal const string NameOfTemplate = nameof(template);
+        internal const string NameOfDirectory = nameof(directory);
+        internal const string NameOfFilename = nameof(filename);
+
         private FieldInfo inputField;
         private bool? deferred;
         private ChangeType? changeTypes;
 
-        public ScribanAsset template;
-        public DefaultAsset directory;
-        public string filename;
-
+        [SerializeField]
+        private ScribanAsset template;
+        [SerializeField]
+        private DefaultAsset directory;
+        [SerializeField]
+        private string filename;
         [SerializeField]
         internal string guid = Guid.NewGuid().ToString();
 
         [NonSerialized]
         internal string fullPathCache;
 
-        private ChangeType ChangeTypes => changeTypes ??= GetType()
-            .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+        internal ScribanAsset Template => template;
 
-        private FieldInfo InputField => inputField ??= GetType()
-            .GetFields()
-            .Single(f => f.IsDefined(typeof(TemplInputAttribute)));
+        internal DefaultAsset Directory => directory;
+
+        internal string Filename => filename;
 
         internal bool IsValid =>
             IsValidInput &&
@@ -81,22 +86,29 @@ namespace Willykc.Templ.Editor.Entry
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
 
+        protected virtual bool IsValidInputField => InputValue as UnityObject;
+
+        protected virtual object InputValue => InputField.GetValue(this);
+
+        private ChangeType ChangeTypes => changeTypes ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+
+        private FieldInfo InputField => inputField ??= GetType()
+            .GetFields()
+            .Single(f => f.IsDefined(typeof(TemplInputAttribute)));
+
         internal bool ShouldRender(AssetChange change) =>
             (IsInputChanged(change) || IsTemplateChanged(change)) &&
             change.currentPath != OutputAssetPath;
 
+        internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
+
         internal virtual bool IsTemplateChanged(AssetChange change) =>
             change.currentPath == AssetDatabase.GetAssetPath(template);
-
-        internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
 
         protected virtual bool IsInputChanged(AssetChange change) =>
             InputValue is UnityObject asset &&
             change.currentPath == AssetDatabase.GetAssetPath(asset);
-
-        protected virtual bool IsValidInputField => InputValue as UnityObject;
-
-        protected virtual object InputValue => InputField.GetValue(this);
 
     }
 }

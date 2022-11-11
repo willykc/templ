@@ -231,7 +231,7 @@ namespace Willykc.Templ.Editor
                 .Select(e => assetDatabase.GetAssetPath(GetInput(e)))
                 .ToArray();
             var templatePaths = settingsProvider.GetSettings().ValidEntries
-                .Select(e => assetDatabase.GetAssetPath(e.template))
+                .Select(e => assetDatabase.GetAssetPath(e.Template))
                 .ToArray();
 
             foreach (var entry in entriesToRender)
@@ -255,7 +255,7 @@ namespace Willykc.Templ.Editor
             try
             {
                 var context = GetContext(entry);
-                var template = Template.Parse(entry.template.Text);
+                var template = Template.Parse(entry.Template.Text);
                 var result = template.Render(context);
                 fileSystem.WriteAllText(entry.FullPath, result);
                 assetDatabase.ImportAsset(entry.OutputAssetPath);

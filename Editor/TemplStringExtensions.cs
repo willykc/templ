@@ -34,11 +34,6 @@ namespace Willykc.Templ.Editor
 
         private static readonly char[] Separators = new[] { Dash, Underscore, Whitespace };
 
-        internal static string Capitalize(this string input) =>
-            !string.IsNullOrEmpty(input)
-            ? char.ToUpperInvariant(input[0]) + input.Substring(1)
-            : string.Empty;
-
         internal static string ReplaceFirst(this string input, string search, string replace) =>
             string.IsNullOrEmpty(input) ||
             string.IsNullOrEmpty(search) ||

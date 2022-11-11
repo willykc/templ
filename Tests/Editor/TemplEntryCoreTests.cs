@@ -31,6 +31,8 @@ namespace Willykc.Templ.Editor.Tests
     {
         internal const string TestSettingsPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTemplSettings.asset";
+        internal const string TestEdgeCasesSettingsPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEdgeCasesTemplSettings.asset";
         internal const string TestTextPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestText.txt";
         internal const string TestTemplatePath =
@@ -51,6 +53,7 @@ namespace Willykc.Templ.Editor.Tests
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private TemplSettings settings;
+        private TemplSettings edgeCasesSettings;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
         private EntryMock secondEntryMock;
@@ -66,6 +69,8 @@ namespace Willykc.Templ.Editor.Tests
         public void BeforeAll()
         {
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
+            edgeCasesSettings =
+                TemplTestUtility.CreateTestAsset<TemplSettings>(TestEdgeCasesSettingsPath, out _);
             testErrorTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestErrorTemplatePath, out _);
             testOutputPathTemplate =
@@ -113,6 +118,7 @@ namespace Willykc.Templ.Editor.Tests
         public void AfterAll()
         {
             TemplTestUtility.DeleteTestAsset(settings);
+            TemplTestUtility.DeleteTestAsset(edgeCasesSettings);
             TemplTestUtility.DeleteTestAsset(testErrorTemplate);
             TemplTestUtility.DeleteTestAsset(testOutputPathTemplate);
             TemplTestUtility.DeleteTestAsset(testPathFunctionTemplate);
@@ -488,52 +494,42 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenTemplateWithError_WhenRenderAllValidEntries_ThenShouldLogError()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testErrorTemplate;
+            settingsProviderMock.settings = edgeCasesSettings;
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
             Assert.AreEqual(1, loggerMock.ErrorCount);
-
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
         }
 
         [Test]
         public void GivenTemplateWithOutputPath_WhenRenderAllValidEntries_ThenShouldRenderPath()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testOutputPathTemplate;
+            settingsProviderMock.settings = edgeCasesSettings;
+            var targetEntry = edgeCasesSettings.Entries[1];
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0]);
-
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
+            Assert.AreEqual(targetEntry.OutputAssetPath, fileMock.Contents[0]);
         }
 
         [Test]
         public void GivenTemplateWithPathFunction_WhenRenderAllValidEntries_ThenShouldRenderResult()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testPathFunctionTemplate;
+            settingsProviderMock.settings = edgeCasesSettings;
+            var targetEntry = edgeCasesSettings.Entries[2];
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(Path.GetFileNameWithoutExtension(firstEntryMock.OutputAssetPath),
-                fileMock.Contents[0]);
-
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
+            Assert.AreEqual(Path.GetFileNameWithoutExtension(targetEntry.OutputAssetPath),
+                fileMock.Contents[1]);
         }
     }
 }

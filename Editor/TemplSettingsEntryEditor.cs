@@ -40,17 +40,14 @@ namespace Willykc.Templ.Editor
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
-        private const string NameOfDirectoryField = nameof(TemplEntry.directory);
-        private const string NameOfTemplateField = nameof(TemplEntry.template);
-        private const string NameOfFilenameField = nameof(TemplEntry.filename);
 
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
-            $"input. {NameOfTemplateField.Capitalize()} must be valid. " +
-            $"{NameOfDirectoryField.Capitalize()} must not be read only. " +
-            $"{NameOfFilenameField.Capitalize()} field must not contain invalid " +
+            $"input. {nameof(TemplEntry.Template)} must be valid. " +
+            $"{nameof(TemplEntry.Directory)} must not be read only. " +
+            $"{nameof(TemplEntry.Filename)} field must not contain invalid " +
             "characters and must be unique under the same " +
-            $"{NameOfDirectoryField.Capitalize()}. Templ will only render templates for " +
+            $"{nameof(TemplEntry.Directory)}. Templ will only render templates for " +
             "valid entries.";
 
         private ReorderableList entryList;
@@ -135,9 +132,9 @@ namespace Willykc.Templ.Editor
             rect.y += 4;
 
             var inputFieldProperty = element.FindPropertyRelative(entry.InputFieldName);
-            var directoryProperty = element.FindPropertyRelative(NameOfDirectoryField);
-            var templateProperty = element.FindPropertyRelative(NameOfTemplateField);
-            var filenameProperty = element.FindPropertyRelative(NameOfFilenameField);
+            var directoryProperty = element.FindPropertyRelative(TemplEntry.NameOfDirectory);
+            var templateProperty = element.FindPropertyRelative(TemplEntry.NameOfTemplate);
+            var filenameProperty = element.FindPropertyRelative(TemplEntry.NameOfFilename);
 
             var previousDirectoryValue = directoryProperty.objectReferenceValue;
 
@@ -240,8 +237,8 @@ namespace Willykc.Templ.Editor
 
         private void CollectReadOnlyDirectoryIds() =>
             readOnlyDirectoryIds = settings.Entries
-            .Where(e => e.directory.IsReadOnly())
-            .Select(e => e.directory.GetInstanceID())
+            .Where(e => e.Directory.IsReadOnly())
+            .Select(e => e.Directory.GetInstanceID())
             .ToArray();
 
         private void CollectEntryDuplicates() =>

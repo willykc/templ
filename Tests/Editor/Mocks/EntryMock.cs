@@ -38,7 +38,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string outputAssetPath;
 
         internal override string OutputAssetPath => string.IsNullOrWhiteSpace(outputAssetPath)
-            ? filename
+            ? Filename
             : outputAssetPath;
 
         internal override bool Deferred => defer;

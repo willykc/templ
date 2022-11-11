@@ -49,7 +49,7 @@ namespace Willykc.Templ.Editor
             var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings &&
-                (settings.Entries.Any(e => e.template == asset) ||
+                (settings.Entries.Any(e => e.Template == asset) ||
                 settings.Scaffolds.Any(s => s && s.ContainsTemplate(asset)));
         }
 
