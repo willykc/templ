@@ -377,7 +377,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(2, fileMock.WriteAllTextCount);
+            Assert.AreEqual(2, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -390,7 +390,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -403,7 +403,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.WarnCount);
+            Assert.AreEqual(1, loggerMock.WarnCount, "Unexpected number of warnings logged");
         }
 
         [Test]
@@ -417,7 +417,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -431,7 +431,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -445,7 +445,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -459,7 +459,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -473,7 +473,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -487,7 +487,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -500,7 +500,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -514,7 +514,8 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(targetEntry.OutputAssetPath, fileMock.Contents[0]);
+            Assert.AreEqual(targetEntry.OutputAssetPath, fileMock.Contents[0],
+                "Unexpected content rendered");
         }
 
         [Test]
@@ -529,7 +530,7 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.AreEqual(Path.GetFileNameWithoutExtension(targetEntry.OutputAssetPath),
-                fileMock.Contents[1]);
+                fileMock.Contents[1], "Unexpected content rendered");
         }
     }
 }
