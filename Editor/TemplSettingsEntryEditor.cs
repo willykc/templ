@@ -52,15 +52,16 @@ namespace Willykc.Templ.Editor
 
         private ReorderableList entryList;
         private string[] fullPathDuplicates;
-        private Type[] entryTypes;
+        private EntryMenuItem[] entryMenuItems;
         private int[] readOnlyDirectoryIds;
         private SerializedProperty entriesProperty;
         private bool isValidEntries;
 
         private void OnEnableEntries()
         {
-            entryTypes = TypeCache
+            entryMenuItems = TypeCache
                 .Where(IsEntryType)
+                .Select(t => new EntryMenuItem { type = t, displayName = GetEntryDisplayName(t) })
                 .ToArray();
             entriesProperty =
                 serializedObject.FindProperty(TemplSettings.NameOfEntries);
@@ -194,13 +195,16 @@ namespace Willykc.Templ.Editor
 
         private void OnAddEntryDropdown(Rect buttonRect, ReorderableList list)
         {
-            var menu = new GenericMenu();
-
-            foreach (var entryType in entryTypes)
+            var menu = new GenericMenu
             {
-                menu.AddItem(new GUIContent(entryType.Name),
+                allowDuplicateNames = true
+            };
+
+            foreach (var entryMenuItem in entryMenuItems)
+            {
+                menu.AddItem(new GUIContent(entryMenuItem.displayName),
                 false, OnAddEntryElement,
-                entryType);
+                entryMenuItem.type);
             }
 
             menu.ShowAsContext();
@@ -298,5 +302,17 @@ namespace Willykc.Templ.Editor
 
         private static bool IsValidTemplate(SerializedProperty property) =>
             property.objectReferenceValue is ScribanAsset template && !template.HasErrors;
+
+        private static string GetEntryDisplayName(Type type) =>
+            type.GetCustomAttribute<TemplEntryInfoAttribute>()?.DisplayName is string name &&
+            !string.IsNullOrWhiteSpace(name)
+            ? name
+            : type.Name;
+
+        private struct EntryMenuItem
+        {
+            public string displayName;
+            public Type type;
+        }
     }
 }

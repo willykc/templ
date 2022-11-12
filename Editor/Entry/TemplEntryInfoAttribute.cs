@@ -26,15 +26,14 @@ namespace Willykc.Templ.Editor.Entry
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class TemplEntryInfoAttribute : Attribute
     {
-        internal ChangeType ChangeTypes { get; }
-        internal bool Deferred { get; }
+        public ChangeType ChangeTypes { get; }
+        public string DisplayName { get; set; }
+        public bool Deferred { get; set; }
 
         public TemplEntryInfoAttribute(
-            ChangeType changeTypes,
-            bool deferred = false)
+            ChangeType changeTypes)
         {
             ChangeTypes = changeTypes;
-            Deferred = deferred;
         }
     }
 }

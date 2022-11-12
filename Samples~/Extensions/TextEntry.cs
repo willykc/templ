@@ -4,7 +4,7 @@ namespace Willykc.Templ.Samples
 {
     using Editor.Entry;
 
-    [TemplEntryInfo(ChangeType.Import)]
+    [TemplEntryInfo(changeTypes: ChangeType.Import, DisplayName = "Text")]
     public class TextEntry : TemplEntry
     {
         [TemplInput]

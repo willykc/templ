@@ -28,7 +28,10 @@ using Assembly = System.Reflection.Assembly;
 
 namespace Willykc.Templ.Editor.Entry
 {
-    [TemplEntryInfo(ChangeType.All, deferred: true)]
+    [TemplEntryInfo(
+        changeTypes: ChangeType.All,
+        DisplayName = "Assembly Definition",
+        Deferred = true)]
     internal sealed class AssemblyDefinitionEntry : TemplEntry
     {
         private const string AssemblyReferenceExtension = ".asmref";

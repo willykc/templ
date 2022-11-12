@@ -80,15 +80,23 @@ namespace Willykc.Templ.Editor.Entry
 
         internal string InputFieldName => InputField.Name;
 
+        internal string ExposedInputName =>
+            InputField.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is string exposedAs &&
+            !string.IsNullOrWhiteSpace(exposedAs)
+            ? exposedAs
+            : InputFieldName;
+
+        internal UnityObject InputAsset => InputField.GetValue(this) as UnityObject;
+
         internal virtual bool Deferred => deferred ??=
             GetType().GetCustomAttribute<TemplEntryInfoAttribute>().Deferred;
 
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
 
-        protected virtual bool IsValidInputField => InputValue as UnityObject;
+        protected virtual bool IsValidInputField => InputAsset;
 
-        protected virtual object InputValue => InputField.GetValue(this);
+        protected virtual object InputValue => InputAsset;
 
         private ChangeType ChangeTypes => changeTypes ??= GetType()
             .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;

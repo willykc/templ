@@ -151,11 +151,6 @@ namespace Willykc.Templ.Editor
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
-        private static UnityObject GetInput(TemplEntry e) =>
-            e.GetType()
-            .GetField(e.InputFieldName)
-            .GetValue(e) as UnityObject;
-
         private bool FunctionConflictsDetected()
         {
             if (functionConflicts.Length > 0)
@@ -228,7 +223,7 @@ namespace Willykc.Templ.Editor
         private void RenderEntries(IEnumerable<TemplEntry> entriesToRender)
         {
             var inputPaths = settingsProvider.GetSettings().ValidEntries
-                .Select(e => assetDatabase.GetAssetPath(GetInput(e)))
+                .Select(e => assetDatabase.GetAssetPath(e.InputAsset))
                 .ToArray();
             var templatePaths = settingsProvider.GetSettings().ValidEntries
                 .Select(e => assetDatabase.GetAssetPath(e.Template))
@@ -298,7 +293,7 @@ namespace Willykc.Templ.Editor
             var scriptObject = new ScriptObject();
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
-            scriptObject.Add(entry.InputFieldName, entry.TheInputValue);
+            scriptObject.Add(entry.ExposedInputName, entry.TheInputValue);
             scriptObject.Add(NameOfOutputAssetPath, entry.OutputAssetPath);
             var context = new TemplateContext();
             context.PushGlobal(scriptObject);

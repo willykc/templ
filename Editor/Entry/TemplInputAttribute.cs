@@ -26,5 +26,6 @@ namespace Willykc.Templ.Editor.Entry
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class TemplInputAttribute : Attribute
     {
+        public string ExposedAs { get; set; }
     }
 }

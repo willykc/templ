@@ -23,7 +23,7 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Entry
 {
-    [TemplEntryInfo(ChangeType.Import)]
+    [TemplEntryInfo(changeTypes: ChangeType.Import, DisplayName = "Scriptable Object")]
     internal sealed class ScriptableObjectEntry : TemplEntry
     {
         [TemplInput]
