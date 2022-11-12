@@ -52,6 +52,7 @@ namespace Willykc.Templ.Editor.Tests
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
         private TemplSettings edgeCasesSettings;
         private AssetsPaths changes;
@@ -101,7 +102,8 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                templateFunctionProviderMock = new TemplateFunctionProviderMock());
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = settings;
@@ -531,6 +533,36 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(Path.GetFileNameWithoutExtension(targetEntry.OutputAssetPath),
                 fileMock.Contents[1], "Unexpected content rendered");
+        }
+
+        [Test]
+        public void GivenInputChange_WhenAssetsChange_ThenProgressBarShouldBeDisplayed()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+            secondEntryMock.inputChanged = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(2, editorUtilityMock.DisplayProgressBarCount,
+                "Did not display progress bar");
+        }
+
+        [Test]
+        public void GivenInputChange_WhenAssetsChange_ThenProgressBarShouldBeCleared()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+            secondEntryMock.inputChanged = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(1, editorUtilityMock.ClearProgressBarCount,
+                "Did not clear progress bar");
         }
     }
 }

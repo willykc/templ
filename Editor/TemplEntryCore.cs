@@ -34,6 +34,8 @@ namespace Willykc.Templ.Editor
 
     internal sealed class TemplEntryCore
     {
+        private const string EntriesRenderingTitle = "Templ Live Entries Rendering";
+        private const string ProgressBarRenderingInfo = "Rendering...";
         private const string TemplChangedKey = "templ.changed";
         private const string TemplDeferredKey = "templ.deferred";
 
@@ -42,7 +44,7 @@ namespace Willykc.Templ.Editor
         private readonly ISessionState sessionState;
         private readonly ILogger log;
         private readonly ISettingsProvider settingsProvider;
-
+        private readonly IEditorUtility editorUtility;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
 
@@ -52,7 +54,8 @@ namespace Willykc.Templ.Editor
             ISessionState sessionState,
             ILogger log,
             ISettingsProvider settingsProvider,
-            ITemplateFunctionProvider templateFunctionProvider)
+            ITemplateFunctionProvider templateFunctionProvider,
+            IEditorUtility editorUtility)
         {
             this.assetDatabase = assetDatabase ??
                 throw new ArgumentNullException(nameof(assetDatabase));
@@ -64,6 +67,8 @@ namespace Willykc.Templ.Editor
                 throw new ArgumentNullException(nameof(log));
             this.settingsProvider = settingsProvider ??
                 throw new ArgumentNullException(nameof(settingsProvider));
+            this.editorUtility = editorUtility ??
+                throw new ArgumentNullException(nameof(editorUtility));
             templateFunctionProvider = templateFunctionProvider ??
                 throw new ArgumentNullException(nameof(templateFunctionProvider));
 
@@ -229,14 +234,35 @@ namespace Willykc.Templ.Editor
                 .Select(e => assetDatabase.GetAssetPath(e.Template))
                 .ToArray();
 
-            foreach (var entry in entriesToRender)
+            try
             {
-                RenderEntry(entry, inputPaths, templatePaths);
+                RenderEntriesWithProgress(entriesToRender, inputPaths, templatePaths);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
             }
 
             if (entriesToRender.Any() && settingsProvider.GetSettings().HasInvalidEntries)
             {
-                log.Warn("Invalid settings found");
+                log.Warn("Invalid live entries found in settings");
+            }
+        }
+
+        private void RenderEntriesWithProgress(
+            IEnumerable<TemplEntry> entriesToRender,
+            string[] inputPaths,
+            string[] templatePaths)
+        {
+            var entryCount = entriesToRender.Count();
+
+            foreach (var (entry, index) in entriesToRender.Select(GetEntryWithIndex))
+            {
+                editorUtility.DisplayProgressBar(
+                    EntriesRenderingTitle,
+                    ProgressBarRenderingInfo,
+                    (float)index / entryCount);
+                RenderEntry(entry, inputPaths, templatePaths);
             }
         }
 
@@ -299,6 +325,9 @@ namespace Willykc.Templ.Editor
             context.PushGlobal(scriptObject);
             return context;
         }
+
+        private static (TemplEntry entry, int index) GetEntryWithIndex(TemplEntry entry, int index) =>
+            (entry, index);
 
         private static AssetChange[] DecomposeChanges(AssetsPaths changes, TemplEntry entry)
         {

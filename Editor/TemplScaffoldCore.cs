@@ -96,9 +96,14 @@ namespace Willykc.Templ.Editor
             var showIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarGeneratingInfo);
 
-            GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths, skipPaths);
-
-            editorUtility.ClearProgressBar();
+            try
+            {
+                GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths, skipPaths);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
+            }
 
             log.Info($"{scaffold.name} scaffold generated successfully at {targetPath}");
             return paths.ToArray();
@@ -139,8 +144,15 @@ namespace Willykc.Templ.Editor
             var showProgressIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarValidatingInfo);
 
-            CollectScaffoldErrors(scaffold.Root, validationContext, showProgressIncrement);
-            editorUtility.ClearProgressBar();
+            try
+            {
+                CollectScaffoldErrors(scaffold.Root, validationContext, showProgressIncrement);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
+            }
+
             return validationContext.errors.ToArray();
         }
 

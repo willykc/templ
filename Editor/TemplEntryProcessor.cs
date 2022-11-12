@@ -37,7 +37,8 @@ namespace Willykc.Templ.Editor
                 Abstraction.SessionState.Instance,
                 Abstraction.Logger.Instance,
                 Abstraction.SettingsProvider.Instance,
-                Abstraction.TemplateFunctionProvider.Instance);
+                Abstraction.TemplateFunctionProvider.Instance,
+                Abstraction.EditorUtility.Instance);
         }
 
         private static void OnPostprocessAllAssets(

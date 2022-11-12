@@ -35,6 +35,7 @@ namespace Willykc.Templ.Editor.Tests
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
@@ -57,7 +58,8 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                templateFunctionProviderMock = new TemplateFunctionProviderMock());
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = false;
             settingsProviderMock.settings = settings;
