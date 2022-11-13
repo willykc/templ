@@ -22,6 +22,7 @@
 using NUnit.Framework;
 using System.IO;
 using UnityEngine;
+using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -563,6 +564,60 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(1, editorUtilityMock.ClearProgressBarCount,
                 "Did not clear progress bar");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenInputDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(testTextPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedTemplate_WhenTemplateDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockTemplatePath = TestTemplatePath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(TestTemplatePath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedDirectory_WhenDirectoryDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            var directoryPath = AssetDatabase.GetAssetPath(firstEntryMock.Directory);
+            assetDatabaseMock.mockDirectoryPath = directoryPath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(directoryPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenParentDirectoryDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            var parentDirectoryPath = "Assets/Directory";
+            assetDatabaseMock.mockInputPath = $"{parentDirectoryPath}/Test.txt";
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(parentDirectoryPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
         }
     }
 }

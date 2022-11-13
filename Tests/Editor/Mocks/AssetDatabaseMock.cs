@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
@@ -31,6 +32,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string mockTemplatePath;
         internal string mockInputPath;
         internal string mockSettingsPath;
+        internal string mockDirectoryPath;
         internal string ImportAssetPath { get; private set; }
 
         string IAssetDatabase.GetAssetPath(Object asset)
@@ -46,6 +48,10 @@ namespace Willykc.Templ.Editor.Tests.Mocks
             if (asset is ScribanAsset)
             {
                 return mockTemplatePath;
+            }
+            if (asset is DefaultAsset)
+            {
+                return mockDirectoryPath;
             }
             return mockAssetPath;
         }

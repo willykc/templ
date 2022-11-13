@@ -24,20 +24,24 @@ using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
     using Abstraction;
     using Entry;
     using static TemplSettings;
+    using static TemplSettingsEditor;
 
     internal sealed class TemplEntryCore
     {
-        private const string EntriesRenderingTitle = "Templ Live Entries Rendering";
+        private const string LiveEntriesTitle = "Templ Live Entries";
         private const string ProgressBarRenderingInfo = "Rendering...";
         private const string TemplChangedKey = "templ.changed";
         private const string TemplDeferredKey = "templ.deferred";
+        private const string OkDialogText = "Continue";
+        private const string DialogMessage = "An asset currently referenced by " +
+            LiveEntriesTitle + " was about to be deleted. Please remove all references in " +
+            nameof(TemplSettings) + " (" + MenuName + ") before trying to delete again.";
 
         private readonly IAssetDatabase assetDatabase;
         private readonly IFileSystem fileSystem;
@@ -121,14 +125,23 @@ namespace Willykc.Templ.Editor
             sessionState.EraseString(TemplDeferredKey);
         }
 
-        internal void OnWillDeleteAsset(string path)
+        internal bool OnWillDeleteAsset(string path)
         {
-            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
+            if (!settingsProvider.SettingsExist())
             {
-                return;
+                return true;
+            }
+
+            var settings = settingsProvider.GetSettings();
+
+            if(settings.Entries.Any(e => IsPathReferencedByEntry(e, path)))
+            {
+                editorUtility.DisplayDialog(LiveEntriesTitle, DialogMessage, OkDialogText);
+                return false;
             }
 
             FlagInputDeletedEntries(path);
+            return true;
         }
 
         internal void FlagChangedEntry(TemplEntry entry)
@@ -155,6 +168,13 @@ namespace Willykc.Templ.Editor
 
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
+
+        internal bool IsPathReferencedByEntry(TemplEntry entry, string path) => new[]
+        {
+            assetDatabase.GetAssetPath(entry.InputAsset),
+            assetDatabase.GetAssetPath(entry.Directory),
+            assetDatabase.GetAssetPath(entry.Template)
+        }.Any(p => !string.IsNullOrEmpty(p) && p.StartsWith(path));
 
         private bool FunctionConflictsDetected()
         {
@@ -259,7 +279,7 @@ namespace Willykc.Templ.Editor
             foreach (var (entry, index) in entriesToRender.Select(GetEntryWithIndex))
             {
                 editorUtility.DisplayProgressBar(
-                    EntriesRenderingTitle,
+                    LiveEntriesTitle,
                     ProgressBarRenderingInfo,
                     (float)index / entryCount);
                 RenderEntry(entry, inputPaths, templatePaths);

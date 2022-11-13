@@ -117,6 +117,19 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenNoSettings_WhenAssetDeleted_ThenShouldAllowDelete()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+
+            // Act
+            var allowDelete = subject.OnWillDeleteAsset(string.Empty);
+
+            // Verify
+            Assert.IsTrue(allowDelete, "Should allow delete");
+        }
+
+        [Test]
         public void GivenNoSettings_WhenRenderAllValidEntries_ThenEntriesShouldNotRender()
         {
             // Act

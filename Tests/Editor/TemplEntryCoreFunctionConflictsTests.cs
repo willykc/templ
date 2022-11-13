@@ -143,20 +143,6 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldLogError()
-        {
-            // Setup
-            firstEntryMock.inputChanged = true;
-            loggerMock.Clear();
-
-            // Act
-            subject.OnWillDeleteAsset(string.Empty);
-
-            // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
-        }
-
-        [Test]
         public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldNotFlagEntries()
         {
             // Setup

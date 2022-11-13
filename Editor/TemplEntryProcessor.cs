@@ -62,13 +62,10 @@ namespace Willykc.Templ.Editor
         private sealed class AssemblyReferenceDeleteHandler :
             UnityEditor.AssetModificationProcessor
         {
-            private static AssetDeleteResult OnWillDeleteAsset(
-                string path,
-                RemoveAssetOptions options)
-            {
-                EntryCore.OnWillDeleteAsset(path);
-                return AssetDeleteResult.DidNotDelete;
-            }
+            private static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) =>
+                EntryCore.OnWillDeleteAsset(path)
+                ? AssetDeleteResult.DidNotDelete
+                : AssetDeleteResult.FailedDelete;
         }
     }
 }

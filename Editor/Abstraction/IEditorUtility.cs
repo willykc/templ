@@ -25,5 +25,6 @@ namespace Willykc.Templ.Editor.Abstraction
     {
         void DisplayProgressBar(string title, string info, float progress);
         void ClearProgressBar();
+        bool DisplayDialog(string title, string message, string ok);
     }
 }

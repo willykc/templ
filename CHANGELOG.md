@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `DisplayName` property in `TemplEntryInfoAttribute` to define how custom `TemplEntry` subclasses should be shown in dropdown menu.
 - `ExposedAs` property in `TemplInputAttribute` to define how custom input values are exposed to templates.
+- Prevent delete of referenced assets in live entries in Unity Editor.
 
 ### Changed
 

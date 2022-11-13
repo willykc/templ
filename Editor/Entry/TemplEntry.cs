@@ -117,6 +117,5 @@ namespace Willykc.Templ.Editor.Entry
         protected virtual bool IsInputChanged(AssetChange change) =>
             InputValue is UnityObject asset &&
             change.currentPath == AssetDatabase.GetAssetPath(asset);
-
     }
 }

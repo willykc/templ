@@ -27,6 +27,13 @@ namespace Willykc.Templ.Editor.Tests.Mocks
     {
         internal int ClearProgressBarCount { get; private set; }
         internal int DisplayProgressBarCount { get; private set; }
+        internal int DisplayDialogCount { get; private set; }
+
+        public bool DisplayDialog(string title, string message, string ok)
+        {
+            DisplayDialogCount++;
+            return true;
+        }
 
         void IEditorUtility.ClearProgressBar()
         {
