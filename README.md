@@ -152,6 +152,8 @@ To add custom template functions, define a static class and apply `[TemplFunctio
 
 Templ includes by default a number of [custom template functions](Editor/TemplFunctions.cs). Templ will log an error when custom template function names collide, and will not render any template until custom template function name duplicates are removed.
 
+`Assert` is one of the default custom template functions in Templ. It allows to assert any boolean condition in templates and show a specific error message when the condition is not met.
+
 ## Coding guidelines
 
 This repository follows [these coding guidelines](https://github.com/raywenderlich/c-sharp-style-guide).
