@@ -40,7 +40,13 @@ namespace Willykc.Templ.Editor
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
-
+        private static readonly string CriticalEntryErrorMessage = "Critical error detected with " +
+            $"custom entry class. All custom entry classes must extend {nameof(TemplEntry)}. " +
+            "Custom entry classes must never be renamed or removed after creating entries with it.";
+        private static readonly string InvalidCustomEntryClassMessage = "Invalid custom entry " +
+            "class detected. All custom entry classes must declare " +
+            $"{nameof(TemplEntryInfoAttribute)} and have only one public input field decorated " +
+            $"with {nameof(TemplInputAttribute)}.";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
             $"input. {nameof(TemplEntry.Template)} must be valid. " +
@@ -50,16 +56,18 @@ namespace Willykc.Templ.Editor
             $"{nameof(TemplEntry.Directory)}. Templ will only render templates for " +
             "valid entries.";
 
+        private static EntryMenuItem[] entryMenuItems;
+
         private ReorderableList entryList;
         private string[] fullPathDuplicates;
-        private EntryMenuItem[] entryMenuItems;
         private int[] readOnlyDirectoryIds;
         private SerializedProperty entriesProperty;
         private bool isValidEntries;
+        private bool isCriticalEntryError;
 
         private void OnEnableEntries()
         {
-            entryMenuItems = TypeCache
+            entryMenuItems ??= TypeCache
                 .Where(IsEntryType)
                 .Select(t => new EntryMenuItem { type = t, displayName = GetEntryDisplayName(t) })
                 .ToArray();
@@ -74,6 +82,13 @@ namespace Willykc.Templ.Editor
             entryList.onAddDropdownCallback += OnAddEntryDropdown;
             Undo.undoRedoPerformed += OnChangeEntries;
             settings.AfterReset += OnChangeEntries;
+
+            if (!settings.Entries.All(TemplEntry.IsSubclass))
+            {
+                isCriticalEntryError = true;
+                return;
+            }
+
             OnChangeEntries();
         }
 
@@ -87,6 +102,7 @@ namespace Willykc.Templ.Editor
 
         private void OnChangeEntries()
         {
+            isCriticalEntryError = false;
             CollectEntryDuplicates();
             CollectReadOnlyDirectoryIds();
             CheckEntriesValidity();
@@ -96,6 +112,12 @@ namespace Willykc.Templ.Editor
         {
             if (!Foldout(entriesProperty, LiveEntriesTitle))
             {
+                return;
+            }
+
+            if (isCriticalEntryError)
+            {
+                EditorGUILayout.HelpBox(CriticalEntryErrorMessage, MessageType.Error);
                 return;
             }
 
@@ -132,6 +154,12 @@ namespace Willykc.Templ.Editor
             DrawHeaderLine(rect);
             rect.y += 4;
 
+            if (!IsValidEntryClass(entry))
+            {
+                DrawInvalidClassError(rect);
+                return;
+            }
+
             var inputFieldProperty = element.FindPropertyRelative(entry.InputFieldName);
             var directoryProperty = element.FindPropertyRelative(TemplEntry.NameOfDirectory);
             var templateProperty = element.FindPropertyRelative(TemplEntry.NameOfTemplate);
@@ -148,6 +176,16 @@ namespace Willykc.Templ.Editor
                 EntryCore.FlagChangedEntry(entry);
             }
         }
+
+        private static void DrawInvalidClassError(Rect rect)
+        {
+            rect.y++;
+            rect.height -= 6;
+            EditorGUI.HelpBox(rect, InvalidCustomEntryClassMessage, MessageType.Error);
+        }
+
+        private bool IsValidEntryClass(TemplEntry entry) =>
+            !string.IsNullOrEmpty(entry.InputFieldName) && entry.ChangeTypes != ChangeType.None;
 
         private void DrawFirstRow(
             Rect rect,

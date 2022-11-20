@@ -62,6 +62,7 @@ namespace Willykc.Templ.Editor
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?
+            .Where(TemplEntry.IsSubclass)
             .GroupBy(e => e.FullPath)
             .Where(g => g.Count() == 1)
             .SelectMany(g => g)

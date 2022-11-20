@@ -27,6 +27,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using Entry;
+
     [CustomEditor(typeof(ScribanImporter))]
     internal sealed class ScribanImporterEditor : ScriptedImporterEditor
     {
@@ -49,7 +51,7 @@ namespace Willykc.Templ.Editor
             var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings &&
-                (settings.Entries.Any(e => e.Template == asset) ||
+                (settings.Entries.Any(e => TemplEntry.IsSubclass(e) && e.Template == asset) ||
                 settings.Scaffolds.Any(s => s && s.ContainsTemplate(asset)));
         }
 

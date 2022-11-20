@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved validation for live entries.
 
+### Fixed
+
+- Fixed live entries editor not responding when custom entry class becomes invalid.
+
 ## [0.2.0-preview] - 2022-11-06
 
 ### Added

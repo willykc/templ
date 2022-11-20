@@ -59,6 +59,8 @@ namespace Willykc.Templ.Editor.Entry
         internal string Filename => filename;
 
         internal bool IsValid =>
+            !string.IsNullOrEmpty(InputFieldName) &&
+            ChangeTypes != ChangeType.None &&
             IsValidInput &&
             template &&
             !template.HasErrors &&
@@ -78,32 +80,34 @@ namespace Willykc.Templ.Editor.Entry
 
         internal bool IsValidInput => IsValidInputField;
 
-        internal string InputFieldName => InputField.Name;
+        internal string InputFieldName => InputField?.Name;
 
         internal string ExposedInputName =>
-            InputField.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is string exposedAs &&
+            InputField?.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is string exposedAs &&
             !string.IsNullOrWhiteSpace(exposedAs)
             ? exposedAs
             : InputFieldName;
 
-        internal UnityObject InputAsset => InputField.GetValue(this) as UnityObject;
+        internal UnityObject InputAsset => InputField?.GetValue(this) as UnityObject;
 
-        internal virtual bool Deferred => deferred ??=
-            GetType().GetCustomAttribute<TemplEntryInfoAttribute>().Deferred;
+        internal virtual bool Deferred => deferred ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>()?.Deferred ?? false;
 
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
+
+        internal ChangeType ChangeTypes => changeTypes ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>()?.ChangeTypes ?? ChangeType.None;
 
         protected virtual bool IsValidInputField => InputAsset;
 
         protected virtual object InputValue => InputAsset;
 
-        private ChangeType ChangeTypes => changeTypes ??= GetType()
-            .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+        private FieldInfo InputField => inputField ??= Array.Find(GetType()
+            .GetFields(), f => f.IsDefined(typeof(TemplInputAttribute)));
 
-        private FieldInfo InputField => inputField ??= GetType()
-            .GetFields()
-            .Single(f => f.IsDefined(typeof(TemplInputAttribute)));
+        internal static bool IsSubclass(object entry) =>
+            entry?.GetType().IsSubclassOf(typeof(TemplEntry)) == true;
 
         internal bool ShouldRender(AssetChange change) =>
             (IsInputChanged(change) || IsTemplateChanged(change)) &&
