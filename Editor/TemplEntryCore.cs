@@ -23,6 +23,7 @@ using Scriban;
 using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Willykc.Templ.Editor
@@ -42,6 +43,8 @@ namespace Willykc.Templ.Editor
         private const string DialogMessage = "An asset currently referenced by " +
             LiveEntriesTitle + " was about to be deleted. Please remove all references in " +
             nameof(TemplSettings) + " (" + MenuName + ") before trying to delete again.";
+
+        private const char AssetPathSeparator = '/';
 
         private readonly IAssetDatabase assetDatabase;
         private readonly IFileSystem fileSystem;
@@ -134,7 +137,7 @@ namespace Willykc.Templ.Editor
 
             var settings = settingsProvider.GetSettings();
 
-            if(settings.Entries.Any(e => IsPathReferencedByEntry(e, path)))
+            if (settings.Entries.Any(e => IsPathReferencedByEntry(e, path)))
             {
                 editorUtility.DisplayDialog(LiveEntriesTitle, DialogMessage, OkDialogText);
                 return false;
@@ -169,12 +172,12 @@ namespace Willykc.Templ.Editor
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
-        internal bool IsPathReferencedByEntry(TemplEntry entry, string path) => new[]
+        internal bool IsPathReferencedByEntry(TemplEntry entry, string path) => (new[]
         {
             assetDatabase.GetAssetPath(entry.InputAsset),
             assetDatabase.GetAssetPath(entry.Directory),
             assetDatabase.GetAssetPath(entry.Template)
-        }.Any(p => !string.IsNullOrEmpty(p) && p.StartsWith(path));
+        }).Any(p => !string.IsNullOrEmpty(p) && IsMatchPath(path, p));
 
         private bool FunctionConflictsDetected()
         {
@@ -346,7 +349,14 @@ namespace Willykc.Templ.Editor
             return context;
         }
 
-        private static (TemplEntry entry, int index) GetEntryWithIndex(TemplEntry entry, int index) =>
+        private static bool IsMatchPath(string path, string entryPath) =>
+            entryPath == path ||
+            GetAssetDirectoryPath(entryPath).StartsWith(path);
+
+        private static string GetAssetDirectoryPath(string path) =>
+            Path.GetDirectoryName(path).Replace(Path.DirectorySeparatorChar, AssetPathSeparator);
+
+        private static (TemplEntry, int) GetEntryWithIndex(TemplEntry entry, int index) =>
             (entry, index);
 
         private static AssetChange[] DecomposeChanges(AssetsPaths changes, TemplEntry entry)

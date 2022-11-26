@@ -619,5 +619,33 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.IsFalse(deleteAllowed, "Should not allow delete");
         }
+
+        [Test]
+        public void GivenReferencedInput_WhenSimilarNamedAssetDeleted_ThenShowAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+            var similarPath = testTextPath.Substring(0, testTextPath.Length - 2);
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(similarPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenNonReferencedAssetDeleted_ThenShowAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+            var nonReferencedPath = "Assets/Any.asset";
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(nonReferencedPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+        }
     }
 }
