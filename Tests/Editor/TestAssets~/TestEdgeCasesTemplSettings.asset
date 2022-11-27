@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 144e3561454ea8f4ebdf9f95807852cb, type: 3}
-  m_Name: TestTemplSettings
+  m_Name: TestEdgeCasesTemplSettings
   m_EditorClassIdentifier: 
   entries:
   - id: 0
