@@ -32,7 +32,7 @@ namespace Willykc.Templ.Editor.Entry
         changeTypes: ChangeType.All,
         DisplayName = "Assembly Definition",
         Deferred = true)]
-    internal sealed class AssemblyDefinitionEntry : TemplEntry
+    public sealed class AssemblyDefinitionEntry : TemplEntry
     {
         private const string AssemblyReferenceExtension = ".asmref";
         private const string ScriptExtension = ".cs";

@@ -123,7 +123,7 @@ namespace Willykc.Templ.Editor
             }
 
             var deferredEntries = settingsProvider.GetSettings().ValidEntries
-                .Where(e => deferred.Contains(e.guid));
+                .Where(e => deferred.Contains(e.Id));
             RenderEntries(deferredEntries);
             sessionState.EraseString(TemplDeferredKey);
         }
@@ -156,9 +156,9 @@ namespace Willykc.Templ.Editor
 
             var existing = sessionState.GetString(TemplChangedKey);
 
-            if (!existing.Contains(entry.guid))
+            if (!existing.Contains(entry.Id))
             {
-                sessionState.SetString(TemplChangedKey, existing + entry.guid);
+                sessionState.SetString(TemplChangedKey, existing + entry.Id);
             }
         }
 
@@ -206,7 +206,7 @@ namespace Willykc.Templ.Editor
             }
 
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
-                .Where(e => changed.Contains(e.guid));
+                .Where(e => changed.Contains(e.Id));
             RenderEntries(entriesToRender);
             sessionState.EraseString(TemplChangedKey);
         }
@@ -216,7 +216,7 @@ namespace Willykc.Templ.Editor
             var deferred = entries
                 .Where(e => e.Deferred &&
                 DecomposeChanges(changes, e).All(c => !e.IsTemplateChanged(c)))
-                .Select(e => e.guid);
+                .Select(e => e.Id);
             var deferredFlags = string.Concat(deferred);
 
             if (!string.IsNullOrWhiteSpace(deferredFlags))
@@ -229,7 +229,7 @@ namespace Willykc.Templ.Editor
         {
             var deferred = settingsProvider.GetSettings().ValidEntries
                 .Where(e => e.ShouldRender(new AssetChange(ChangeType.Delete, path)))
-                .Select(e => e.guid);
+                .Select(e => e.Id);
             var deferredFlags = string.Concat(deferred);
 
             if (!string.IsNullOrWhiteSpace(deferredFlags))

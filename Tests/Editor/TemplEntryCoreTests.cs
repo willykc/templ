@@ -195,7 +195,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
         }
 
         [Test]
@@ -233,7 +233,7 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             assetDatabaseMock.mockSettingsPath = TestSettingsPath;
             changes.importedAssets = new string[] { TestSettingsPath };
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -271,7 +271,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenEntryFlagged_WhenAssemblyReloads_ThenEntryShouldRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -285,7 +285,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenEntryFlagged_WhenAssemblyReloads_ThenFlagsShouldClear()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -314,7 +314,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreEqual(secondEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(secondEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
@@ -340,20 +340,20 @@ namespace Willykc.Templ.Editor.Tests
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.AreEqual(secondEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(secondEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
         public void GivenFlaggedEntry_WhenFlaggingChangeTwice_ThenShouldFlagEntryOnlyOnce()
         {
             // Setup
-            sessionStateMock.value = secondEntryMock.guid;
+            sessionStateMock.value = secondEntryMock.Id;
 
             // Act
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.AreNotEqual(secondEntryMock.guid, sessionStateMock.SetValue,
+            Assert.AreNotEqual(secondEntryMock.Id, sessionStateMock.SetValue,
                 "Flagged change twice");
         }
 
@@ -361,15 +361,15 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenDifferentFlaggedEntry_WhenFlaggingChanges_ThenShouldFlagBothEntries()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.IsTrue(sessionStateMock.SetValue.Contains(firstEntryMock.guid),
+            Assert.IsTrue(sessionStateMock.SetValue.Contains(firstEntryMock.Id),
                 "Did not flag first entry");
-            Assert.IsTrue(sessionStateMock.SetValue.Contains(secondEntryMock.guid),
+            Assert.IsTrue(sessionStateMock.SetValue.Contains(secondEntryMock.Id),
                 "Did not flag second entry");
         }
 

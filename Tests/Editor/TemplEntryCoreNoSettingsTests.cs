@@ -94,7 +94,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenNoSettings_WhenAssemblyReloads_ThenEntryShouldNotRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -113,7 +113,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
         }
 
         [Test]

@@ -21,7 +21,6 @@
  */
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -47,12 +46,18 @@ namespace Willykc.Templ.Editor.Entry
         [SerializeField]
         private string filename;
         [SerializeField]
-        internal string guid = Guid.NewGuid().ToString();
+        private string guid = Guid.NewGuid().ToString();
 
         [NonSerialized]
         internal string fullPathCache;
 
-        internal ScribanAsset Template => template;
+        public string Id => guid;
+
+        public ScribanAsset Template => template;
+
+        public UnityObject InputAsset => InputField?.GetValue(this) as UnityObject;
+
+        public string OutputPath => OutputAssetPath;
 
         internal DefaultAsset Directory => directory;
 
@@ -87,8 +92,6 @@ namespace Willykc.Templ.Editor.Entry
             !string.IsNullOrWhiteSpace(exposedAs)
             ? exposedAs
             : InputFieldName;
-
-        internal UnityObject InputAsset => InputField?.GetValue(this) as UnityObject;
 
         internal virtual bool Deferred => deferred ??= GetType()
             .GetCustomAttribute<TemplEntryInfoAttribute>()?.Deferred ?? false;

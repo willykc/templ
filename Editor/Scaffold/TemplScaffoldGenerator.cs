@@ -78,7 +78,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 return;
             }
 
-            await ValidateAndGenerateScaffold(scaffold, targetPath, input, selection, default);
+            await ValidateAndGenerateScaffoldAsync(scaffold, targetPath, input, selection, default);
             IsGenerating = false;
         }
 
@@ -95,7 +95,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             async void OnGenerateClicked(ScriptableObject input)
             {
-                if (!await ValidateAndGenerateScaffold(scaffold, targetPath, input,
+                if (!await ValidateAndGenerateScaffoldAsync(scaffold, targetPath, input,
                     selection, tokenSource.Token))
                 {
                     return;
@@ -113,7 +113,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private static async Task<bool> ValidateAndGenerateScaffold(
+        private static async Task<bool> ValidateAndGenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input,

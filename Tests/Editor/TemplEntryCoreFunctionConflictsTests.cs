@@ -119,7 +119,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenAssemblyReloads_ThenShouldLogError()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
             loggerMock.Clear();
 
             // Act
@@ -133,7 +133,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenAssemblyReloads_ThenEntriesShouldNotRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -152,7 +152,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
         }
 
         [Test]

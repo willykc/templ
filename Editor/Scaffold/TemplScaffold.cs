@@ -27,7 +27,7 @@ using UnityEngine;
 namespace Willykc.Templ.Editor.Scaffold
 {
     [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
-    internal class TemplScaffold : ScriptableObject
+    public class TemplScaffold : ScriptableObject
     {
         internal const string NameOfDefaultInput = nameof(defaultInput);
         internal const string NameOfRoot = nameof(root);
