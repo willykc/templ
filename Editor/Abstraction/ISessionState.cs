@@ -23,8 +23,8 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface ISessionState
     {
-        string GetString(string key);
-        void SetString(string key, string value);
-        void EraseString(string key);
+        internal string GetString(string key);
+        internal void SetString(string key, string value);
+        internal void EraseString(string key);
     }
 }

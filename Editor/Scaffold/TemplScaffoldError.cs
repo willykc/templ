@@ -23,10 +23,10 @@ namespace Willykc.Templ.Editor.Scaffold
 {
     internal sealed class TemplScaffoldError
     {
-        public TemplScaffoldErrorType Type { get; }
-        public string Message { get; }
+        internal TemplScaffoldErrorType Type { get; }
+        internal string Message { get; }
 
-        public TemplScaffoldError(TemplScaffoldErrorType type, string message)
+        internal TemplScaffoldError(TemplScaffoldErrorType type, string message)
         {
             Type = type;
             Message = message;

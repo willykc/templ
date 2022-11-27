@@ -25,7 +25,7 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface IAssetDatabase
     {
-        string GetAssetPath(Object asset);
-        void ImportAsset(string path);
+        internal string GetAssetPath(Object asset);
+        internal void ImportAsset(string path);
     }
 }

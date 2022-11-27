@@ -25,8 +25,8 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface ILogger
     {
-        void Info(string message);
-        void Warn(string message);
-        void Error(string message, Exception exception = null);
+        internal void Info(string message);
+        internal void Warn(string message);
+        internal void Error(string message, Exception exception = null);
     }
 }

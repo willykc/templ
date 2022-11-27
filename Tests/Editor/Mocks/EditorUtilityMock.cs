@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal int DisplayProgressBarCount { get; private set; }
         internal int DisplayDialogCount { get; private set; }
 
-        public bool DisplayDialog(string title, string message, string ok)
+        bool IEditorUtility.DisplayDialog(string title, string message, string ok)
         {
             DisplayDialogCount++;
             return true;

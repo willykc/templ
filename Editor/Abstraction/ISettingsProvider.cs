@@ -23,7 +23,7 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface ISettingsProvider
     {
-        TemplSettings GetSettings();
-        bool SettingsExist();
+        internal TemplSettings GetSettings();
+        internal bool SettingsExist();
     }
 }

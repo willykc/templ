@@ -23,8 +23,8 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface IFileSystem
     {
-        void WriteAllText(string path, string contents);
-        void CreateDirectory(string path);
-        bool FileExists(string path);
+        internal void WriteAllText(string path, string contents);
+        internal void CreateDirectory(string path);
+        internal bool FileExists(string path);
     }
 }

@@ -35,7 +35,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
         public TemplScaffoldFile() { }
 
-        public TemplScaffoldFile(ScribanAsset template)
+        internal TemplScaffoldFile(ScribanAsset template)
         {
             this.template = template;
         }
