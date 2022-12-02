@@ -28,23 +28,31 @@ namespace Willykc.Templ.Editor.Scaffold
     internal sealed class TemplScaffoldSelectionMenu : EditorWindow
     {
         private const string MenuName = "Assets/Generate Templ Scaffold";
-        private const string AssetsPath = "Assets/";
-        private const string AssetsPrefix = "Assets > ";
-        private const string PackagesPath = "Packages/";
-        private const string PackagesPrefix = "Packages > ";
-        private const int AssetExtensionLength = 6;
+        private const string ToolbarButtonStyleName = "toolbarButton";
+        private const int MenuWidth = 250;
+        private const int MenuEntryHeight = 25;
+        private const int HorizontalMenuEntryPadding = 10;
+        private const int VerticalMenuEntryPadding = 0;
 
         private static readonly Rect EmptyRect = new Rect();
-        private static readonly Vector2 Size = new Vector2(1, 1);
 
-        private GenericMenu menu;
-        private TemplSettings settings;
+        private bool initialized;
+        private GUIStyle menuEntryStyle;
+        private TemplScaffold[] selectableScaffolds;
 
         [MenuItem(MenuName, priority = 1)]
         private static void ShowScaffoldsMenu()
         {
             var window = CreateInstance<TemplScaffoldSelectionMenu>();
-            window.ShowAsDropDown(EmptyRect, Size);
+
+            var settings = TemplSettings.Instance;
+            window.selectableScaffolds = settings
+                ? settings.ValidScaffolds.Distinct().ToArray()
+                : TemplSettings.EmptyScaffoldArray;
+
+            var height = MenuEntryHeight * window.selectableScaffolds.Length;
+            var size = new Vector2(MenuWidth, height);
+            window.ShowAsDropDown(EmptyRect, size);
         }
 
         [MenuItem(MenuName, isValidateFunction: true)]
@@ -54,30 +62,39 @@ namespace Willykc.Templ.Editor.Scaffold
             !TemplScaffoldGenerator.IsGenerating &&
             !Selection.activeObject.IsReadOnly();
 
-        private void Awake() => settings = TemplSettings.Instance;
-
-        private void OnGUI() => menu ??= ShowMenu();
-
-        private GenericMenu ShowMenu()
+        private void OnGUI()
         {
-            var menu = new GenericMenu();
+            Initialize();
 
-            foreach (var scaffold in settings.ValidScaffolds.Distinct())
+            foreach (var scaffold in selectableScaffolds)
             {
-                var path = AssetDatabase.GetAssetPath(scaffold)
-                    .ReplaceFirst(AssetsPath, AssetsPrefix)
-                    .ReplaceFirst(PackagesPath, PackagesPrefix)
-                    .RemoveLast(AssetExtensionLength);
-                menu.AddItem(new GUIContent(path), false, OnScaffoldSelected, scaffold);
+                DrawMenuEntry(scaffold);
             }
-
-            menu.ShowAsContext();
-            return menu;
         }
 
-        private void OnScaffoldSelected(object selection)
+        private void Initialize()
         {
-            var scaffold = selection as TemplScaffold;
+            if (initialized || selectableScaffolds.Length == 0)
+            {
+                return;
+            }
+
+            menuEntryStyle = GetMenuEntryStyle();
+            var mousePosition = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+            position = new Rect(mousePosition, position.size);
+            initialized = true;
+        }
+
+        private void DrawMenuEntry(TemplScaffold scaffold)
+        {
+            if (GUILayout.Button(scaffold.name, menuEntryStyle))
+            {
+                OnScaffoldSelected(scaffold);
+            }
+        }
+
+        private void OnScaffoldSelected(TemplScaffold scaffold)
+        {
             var selectedAsset = Selection.activeObject;
             var targetPath = selectedAsset.GetAssetDirectoryPath();
             TemplScaffoldGenerator.GenerateScaffold(
@@ -86,5 +103,16 @@ namespace Willykc.Templ.Editor.Scaffold
                 selection: selectedAsset);
             Close();
         }
+
+        private static GUIStyle GetMenuEntryStyle() => new GUIStyle(ToolbarButtonStyleName)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            fixedHeight = MenuEntryHeight,
+            padding = new RectOffset(
+                HorizontalMenuEntryPadding,
+                HorizontalMenuEntryPadding,
+                VerticalMenuEntryPadding,
+                VerticalMenuEntryPadding)
+        };
     }
 }

@@ -40,9 +40,12 @@ namespace Willykc.Templ.Editor
 
         internal static readonly string[] EmptyStringArray = new string[0];
         internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
+        internal static readonly TemplScaffold[] EmptyScaffoldArray = new TemplScaffold[0];
 
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
+
+        private static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
 
         private static TemplSettings instance;
 
@@ -68,13 +71,13 @@ namespace Willykc.Templ.Editor
             .SelectMany(g => g)
             .Where(e => e.IsValid)
             .ToArray()
-            ?? new TemplEntry[] { };
+            ?? EmptyEntryArray;
 
         internal IReadOnlyList<TemplScaffold> ValidScaffolds =>
             scaffolds?
             .Where(s => s && s.IsValid)
             .ToArray()
-            ?? new TemplScaffold[] { };
+            ?? EmptyScaffoldArray;
 
         internal bool HasInvalidEntries => Entries.Count != ValidEntries.Count;
 
