@@ -59,7 +59,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private static bool ValidateShowScaffoldsMenu() =>
             TemplSettings.Instance &&
             TemplSettings.Instance.ValidScaffolds.Count > 0 &&
-            !TemplScaffoldGenerator.IsGenerating &&
+            !Templ.Scaffold.IsGenerating &&
             !Selection.activeObject.IsReadOnly();
 
         private void OnGUI()
@@ -97,7 +97,7 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var selectedAsset = Selection.activeObject;
             var targetPath = selectedAsset.GetAssetDirectoryPath();
-            TemplScaffoldGenerator.GenerateScaffold(
+            Templ.Scaffold.GenerateScaffoldAsync(
                 scaffold,
                 targetPath,
                 selection: selectedAsset);

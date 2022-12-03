@@ -52,7 +52,7 @@ namespace Willykc.Templ.Editor.Tests
 
         private static readonly string[] Elements = new[] { "one", "two" };
 
-        private TemplScaffoldCore subject;
+        private ITemplScaffoldCore subject;
         private InputType testInput;
         private Object testSelection;
         private string expectedDirectoryPath;

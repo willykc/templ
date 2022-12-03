@@ -29,33 +29,33 @@ using Object = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using FileSystem = Abstraction.FileSystem;
     using ILogger = Abstraction.ILogger;
-    using Logger = Abstraction.Logger;
 
-    internal static class TemplScaffoldGenerator
+    internal class TemplScaffoldFacade : ITemplScaffoldFacade
     {
-        private static readonly ILogger Log;
-        private static readonly TemplScaffoldCore ScaffoldCore;
+        private readonly ILogger log;
+        private readonly ITemplScaffoldCore scaffoldCore;
+        private readonly object lockHandle = new object();
 
-        internal static bool IsGenerating { get; private set; }
+        private bool isGenerating;
 
-        static TemplScaffoldGenerator()
+        bool ITemplScaffoldFacade.IsGenerating => isGenerating;
+
+        internal TemplScaffoldFacade(
+            ILogger log,
+            ITemplScaffoldCore scaffoldCore)
         {
-            IsGenerating = false;
-            Log = Logger.Instance;
-            ScaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Log,
-                Abstraction.EditorUtility.Instance,
-                Abstraction.TemplateFunctionProvider.Instance);
+            this.log = log;
+            this.scaffoldCore = scaffoldCore;
         }
 
-        internal static async void GenerateScaffold(
+        async Task ITemplScaffoldFacade.GenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
-            object input = null,
-            Object selection = null)
+            object input,
+            Object selection,
+            TemplOverwriteOptions overwriteOption,
+            CancellationToken cancellationToken)
         {
             scaffold = scaffold
                 ? scaffold
@@ -64,39 +64,64 @@ namespace Willykc.Templ.Editor.Scaffold
                 ? targetPath
                 : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
 
-            if (IsGenerating)
+            lock (lockHandle)
             {
-                Log.Error("Only one scaffold can be generated at a time");
-                return;
-            }
+                if (isGenerating)
+                {
+                    log.Error("Only one scaffold can be generated at a time");
+                    return;
+                }
 
-            IsGenerating = true;
+                isGenerating = true;
+            }
 
             if (scaffold.DefaultInput && input == null)
             {
-                ShowScaffoldInputForm(scaffold, targetPath, selection);
-                return;
+                await ShowScaffoldInputFormAsync(
+                    scaffold,
+                    targetPath,
+                    selection,
+                    overwriteOption,
+                    cancellationToken);
+            }
+            else
+            {
+                await ValidateAndGenerateScaffoldAsync(
+                    scaffold,
+                    targetPath,
+                    input,
+                    selection,
+                    overwriteOption,
+                    cancellationToken);
             }
 
-            await ValidateAndGenerateScaffoldAsync(scaffold, targetPath, input, selection, default);
-            IsGenerating = false;
+            isGenerating = false;
         }
 
-        private static void ShowScaffoldInputForm(
+        private Task ShowScaffoldInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
-            Object selection)
+            Object selection,
+            TemplOverwriteOptions overwriteOption,
+            CancellationToken cancellationToken)
         {
-            var tokenSource = new CancellationTokenSource();
-            var form = TemplScaffoldInputForm
-                .Show(scaffold, targetPath, selection);
+            var completionSource = new TaskCompletionSource<bool>();
+            var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var form =
+                TemplScaffoldInputForm.Show(scaffold, targetPath, selection, cancellationToken);
             form.GenerateClicked += OnGenerateClicked;
             form.Closed += OnInputFormClosed;
+            return completionSource.Task;
 
             async void OnGenerateClicked(ScriptableObject input)
             {
-                if (!await ValidateAndGenerateScaffoldAsync(scaffold, targetPath, input,
-                    selection, tokenSource.Token))
+                if (!await ValidateAndGenerateScaffoldAsync(
+                    scaffold,
+                    targetPath,
+                    input,
+                    selection,
+                    overwriteOption,
+                    tokenSource.Token))
                 {
                     return;
                 }
@@ -108,49 +133,56 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 form.GenerateClicked -= OnGenerateClicked;
                 form.Closed -= OnInputFormClosed;
-                IsGenerating = false;
+                isGenerating = false;
                 tokenSource.Cancel();
+                completionSource.SetResult(false);
             }
         }
 
-        private static async Task<bool> ValidateAndGenerateScaffoldAsync(
+        private async Task<bool> ValidateAndGenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input,
             Object selection,
+            TemplOverwriteOptions overwriteOption,
             CancellationToken token)
         {
             var errors =
-                ScaffoldCore.ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
+                scaffoldCore.ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
 
-            var overwritePaths = errors
+            var existingFilePaths = errors
                 .Where(e => e.Type == TemplScaffoldErrorType.Overwrite)
                 .Select(e => e.Message)
                 .ToArray();
 
             if (errors.Any(e => e.Type != TemplScaffoldErrorType.Overwrite))
             {
-                Log.Error($"Aborted generation of {scaffold.name} scaffold due to errors");
+                log.Error($"Aborted generation of {scaffold.name} scaffold due to errors");
                 return false;
             }
 
-            var skipPaths = await TemplScaffoldOverwriteDialog
-                .Show(scaffold, targetPath, overwritePaths, token);
+            var skipPaths = overwriteOption switch
+            {
+                TemplOverwriteOptions.OverwriteAll => TemplSettings.EmptyStringArray,
+                TemplOverwriteOptions.SkipAll => existingFilePaths,
+                _ => await TemplScaffoldOverwriteDialog
+                    .ShowAsync(scaffold, targetPath, existingFilePaths, token)
+            };
 
-            if (overwritePaths.Length > 0 && skipPaths == null)
+            if (existingFilePaths.Length > 0 && skipPaths == null)
             {
                 return false;
             }
 
-            var generatedPaths = ScaffoldCore
+            var generatedPaths = scaffoldCore
                 .GenerateScaffold(scaffold, targetPath, input, selection, skipPaths);
 
             AssetDatabase.Refresh();
-            SelectFirstReneratedAsset(generatedPaths);
+            SelectFirstGeneratedAsset(generatedPaths);
             return true;
         }
 
-        private static void SelectFirstReneratedAsset(string[] generatedPaths)
+        private static void SelectFirstGeneratedAsset(string[] generatedPaths)
         {
             if (generatedPaths.Length == 0)
             {

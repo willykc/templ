@@ -19,29 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
-    using Entry;
-    using Scaffold;
-    using Abstraction;
-
-    public static class Templ
+    public enum TemplOverwriteOptions
     {
-        private static readonly ITemplEntryFacade entry;
-        private static readonly ITemplScaffoldFacade scaffold;
-
-        static Templ()
-        {
-            var scaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Logger.Instance,
-                EditorUtility.Instance,
-                TemplateFunctionProvider.Instance);
-            entry = new TemplEntryFacade();
-            scaffold = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
-        }
-
-        public static ITemplEntryFacade Entry => entry;
-        public static ITemplScaffoldFacade Scaffold => scaffold;
+        None = 0,
+        ShowPrompt = 1,
+        OverwriteAll = 2,
+        SkipAll = 3
     }
 }

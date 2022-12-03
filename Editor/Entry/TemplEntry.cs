@@ -59,11 +59,7 @@ namespace Willykc.Templ.Editor.Entry
 
         public string OutputPath => OutputAssetPath;
 
-        internal DefaultAsset Directory => directory;
-
-        internal string Filename => filename;
-
-        internal bool IsValid =>
+        public bool IsValid =>
             !string.IsNullOrEmpty(InputFieldName) &&
             ChangeTypes != ChangeType.None &&
             IsValidInput &&
@@ -73,6 +69,10 @@ namespace Willykc.Templ.Editor.Entry
             !directory.IsReadOnly() &&
             !string.IsNullOrWhiteSpace(filename) &&
             filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
+
+        internal DefaultAsset Directory => directory;
+
+        internal string Filename => filename;
 
         internal string FullPath =>
             directory &&

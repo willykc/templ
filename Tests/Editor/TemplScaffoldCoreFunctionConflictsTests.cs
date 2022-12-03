@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplScaffoldCoreFunctionConflictsTests
     {
-        private TemplScaffoldCore subject;
+        private ITemplScaffoldCore subject;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
         private EditorUtilityMock editorUtilityMock;

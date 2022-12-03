@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,29 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor
+using UnityEngine;
+
+namespace Willykc.Templ.Editor.Entry
 {
-    using Entry;
-    using Scaffold;
-    using Abstraction;
-
-    public static class Templ
+    internal sealed class TemplEntryFacade : ITemplEntryFacade
     {
-        private static readonly ITemplEntryFacade entry;
-        private static readonly ITemplScaffoldFacade scaffold;
-
-        static Templ()
+        TemplEntry[] ITemplEntryFacade.GetEntries()
         {
-            var scaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Logger.Instance,
-                EditorUtility.Instance,
-                TemplateFunctionProvider.Instance);
-            entry = new TemplEntryFacade();
-            scaffold = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
+            throw new System.NotImplementedException();
         }
 
-        public static ITemplEntryFacade Entry => entry;
-        public static ITemplScaffoldFacade Scaffold => scaffold;
+        string ITemplEntryFacade.AddEntry<T>(
+            Object inputAsset,
+            ScribanAsset template,
+            string outputPath)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryFacade.UpdateEntry(
+            string id,
+            Object inputAsset,
+            ScribanAsset template,
+            string outputPath)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryFacade.RemoveEntry(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryFacade.ForceRenderEntry(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryFacade.ForceRenderAllEntries()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

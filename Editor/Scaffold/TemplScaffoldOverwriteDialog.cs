@@ -59,7 +59,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private GUIStyle buttonPanelStyle;
         private GUIStyle scrollViewStyle;
 
-        internal static Task<string[]> Show(
+        internal static Task<string[]> ShowAsync(
             TemplScaffold scaffold,
             string targetPath,
             string[] paths,
@@ -97,6 +97,7 @@ namespace Willykc.Templ.Editor.Scaffold
             window.pathsSelection = paths.ToDictionary(p => p, _ => true);
             window.completionSource = new TaskCompletionSource<string[]>();
             window.cancellationToken = token;
+            window.autoRepaintOnSceneChange = true;
             window.ShowUtility();
             current = window;
             return window.completionSource.Task;
@@ -117,8 +118,8 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnDestroy()
         {
-            completionSource.SetResult(skipPaths);
             current = null;
+            completionSource.SetResult(skipPaths);
         }
 
         private void DrawPathToggles()

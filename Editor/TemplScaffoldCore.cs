@@ -33,7 +33,7 @@ namespace Willykc.Templ.Editor
     using Scaffold;
     using static TemplSettings;
 
-    internal sealed class TemplScaffoldCore
+    internal sealed class TemplScaffoldCore : ITemplScaffoldCore
     {
         internal const string ScaffoldGenerationTitle = "Templ Scaffold Generation";
 
@@ -75,12 +75,12 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        internal string[] GenerateScaffold(
+        string[] ITemplScaffoldCore.GenerateScaffold(
             TemplScaffold scaffold,
             string targetPath,
-            object input = null,
-            Object selection = null,
-            string[] skipPaths = null)
+            object input,
+            Object selection,
+            string[] skipPaths)
         {
             skipPaths ??= EmptyStringArray;
             var errors = ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
@@ -109,7 +109,14 @@ namespace Willykc.Templ.Editor
             return paths.ToArray();
         }
 
-        internal TemplScaffoldError[] ValidateScaffoldGeneration(
+        TemplScaffoldError[] ITemplScaffoldCore.ValidateScaffoldGeneration(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input,
+            Object selection) =>
+            ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
+
+        private TemplScaffoldError[] ValidateScaffoldGeneration(
             TemplScaffold scaffold,
             string targetPath,
             object input = null,

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,29 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEngine;
+
 namespace Willykc.Templ.Editor
 {
-    using Entry;
     using Scaffold;
-    using Abstraction;
 
-    public static class Templ
+    internal interface ITemplScaffoldCore
     {
-        private static readonly ITemplEntryFacade entry;
-        private static readonly ITemplScaffoldFacade scaffold;
-
-        static Templ()
-        {
-            var scaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Logger.Instance,
-                EditorUtility.Instance,
-                TemplateFunctionProvider.Instance);
-            entry = new TemplEntryFacade();
-            scaffold = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
-        }
-
-        public static ITemplEntryFacade Entry => entry;
-        public static ITemplScaffoldFacade Scaffold => scaffold;
+        internal string[] GenerateScaffold(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input = null,
+            Object selection = null,
+            string[] skipPaths = null);
+        internal TemplScaffoldError[] ValidateScaffoldGeneration(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input = null,
+            Object selection = null);
     }
 }

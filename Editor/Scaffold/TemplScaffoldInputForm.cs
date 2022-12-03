@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -45,6 +46,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private Editor inputEditor;
         private Vector2 scrollPos;
         private string targetPath;
+        private CancellationToken cancellationToken;
 
         internal event Action<ScriptableObject> GenerateClicked;
         internal event Action Closed;
@@ -52,7 +54,8 @@ namespace Willykc.Templ.Editor.Scaffold
         internal static TemplScaffoldInputForm Show(
             TemplScaffold scaffold,
             string targetPath,
-            Object selection)
+            Object selection,
+            CancellationToken cancellationToken)
         {
             scaffold = scaffold
                 ? scaffold
@@ -76,6 +79,8 @@ namespace Willykc.Templ.Editor.Scaffold
             window.input = Instantiate(scaffold.DefaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
             window.inputEditor = Editor.CreateEditor(window.input);
+            window.cancellationToken = cancellationToken;
+            window.autoRepaintOnSceneChange = true;
             window.ShowUtility();
             return window;
         }
@@ -92,6 +97,11 @@ namespace Willykc.Templ.Editor.Scaffold
             if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
             {
                 GenerateClicked?.Invoke(input);
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                Close();
             }
         }
 
