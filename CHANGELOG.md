@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improved validation for live entries.
+- Scaffold selection menu now shows a single list of scaffolds by their asset names.
 
 ### Fixed
 
