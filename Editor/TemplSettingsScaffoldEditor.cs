@@ -23,10 +23,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using Willykc.Templ.Editor.Scaffold;
 
 namespace Willykc.Templ.Editor
 {
+    using Scaffold;
+
     internal partial class TemplSettingsEditor
     {
         private const int MaxSize = 1000;

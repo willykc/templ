@@ -34,7 +34,7 @@ namespace Willykc.Templ.Editor.Scaffold
             string targetPath,
             object input = null,
             Object selection = null,
-            TemplOverwriteOptions overwriteOption = TemplOverwriteOptions.ShowPrompt,
+            OverwriteOptions overwriteOption = OverwriteOptions.ShowPrompt,
             CancellationToken cancellationToken = default);
     }
 }

@@ -27,10 +27,9 @@ using System.IO;
 using System.Linq;
 using Object = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
     using Abstraction;
-    using Scaffold;
     using static TemplSettings;
 
     internal sealed class TemplScaffoldCore : ITemplScaffoldCore

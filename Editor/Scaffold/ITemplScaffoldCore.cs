@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,13 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEngine;
+
 namespace Willykc.Templ.Editor.Scaffold
 {
-    public enum TemplOverwriteOptions
+    using Scaffold;
+
+    internal interface ITemplScaffoldCore
     {
-        None = 0,
-        ShowPrompt = 1,
-        OverwriteAll = 2,
-        SkipAll = 3
+        internal string[] GenerateScaffold(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input = null,
+            Object selection = null,
+            string[] skipPaths = null);
+        internal TemplScaffoldError[] ValidateScaffoldGeneration(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input = null,
+            Object selection = null);
     }
 }

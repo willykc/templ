@@ -26,10 +26,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
     using Abstraction;
-    using Entry;
     using static TemplSettings;
     using static TemplSettingsEditor;
 

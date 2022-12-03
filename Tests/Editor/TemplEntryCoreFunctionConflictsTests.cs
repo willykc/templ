@@ -23,6 +23,7 @@ using NUnit.Framework;
 
 namespace Willykc.Templ.Editor.Tests
 {
+    using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
 

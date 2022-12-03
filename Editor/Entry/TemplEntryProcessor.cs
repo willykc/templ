@@ -21,7 +21,7 @@
  */
 using UnityEditor;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
     [InitializeOnLoad]
     internal sealed class TemplEntryProcessor : AssetPostprocessor

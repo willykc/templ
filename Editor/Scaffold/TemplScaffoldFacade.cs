@@ -54,7 +54,7 @@ namespace Willykc.Templ.Editor.Scaffold
             string targetPath,
             object input,
             Object selection,
-            TemplOverwriteOptions overwriteOption,
+            OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
             scaffold = scaffold
@@ -102,7 +102,7 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffold scaffold,
             string targetPath,
             Object selection,
-            TemplOverwriteOptions overwriteOption,
+            OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
             var completionSource = new TaskCompletionSource<bool>();
@@ -144,7 +144,7 @@ namespace Willykc.Templ.Editor.Scaffold
             string targetPath,
             object input,
             Object selection,
-            TemplOverwriteOptions overwriteOption,
+            OverwriteOptions overwriteOption,
             CancellationToken token)
         {
             var errors =
@@ -163,8 +163,8 @@ namespace Willykc.Templ.Editor.Scaffold
 
             var skipPaths = overwriteOption switch
             {
-                TemplOverwriteOptions.OverwriteAll => TemplSettings.EmptyStringArray,
-                TemplOverwriteOptions.SkipAll => existingFilePaths,
+                OverwriteOptions.OverwriteAll => TemplSettings.EmptyStringArray,
+                OverwriteOptions.SkipAll => existingFilePaths,
                 _ => await TemplScaffoldOverwriteDialog
                     .ShowAsync(scaffold, targetPath, existingFilePaths, token)
             };

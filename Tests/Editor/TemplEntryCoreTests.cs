@@ -26,6 +26,7 @@ using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
 {
+    using Entry;
     using Mocks;
 
     internal class TemplEntryCoreTests
