@@ -59,6 +59,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 VerticalTotalPadding;
             var size = new Vector2(MenuWidth, height);
             window.ShowAsDropDown(EmptyRect, size);
+            window.maxSize = size;
+            window.minSize = size;
         }
 
         [MenuItem(MenuName, isValidateFunction: true)]
