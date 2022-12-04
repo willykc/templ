@@ -33,12 +33,16 @@ namespace Willykc.Templ.Editor.Scaffold
         private const int MenuEntryHeight = 25;
         private const int HorizontalMenuEntryPadding = 10;
         private const int VerticalMenuEntryPadding = 0;
+        private const int VerticalTotalPadding = 2;
+        private const int BorderLineHeight = 1;
 
         private static readonly Rect EmptyRect = new Rect();
         private static readonly ITemplScaffoldFacade ScaffoldManager = Templ.ScaffoldManager;
+        private static readonly Color BorderColor = new Color(0.15f, 0.15f, 0.15f, 1);
 
         private bool initialized;
         private GUIStyle menuEntryStyle;
+        private GUIStyle borderStyle;
         private TemplScaffold[] selectableScaffolds;
 
         [MenuItem(MenuName, priority = 1)]
@@ -51,7 +55,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 ? settings.ValidScaffolds.Distinct().ToArray()
                 : TemplSettings.EmptyScaffoldArray;
 
-            var height = MenuEntryHeight * window.selectableScaffolds.Length;
+            var height = (MenuEntryHeight * window.selectableScaffolds.Length) +
+                VerticalTotalPadding;
             var size = new Vector2(MenuWidth, height);
             window.ShowAsDropDown(EmptyRect, size);
         }
@@ -68,10 +73,21 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             Initialize();
 
+            DrawBorderLine();
+
             foreach (var scaffold in selectableScaffolds)
             {
                 DrawMenuEntry(scaffold);
             }
+
+            DrawBorderLine();
+        }
+
+        private void DrawBorderLine()
+        {
+            Rect rect = EditorGUILayout.GetControlRect(false, BorderLineHeight, style: borderStyle);
+            rect.height = BorderLineHeight;
+            EditorGUI.DrawRect(rect, BorderColor);
         }
 
         private void Initialize()
@@ -82,6 +98,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             menuEntryStyle = GetMenuEntryStyle();
+            borderStyle = GetBorderStyle();
             var mousePosition = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
             position = new Rect(mousePosition, position.size);
             initialized = true;
@@ -116,7 +133,13 @@ namespace Willykc.Templ.Editor.Scaffold
                 HorizontalMenuEntryPadding,
                 HorizontalMenuEntryPadding,
                 VerticalMenuEntryPadding,
-                VerticalMenuEntryPadding)
+                VerticalMenuEntryPadding),
+            margin = new RectOffset(BorderLineHeight, 0, 0, 0)
+        };
+
+        private static GUIStyle GetBorderStyle() => new GUIStyle()
+        {
+            margin = new RectOffset(0, 0, 0, 0)
         };
 
         private static void SelectFirstGeneratedAsset(string[] generatedPaths)
