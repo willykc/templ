@@ -23,8 +23,6 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using Scaffold;
-
     internal interface ITemplScaffoldCore
     {
         internal string[] GenerateScaffold(

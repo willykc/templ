@@ -35,6 +35,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const int VerticalMenuEntryPadding = 0;
 
         private static readonly Rect EmptyRect = new Rect();
+        private static readonly ITemplScaffoldFacade ScaffoldManager = Templ.ScaffoldManager;
 
         private bool initialized;
         private GUIStyle menuEntryStyle;
@@ -57,9 +58,10 @@ namespace Willykc.Templ.Editor.Scaffold
 
         [MenuItem(MenuName, isValidateFunction: true)]
         private static bool ValidateShowScaffoldsMenu() =>
+            !EditorApplication.isCompiling &&
             TemplSettings.Instance &&
             TemplSettings.Instance.ValidScaffolds.Count > 0 &&
-            !Templ.Scaffold.IsGenerating &&
+            !Templ.ScaffoldManager.IsGenerating &&
             !Selection.activeObject.IsReadOnly();
 
         private void OnGUI()
@@ -93,15 +95,17 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private void OnScaffoldSelected(TemplScaffold scaffold)
+        private async void OnScaffoldSelected(TemplScaffold scaffold)
         {
             var selectedAsset = Selection.activeObject;
             var targetPath = selectedAsset.GetAssetDirectoryPath();
-            Templ.Scaffold.GenerateScaffoldAsync(
+            Close();
+            var generatedPaths = await ScaffoldManager.GenerateScaffoldAsync(
                 scaffold,
                 targetPath,
                 selection: selectedAsset);
-            Close();
+            AssetDatabase.Refresh();
+            SelectFirstGeneratedAsset(generatedPaths);
         }
 
         private static GUIStyle GetMenuEntryStyle() => new GUIStyle(ToolbarButtonStyleName)
@@ -114,5 +118,16 @@ namespace Willykc.Templ.Editor.Scaffold
                 VerticalMenuEntryPadding,
                 VerticalMenuEntryPadding)
         };
+
+        private static void SelectFirstGeneratedAsset(string[] generatedPaths)
+        {
+            if (generatedPaths == null || generatedPaths.Length == 0)
+            {
+                return;
+            }
+
+            var first = generatedPaths[0];
+            Selection.activeObject = AssetDatabase.LoadAssetAtPath(first, typeof(Object));
+        }
     }
 }

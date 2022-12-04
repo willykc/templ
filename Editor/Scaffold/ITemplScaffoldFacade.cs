@@ -29,7 +29,18 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         internal bool IsGenerating { get; }
 
-        Task GenerateScaffoldAsync(
+        /// <summary>
+        /// Generates scaffold at target path. Asset database must be refreshed afterwards
+        /// for the editor to show the generated assets.
+        /// </summary>
+        /// <param name="scaffold">The scaffold to generate.</param>
+        /// <param name="targetPath">The asset path where to generate the scaffold.</param>
+        /// <param name="input">The input value to use during generation.</param>
+        /// <param name="selection">The selection value to use during generation.</param>
+        /// <param name="overwriteOption">The options to control asset overwrite behaviour.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The array of generated asset paths.</returns>
+        Task<string[]> GenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input = null,

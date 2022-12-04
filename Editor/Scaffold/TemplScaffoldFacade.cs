@@ -19,11 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using JetBrains.Annotations;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -49,7 +49,8 @@ namespace Willykc.Templ.Editor.Scaffold
             this.scaffoldCore = scaffoldCore;
         }
 
-        async Task ITemplScaffoldFacade.GenerateScaffoldAsync(
+        [ItemCanBeNull]
+        async Task<string[]> ITemplScaffoldFacade.GenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input,
@@ -69,59 +70,58 @@ namespace Willykc.Templ.Editor.Scaffold
                 if (isGenerating)
                 {
                     log.Error("Only one scaffold can be generated at a time");
-                    return;
+                    return null;
                 }
 
                 isGenerating = true;
             }
 
-            if (scaffold.DefaultInput && input == null)
-            {
-                await ShowScaffoldInputFormAsync(
+            var generatedPaths = scaffold.DefaultInput && input == null
+                ? await ShowScaffoldInputFormAsync(
                     scaffold,
                     targetPath,
                     selection,
                     overwriteOption,
-                    cancellationToken);
-            }
-            else
-            {
-                await ValidateAndGenerateScaffoldAsync(
+                    cancellationToken)
+                : await ValidateAndGenerateScaffoldAsync(
                     scaffold,
                     targetPath,
                     input,
                     selection,
                     overwriteOption,
                     cancellationToken);
-            }
 
             isGenerating = false;
+            return generatedPaths;
         }
 
-        private Task ShowScaffoldInputFormAsync(
+        private Task<string[]> ShowScaffoldInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
             Object selection,
             OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
-            var completionSource = new TaskCompletionSource<bool>();
+            var completionSource = new TaskCompletionSource<string[]>();
             var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var form =
                 TemplScaffoldInputForm.Show(scaffold, targetPath, selection, cancellationToken);
+            string[] generatedPaths = null;
             form.GenerateClicked += OnGenerateClicked;
             form.Closed += OnInputFormClosed;
             return completionSource.Task;
 
             async void OnGenerateClicked(ScriptableObject input)
             {
-                if (!await ValidateAndGenerateScaffoldAsync(
+                generatedPaths = await ValidateAndGenerateScaffoldAsync(
                     scaffold,
                     targetPath,
                     input,
                     selection,
                     overwriteOption,
-                    tokenSource.Token))
+                    tokenSource.Token);
+
+                if (generatedPaths == null)
                 {
                     return;
                 }
@@ -135,11 +135,11 @@ namespace Willykc.Templ.Editor.Scaffold
                 form.Closed -= OnInputFormClosed;
                 isGenerating = false;
                 tokenSource.Cancel();
-                completionSource.SetResult(false);
+                completionSource.SetResult(generatedPaths);
             }
         }
 
-        private async Task<bool> ValidateAndGenerateScaffoldAsync(
+        private async Task<string[]> ValidateAndGenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input,
@@ -158,7 +158,7 @@ namespace Willykc.Templ.Editor.Scaffold
             if (errors.Any(e => e.Type != TemplScaffoldErrorType.Overwrite))
             {
                 log.Error($"Aborted generation of {scaffold.name} scaffold due to errors");
-                return false;
+                return null;
             }
 
             var skipPaths = overwriteOption switch
@@ -171,26 +171,11 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (existingFilePaths.Length > 0 && skipPaths == null)
             {
-                return false;
+                return null;
             }
 
-            var generatedPaths = scaffoldCore
+            return scaffoldCore
                 .GenerateScaffold(scaffold, targetPath, input, selection, skipPaths);
-
-            AssetDatabase.Refresh();
-            SelectFirstGeneratedAsset(generatedPaths);
-            return true;
-        }
-
-        private static void SelectFirstGeneratedAsset(string[] generatedPaths)
-        {
-            if (generatedPaths.Length == 0)
-            {
-                return;
-            }
-
-            var first = generatedPaths[0];
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath(first, typeof(Object));
         }
     }
 }

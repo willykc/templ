@@ -27,8 +27,6 @@ namespace Willykc.Templ.Editor
 
     public static class Templ
     {
-        private static readonly ITemplEntryFacade entry;
-        private static readonly ITemplScaffoldFacade scaffold;
 
         static Templ()
         {
@@ -37,11 +35,11 @@ namespace Willykc.Templ.Editor
                 Logger.Instance,
                 EditorUtility.Instance,
                 TemplateFunctionProvider.Instance);
-            entry = new TemplEntryFacade();
-            scaffold = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
+            EntryManager = new TemplEntryFacade();
+            ScaffoldManager = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
         }
 
-        public static ITemplEntryFacade Entry => entry;
-        public static ITemplScaffoldFacade Scaffold => scaffold;
+        public static ITemplEntryFacade EntryManager { get; }
+        public static ITemplScaffoldFacade ScaffoldManager { get; }
     }
 }
