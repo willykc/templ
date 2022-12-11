@@ -117,6 +117,12 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(outputAssetPath), exception);
             }
 
+            if(filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            {
+                throw new ArgumentException($"{filename} is not a valid file name",
+                    nameof(outputAssetPath));
+            }
+
             var directoryPath = Path.GetDirectoryName(outputAssetPath);
             var directory = assetDatabase.LoadAssetAtPath<DefaultAsset>(directoryPath);
 
@@ -214,6 +220,13 @@ namespace Willykc.Templ.Editor.Entry
             {
                 throw new ArgumentException($"{outputAssetPath} is not a valid path",
                     nameof(outputAssetPath), exception);
+            }
+
+            if (outputAssetPath != null &&
+                filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            {
+                throw new ArgumentException($"{filename} is not a valid file name",
+                    nameof(outputAssetPath));
             }
 
             var directoryPath = outputAssetPath != null

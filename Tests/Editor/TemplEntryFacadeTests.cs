@@ -239,10 +239,26 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenInvalidCharactersInPath_WhenAddingEntry_ThenShouldThrowException()
+        public void GivenIllegalCharactersInPath_WhenAddingEntry_ThenShouldThrowException()
         {
             // Setup
             var invalidOutputPath = "Packages/com.willykc.templ/Tests/Editor/out3.txt\"";
+
+            void Act()
+            {
+                // Act
+                subject.AddEntry<EntryMock>(testText, testTemplate, invalidOutputPath);
+            }
+
+            // Verify
+            Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenInvalidCharactersInPath_WhenAddingEntry_ThenShouldThrowException()
+        {
+            // Setup
+            var invalidOutputPath = "Packages/com.willykc.templ/Tests/Editor/out3.txt?";
 
             void Act()
             {
@@ -440,10 +456,26 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenInvalidCharactersInPath_WhenUpdatingEntry_ThenShouldThrowException()
+        public void GivenIllegalCharactersInPath_WhenUpdatingEntry_ThenShouldThrowException()
         {
             // Setup
             var invalidOutputPath = "Packages/com.willykc.templ/Tests/Editor/out3.txt\"";
+
+            void Act()
+            {
+                // Act
+                subject.UpdateEntry(firstEntryId, outputAssetPath: invalidOutputPath);
+            }
+
+            // Verify
+            Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenInvalidCharactersInPath_WhenUpdatingEntry_ThenShouldThrowException()
+        {
+            // Setup
+            var invalidOutputPath = "Packages/com.willykc.templ/Tests/Editor/out3.txt?";
 
             void Act()
             {
