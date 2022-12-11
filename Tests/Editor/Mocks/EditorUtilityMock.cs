@@ -22,12 +22,14 @@
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
     using Abstraction;
+    using UnityEngine;
 
     internal sealed class EditorUtilityMock : IEditorUtility
     {
         internal int ClearProgressBarCount { get; private set; }
         internal int DisplayProgressBarCount { get; private set; }
         internal int DisplayDialogCount { get; private set; }
+        internal int SetDirtyCount { get; private set; }
 
         bool IEditorUtility.DisplayDialog(string title, string message, string ok)
         {
@@ -43,6 +45,11 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         void IEditorUtility.DisplayProgressBar(string title, string info, float progress)
         {
             DisplayProgressBarCount++;
+        }
+
+        void IEditorUtility.SetDirty(Object target)
+        {
+            SetDirtyCount++;
         }
     }
 }

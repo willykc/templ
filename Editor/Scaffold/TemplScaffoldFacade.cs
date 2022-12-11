@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor.Scaffold
 {
     using ILogger = Abstraction.ILogger;
 
-    internal class TemplScaffoldFacade : ITemplScaffoldFacade
+    internal sealed class TemplScaffoldFacade : ITemplScaffoldFacade
     {
         private readonly ILogger log;
         private readonly ITemplScaffoldCore scaffoldCore;

@@ -31,12 +31,11 @@ namespace Willykc.Templ.Editor
 {
     using Entry;
     using static TemplEditorInitialization;
-    using static Entry.TemplEntryProcessor;
+    using static TemplManagers;
 
     internal partial class TemplSettingsEditor
     {
         private const int MaxFilenameLength = 64;
-        private const int ValidInputFieldCount = 1;
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
@@ -68,7 +67,7 @@ namespace Willykc.Templ.Editor
         private void OnEnableEntries()
         {
             entryMenuItems ??= TypeCache
-                .Where(IsEntryType)
+                .Where(TemplEntryFacade.IsValidEntryType)
                 .Select(t => new EntryMenuItem { type = t, displayName = GetEntryDisplayName(t) })
                 .ToArray();
             entriesProperty =
@@ -318,15 +317,6 @@ namespace Willykc.Templ.Editor
                 directoryProperty.objectReferenceValue = previousDirectoryValue;
             }
         }
-
-        private static bool IsEntryType(Type type) =>
-            type.IsSubclassOf(typeof(TemplEntry)) && !type.IsAbstract &&
-            type.IsDefined(typeof(TemplEntryInfoAttribute), false) &&
-            type.GetFields().Count(IsValidInputField) == ValidInputFieldCount;
-
-        private static bool IsValidInputField(FieldInfo field) =>
-            field.IsDefined(typeof(TemplInputAttribute), false) &&
-            field.FieldType.IsSubclassOf(typeof(UnityEngine.Object));
 
         private static void DrawHeaderLine(Rect rect) =>
             EditorGUI.LabelField(new Rect(

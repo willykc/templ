@@ -41,11 +41,10 @@ namespace Willykc.Templ.Editor
         internal static readonly string[] EmptyStringArray = new string[0];
         internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
         internal static readonly TemplScaffold[] EmptyScaffoldArray = new TemplScaffold[0];
+        internal static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
 
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
-
-        private static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
 
         private static TemplSettings instance;
 
@@ -60,7 +59,7 @@ namespace Willykc.Templ.Editor
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
 
-        internal IReadOnlyList<TemplEntry> Entries => entries;
+        internal IList<TemplEntry> Entries => entries;
         internal IReadOnlyList<TemplScaffold> Scaffolds => scaffolds;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>

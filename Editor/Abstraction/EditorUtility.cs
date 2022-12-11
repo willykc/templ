@@ -19,6 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEngine;
+
 namespace Willykc.Templ.Editor.Abstraction
 {
     internal sealed class EditorUtility : IEditorUtility
@@ -37,5 +39,8 @@ namespace Willykc.Templ.Editor.Abstraction
 
         bool IEditorUtility.DisplayDialog(string title, string message, string ok) =>
             UnityEditor.EditorUtility.DisplayDialog(title, message, ok);
+
+        void IEditorUtility.SetDirty(Object target) =>
+            UnityEditor.EditorUtility.SetDirty(target);
     }
 }

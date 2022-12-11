@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplEntryCoreFunctionConflictsTests
     {
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
         private SessionStateMock sessionStateMock;
@@ -174,6 +174,33 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Act
             subject.RenderAllValidEntries();
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            loggerMock.Clear();
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenRenderSingleEntry_ThenEntriesShouldNotRender()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");

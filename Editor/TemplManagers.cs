@@ -19,45 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
-
-namespace Willykc.Templ.Editor.Tests.Mocks
+namespace Willykc.Templ.Editor
 {
     using Entry;
+    using Scaffold;
+    using Abstraction;
 
-    [TemplEntryInfo(ChangeType.All)]
-    internal sealed class EntryMock : TemplEntry
+    public static class TemplManagers
     {
-        [TemplInput]
-        public TextAsset text;
-        [SerializeField]
-        internal bool valid = true;
-        internal bool defer;
-        internal bool inputChanged;
-        internal bool templateChanged;
-        internal string outputAssetPath;
+        internal static ITemplEntryCore EntryCore { get; }
 
-        internal override string OutputAssetPath => string.IsNullOrWhiteSpace(outputAssetPath)
-            ? base.OutputAssetPath
-            : outputAssetPath;
-
-        internal override bool Deferred => defer;
-
-        protected override bool IsValidInputField => valid;
-
-        protected override object InputValue => text.text;
-
-        internal override bool IsTemplateChanged(AssetChange change) => templateChanged;
-
-        protected override bool IsInputChanged(AssetChange change) => inputChanged;
-
-        internal void Clear()
+        static TemplManagers()
         {
-            valid = true;
-            defer = default;
-            inputChanged = default;
-            templateChanged = default;
-            outputAssetPath = default;
+            var scaffoldCore = new TemplScaffoldCore(
+                FileSystem.Instance,
+                Logger.Instance,
+                EditorUtility.Instance,
+                TemplateFunctionProvider.Instance);
+
+            EntryCore = new TemplEntryCore(
+                AssetDatabase.Instance,
+                FileSystem.Instance,
+                SessionState.Instance,
+                Logger.Instance,
+                SettingsProvider.Instance,
+                TemplateFunctionProvider.Instance,
+                EditorUtility.Instance);
+
+            EntryManager = new TemplEntryFacade(
+                SettingsProvider.Instance,
+                AssetDatabase.Instance,
+                EditorUtility.Instance,
+                EntryCore);
+            ScaffoldManager = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
         }
+
+        public static ITemplEntryFacade EntryManager { get; }
+        public static ITemplScaffoldFacade ScaffoldManager { get; }
     }
 }

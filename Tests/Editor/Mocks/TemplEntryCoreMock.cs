@@ -19,27 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Tests
 {
     using Entry;
-    using Scaffold;
-    using Abstraction;
 
-    public static class Templ
+    internal sealed class TemplEntryCoreMock : ITemplEntryCore
     {
+        internal int RenderEntryCount { get; private set; }
+        internal int RenderAllValidEntriesCount { get; private set; }
 
-        static Templ()
+        void ITemplEntryCore.FlagChangedEntry(TemplEntry entry)
         {
-            var scaffoldCore = new TemplScaffoldCore(
-                FileSystem.Instance,
-                Logger.Instance,
-                EditorUtility.Instance,
-                TemplateFunctionProvider.Instance);
-            EntryManager = new TemplEntryFacade();
-            ScaffoldManager = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
+            throw new System.NotImplementedException();
         }
 
-        public static ITemplEntryFacade EntryManager { get; }
-        public static ITemplScaffoldFacade ScaffoldManager { get; }
+        bool ITemplEntryCore.IsPathReferencedByEntry(TemplEntry entry, string path)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryCore.OnAfterAssemblyReload()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryCore.OnAssetsChanged(AssetsPaths changes)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        bool ITemplEntryCore.OnWillDeleteAsset(string path)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        void ITemplEntryCore.RenderAllValidEntries() => RenderAllValidEntriesCount++;
+
+        void ITemplEntryCore.RenderEntry(string id) => RenderEntryCount++;
     }
 }

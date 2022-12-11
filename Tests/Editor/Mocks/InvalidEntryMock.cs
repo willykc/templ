@@ -19,15 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
-
-namespace Willykc.Templ.Editor.Abstraction
+namespace Willykc.Templ.Editor.Tests.Mocks
 {
-    internal interface IEditorUtility
+    using Entry;
+
+    internal sealed class InvalidEntryMock : TemplEntry
     {
-        internal void DisplayProgressBar(string title, string info, float progress);
-        internal void ClearProgressBar();
-        internal bool DisplayDialog(string title, string message, string ok);
-        internal void SetDirty(Object target);
     }
 }

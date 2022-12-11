@@ -23,22 +23,14 @@ using UnityEditor;
 
 namespace Willykc.Templ.Editor.Entry
 {
+    using static TemplManagers;
+
     [InitializeOnLoad]
     internal sealed class TemplEntryProcessor : AssetPostprocessor
     {
-        internal static TemplEntryCore EntryCore { get; }
-
         static TemplEntryProcessor()
         {
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-            EntryCore = new TemplEntryCore(
-                Abstraction.AssetDatabase.Instance,
-                Abstraction.FileSystem.Instance,
-                Abstraction.SessionState.Instance,
-                Abstraction.Logger.Instance,
-                Abstraction.SettingsProvider.Instance,
-                Abstraction.TemplateFunctionProvider.Instance,
-                Abstraction.EditorUtility.Instance);
         }
 
         private static void OnPostprocessAllAssets(

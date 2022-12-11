@@ -53,9 +53,17 @@ namespace Willykc.Templ.Editor.Entry
 
         public string Id => guid;
 
-        public ScribanAsset Template => template;
+        public ScribanAsset Template
+        {
+            get => template;
+            internal set => template = value;
+        }
 
-        public UnityObject InputAsset => InputField?.GetValue(this) as UnityObject;
+        public UnityObject InputAsset
+        {
+            get => InputField?.GetValue(this) as UnityObject;
+            internal set => InputField?.SetValue(this, value);
+        }
 
         public string OutputPath => OutputAssetPath;
 
@@ -70,9 +78,17 @@ namespace Willykc.Templ.Editor.Entry
             !string.IsNullOrWhiteSpace(filename) &&
             filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
 
-        internal DefaultAsset Directory => directory;
+        internal DefaultAsset Directory
+        {
+            get => directory;
+            set => directory = value;
+        }
 
-        internal string Filename => filename;
+        internal string Filename
+        {
+            get => filename;
+            set => filename = value;
+        }
 
         internal string FullPath =>
             directory &&

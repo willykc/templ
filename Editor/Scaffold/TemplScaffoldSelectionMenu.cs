@@ -37,7 +37,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private const int BorderLineHeight = 1;
 
         private static readonly Rect EmptyRect = new Rect();
-        private static readonly ITemplScaffoldFacade ScaffoldManager = Templ.ScaffoldManager;
+        private static readonly ITemplScaffoldFacade ScaffoldManager = TemplManagers.ScaffoldManager;
         private static readonly Color BorderColor = new Color(0.15f, 0.15f, 0.15f, 1);
 
         private bool initialized;
@@ -68,7 +68,7 @@ namespace Willykc.Templ.Editor.Scaffold
             !EditorApplication.isCompiling &&
             TemplSettings.Instance &&
             TemplSettings.Instance.ValidScaffolds.Count > 0 &&
-            !Templ.ScaffoldManager.IsGenerating &&
+            !TemplManagers.ScaffoldManager.IsGenerating &&
             !Selection.activeObject.IsReadOnly();
 
         private void OnGUI()

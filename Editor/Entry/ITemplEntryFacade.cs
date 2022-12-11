@@ -25,16 +25,52 @@ namespace Willykc.Templ.Editor.Entry
 {
     public interface ITemplEntryFacade
     {
+        /// <summary>
+        /// Gets all configured entries in settings.
+        /// </summary>
+        /// <returns>The array of configured entries.</returns>
         TemplEntry[] GetEntries();
-        string AddEntry<T> (Object inputAsset, ScribanAsset template, string outputPath)
+
+        /// <summary>
+        /// Adds a new entry in settings.
+        /// </summary>
+        /// <typeparam name="T">The type of entry.</typeparam>
+        /// <param name="inputAsset">The input asset to monitor for changes.</param>
+        /// <param name="template">The template to render.</param>
+        /// <param name="outputAssetPath">The output asset path.</param>
+        /// <returns>The entry ID.</returns>
+        string AddEntry<T> (Object inputAsset, ScribanAsset template, string outputAssetPath)
             where T : TemplEntry, new();
+
+        /// <summary>
+        /// Updates an existing entry in settings.
+        /// </summary>
+        /// <param name="id">The ID of the entry.</param>
+        /// <param name="inputAsset">The input asset to monitor for changes.</param>
+        /// <param name="template">The template to render.</param>
+        /// <param name="outputAssetPath">The output asset path.</param>
         void UpdateEntry(
             string id,
             Object inputAsset = null,
             ScribanAsset template = null,
-            string outputPath = null);
+            string outputAssetPath = null);
+
+        /// <summary>
+        /// Removes an existing entry from settings.
+        /// </summary>
+        /// <param name="id">The entry ID.</param>
         void RemoveEntry(string id);
+
+        /// <summary>
+        /// Forces to render a specific entry in settings. In case entry ID matches
+        /// an invalid entry, it will not be rendered.
+        /// </summary>
+        /// <param name="id">The entry ID.</param>
         void ForceRenderEntry(string id);
-        void ForceRenderAllEntries();
+
+        /// <summary>
+        /// Forces to render all valid entries in settings.
+        /// </summary>
+        void ForceRenderAllValidEntries();
     }
 }

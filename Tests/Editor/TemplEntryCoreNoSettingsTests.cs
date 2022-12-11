@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplEntryCoreNoSettingsTests
     {
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
         private SessionStateMock sessionStateMock;
@@ -135,6 +135,19 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Act
             subject.RenderAllValidEntries();
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenNoSettings_WhenRenderSingleEntry_ThenEntryShouldNotRender()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");

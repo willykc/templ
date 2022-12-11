@@ -32,7 +32,7 @@ namespace Willykc.Templ.Editor.Entry
     using static TemplSettings;
     using static TemplSettingsEditor;
 
-    internal sealed class TemplEntryCore
+    internal sealed class TemplEntryCore : ITemplEntryCore
     {
         private const string LiveEntriesTitle = "Templ Live Entries";
         private const string ProgressBarRenderingInfo = "Rendering...";
@@ -88,7 +88,7 @@ namespace Willykc.Templ.Editor.Entry
             }
         }
 
-        internal void OnAssetsChanged(AssetsPaths changes)
+        void ITemplEntryCore.OnAssetsChanged(AssetsPaths changes)
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -107,7 +107,7 @@ namespace Willykc.Templ.Editor.Entry
             RenderEagerEntries(entriesToRender, changes);
         }
 
-        internal void OnAfterAssemblyReload()
+        void ITemplEntryCore.OnAfterAssemblyReload()
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -127,7 +127,7 @@ namespace Willykc.Templ.Editor.Entry
             sessionState.EraseString(TemplDeferredKey);
         }
 
-        internal bool OnWillDeleteAsset(string path)
+        bool ITemplEntryCore.OnWillDeleteAsset(string path)
         {
             if (!settingsProvider.SettingsExist())
             {
@@ -146,7 +146,7 @@ namespace Willykc.Templ.Editor.Entry
             return true;
         }
 
-        internal void FlagChangedEntry(TemplEntry entry)
+        void ITemplEntryCore.FlagChangedEntry(TemplEntry entry)
         {
             if (entry == null)
             {
@@ -161,7 +161,7 @@ namespace Willykc.Templ.Editor.Entry
             }
         }
 
-        internal void RenderAllValidEntries()
+        void ITemplEntryCore.RenderAllValidEntries()
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -171,7 +171,28 @@ namespace Willykc.Templ.Editor.Entry
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
-        internal bool IsPathReferencedByEntry(TemplEntry entry, string path) => (new[]
+        bool ITemplEntryCore.IsPathReferencedByEntry(TemplEntry entry, string path) =>
+            IsPathReferencedByEntry(entry, path);
+
+        void ITemplEntryCore.RenderEntry(string id)
+        {
+            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
+            {
+                return;
+            }
+
+            var entry = settingsProvider.GetSettings().ValidEntries.FirstOrDefault(e => e.Id == id);
+
+            if (entry == null)
+            {
+                log.Error($"Could not find valid entry with id '{id}'");
+                return;
+            }
+
+            RenderEntries(new[] { entry });
+        }
+
+        private bool IsPathReferencedByEntry(TemplEntry entry, string path) => (new[]
         {
             assetDatabase.GetAssetPath(entry.InputAsset),
             assetDatabase.GetAssetPath(entry.Directory),

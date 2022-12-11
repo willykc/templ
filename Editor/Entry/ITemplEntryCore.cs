@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2022 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,15 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
-
-namespace Willykc.Templ.Editor.Abstraction
+namespace Willykc.Templ.Editor.Entry
 {
-    internal interface IEditorUtility
+    internal interface ITemplEntryCore
     {
-        internal void DisplayProgressBar(string title, string info, float progress);
-        internal void ClearProgressBar();
-        internal bool DisplayDialog(string title, string message, string ok);
-        internal void SetDirty(Object target);
+        internal void FlagChangedEntry(TemplEntry entry);
+        internal bool IsPathReferencedByEntry(TemplEntry entry, string path);
+        internal void OnAfterAssemblyReload();
+        internal void OnAssetsChanged(AssetsPaths changes);
+        internal bool OnWillDeleteAsset(string path);
+        internal void RenderAllValidEntries();
+        internal void RenderEntry(string id);
     }
 }

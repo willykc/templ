@@ -21,8 +21,8 @@
  */
 using NUnit.Framework;
 using System.IO;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -47,7 +47,7 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestPathFunctionTemplate.sbn";
         private const string ExpectedOutput = "Hello world!";
 
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileMock;
         private SessionStateMock sessionStateMock;
@@ -647,6 +647,74 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsTrue(deleteAllowed, "Should allow delete");
+        }
+
+        [Test]
+        public void GivenExistingEntryId_WhenRenderSingleEntry_ThenShouldRenderEntry()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(ExpectedOutput, fileMock.Contents[0], "Wrong render result");
+        }
+
+        [Test]
+        public void GivenNonExistingEntryId_WhenRenderSingleEntry_ThenShouldNotRenderEntry()
+        {
+            // Setup
+            var id = "wrong-id";
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+        }
+
+        [Test]
+        public void GivenNonExistingEntryId_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            var id = "wrong-id";
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
+        }
+
+        [Test]
+        public void GivenInvalidEntry_WhenRenderSingleEntry_ThenShouldNotRenderEntry()
+        {
+            // Setup
+            firstEntryMock.valid = false;
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+        }
+
+        [Test]
+        public void GivenInvalidEntry_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            firstEntryMock.valid = false;
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
     }
 }

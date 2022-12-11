@@ -33,7 +33,10 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string mockInputPath;
         internal string mockSettingsPath;
         internal string mockDirectoryPath;
+        internal bool mockIsValidFolder;
+        internal Object mockLoadAsset;
         internal string ImportAssetPath { get; private set; }
+        internal int SaveAssetsCount { get; private set; }
 
         string IAssetDatabase.GetAssetPath(Object asset)
         {
@@ -57,6 +60,12 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         }
 
         void IAssetDatabase.ImportAsset(string path) => ImportAssetPath = path;
+
+        bool IAssetDatabase.IsValidFolder(string path) => mockIsValidFolder;
+
+        T IAssetDatabase.LoadAssetAtPath<T>(string path) => mockLoadAsset as T;
+
+        void IAssetDatabase.SaveAssets() => SaveAssetsCount++;
 
         internal void Clear()
         {

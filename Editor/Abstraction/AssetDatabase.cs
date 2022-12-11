@@ -36,5 +36,14 @@ namespace Willykc.Templ.Editor.Abstraction
 
         void IAssetDatabase.ImportAsset(string path) =>
             UnityEditor.AssetDatabase.ImportAsset(path);
+
+        bool IAssetDatabase.IsValidFolder(string path) =>
+            UnityEditor.AssetDatabase.IsValidFolder(path);
+
+        T IAssetDatabase.LoadAssetAtPath<T>(string path) =>
+            UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
+
+        void IAssetDatabase.SaveAssets() =>
+            UnityEditor.AssetDatabase.SaveAssets();
     }
 }

@@ -29,9 +29,9 @@ namespace Willykc.Templ.Editor
 
     public sealed class ScribanAsset : ScriptableObject
     {
-        internal string Text => text;
-        internal bool HasErrors => hasErrors;
-        internal string[] ParsingErrors { get; private set; }
+        public string Text => text;
+        public bool HasErrors => hasErrors;
+        public string[] ParsingErrors { get; private set; }
 
         [SerializeField, HideInInspector]
         private string text;
