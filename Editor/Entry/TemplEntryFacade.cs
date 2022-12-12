@@ -166,10 +166,10 @@ namespace Willykc.Templ.Editor.Entry
             lock (lockHandle)
             {
                 settingsProvider.GetSettings().Entries.Add(newEntry);
-            }
 
-            editorUtility.SetDirty(settings);
-            assetDatabase.SaveAssets();
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
 
             return newEntry.Id;
         }
@@ -275,10 +275,10 @@ namespace Willykc.Templ.Editor.Entry
                 entry.Template = template ? template : entry.Template;
                 entry.Directory = outputAssetPath != null ? directory : entry.Directory;
                 entry.Filename = outputAssetPath != null ? filename : entry.Filename;
-            }
 
-            editorUtility.SetDirty(settings);
-            assetDatabase.SaveAssets();
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
         }
 
         void ITemplEntryFacade.RemoveEntry(string id)
@@ -302,10 +302,10 @@ namespace Willykc.Templ.Editor.Entry
             lock (lockHandle)
             {
                 settings.Entries.Remove(entry);
-            }
 
-            editorUtility.SetDirty(settings);
-            assetDatabase.SaveAssets();
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
         }
 
         void ITemplEntryFacade.ForceRenderEntry(string id)

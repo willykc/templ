@@ -59,15 +59,11 @@ namespace Willykc.Templ.Editor.Tests
         [SetUp]
         public void BeforeEach()
         {
-            settingsProviderMock = new SettingsProviderMock();
-            assetDatabaseMock = new AssetDatabaseMock();
-            editorUtilityMock = new EditorUtilityMock();
-            templEntryCoreMock = new TemplEntryCoreMock();
             subject = new TemplEntryFacade(
-                settingsProviderMock,
-                assetDatabaseMock,
-                editorUtilityMock,
-                templEntryCoreMock);
+                settingsProviderMock = new SettingsProviderMock(),
+                assetDatabaseMock = new AssetDatabaseMock(),
+                editorUtilityMock = new EditorUtilityMock(),
+                templEntryCoreMock = new TemplEntryCoreMock());
 
             settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = UnityEngine.Object.Instantiate(settings);
