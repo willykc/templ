@@ -60,7 +60,7 @@ namespace Willykc.Templ.Editor
             instance ? instance : instance = GetSettings();
 
         internal IList<TemplEntry> Entries => entries;
-        internal IReadOnlyList<TemplScaffold> Scaffolds => scaffolds;
+        internal IList<TemplScaffold> Scaffolds => scaffolds;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?

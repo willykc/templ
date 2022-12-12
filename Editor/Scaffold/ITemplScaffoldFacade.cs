@@ -47,5 +47,17 @@ namespace Willykc.Templ.Editor.Scaffold
             Object selection = null,
             OverwriteOptions overwriteOption = OverwriteOptions.ShowPrompt,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Enables scaffold in settings for selection from the context menu.
+        /// </summary>
+        /// <param name="scaffold">The scaffold to enable for selection.</param>
+        void EnableScaffoldForSelection(TemplScaffold scaffold);
+
+        /// <summary>
+        /// Disables scaffold in settings for selection from the context menu.
+        /// </summary>
+        /// <param name="scaffold">The scaffold to disable for selection.</param>
+        void DisableScaffoldForSelection(TemplScaffold scaffold);
     }
 }

@@ -51,7 +51,12 @@ namespace Willykc.Templ.Editor
                 AssetDatabase.Instance,
                 EditorUtility.Instance,
                 EntryCore);
-            ScaffoldManager = new TemplScaffoldFacade(Logger.Instance, scaffoldCore);
+            ScaffoldManager = new TemplScaffoldFacade(
+                Logger.Instance,
+                SettingsProvider.Instance,
+                AssetDatabase.Instance,
+                EditorUtility.Instance,
+                scaffoldCore);
         }
 
         public static ITemplEntryFacade EntryManager { get; }

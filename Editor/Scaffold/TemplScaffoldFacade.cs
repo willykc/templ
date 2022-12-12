@@ -29,11 +29,14 @@ using Object = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
-    using ILogger = Abstraction.ILogger;
+    using Abstraction;
 
     internal sealed class TemplScaffoldFacade : ITemplScaffoldFacade
     {
         private readonly ILogger log;
+        private readonly ISettingsProvider settingsProvider;
+        private readonly IAssetDatabase assetDatabase;
+        private readonly IEditorUtility editorUtility;
         private readonly ITemplScaffoldCore scaffoldCore;
         private readonly object lockHandle = new object();
 
@@ -43,9 +46,15 @@ namespace Willykc.Templ.Editor.Scaffold
 
         internal TemplScaffoldFacade(
             ILogger log,
+            ISettingsProvider settingsProvider,
+            IAssetDatabase assetDatabase,
+            IEditorUtility editorUtility,
             ITemplScaffoldCore scaffoldCore)
         {
             this.log = log;
+            this.settingsProvider = settingsProvider;
+            this.assetDatabase = assetDatabase;
+            this.editorUtility = editorUtility;
             this.scaffoldCore = scaffoldCore;
         }
 
@@ -93,6 +102,57 @@ namespace Willykc.Templ.Editor.Scaffold
 
             isGenerating = false;
             return generatedPaths;
+        }
+
+        void ITemplScaffoldFacade.EnableScaffoldForSelection(TemplScaffold scaffold)
+        {
+            if (!settingsProvider.SettingsExist())
+            {
+                throw new InvalidOperationException($"{nameof(TemplSettings)} not found");
+            }
+
+            scaffold = scaffold ? scaffold : throw new ArgumentNullException(nameof(scaffold));
+
+            if (!scaffold.IsValid)
+            {
+                throw new ArgumentException("Can not enable for selection an invalid scaffold",
+                    nameof(scaffold));
+            }
+
+            var settings = settingsProvider.GetSettings();
+
+            lock (lockHandle)
+            {
+                settings.Scaffolds.Add(scaffold);
+
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
+        }
+
+        void ITemplScaffoldFacade.DisableScaffoldForSelection(TemplScaffold scaffold)
+        {
+            if (!settingsProvider.SettingsExist())
+            {
+                throw new InvalidOperationException($"{nameof(TemplSettings)} not found");
+            }
+
+            scaffold = scaffold ? scaffold : throw new ArgumentNullException(nameof(scaffold));
+
+            var settings = settingsProvider.GetSettings();
+
+            lock (lockHandle)
+            {
+                if (!settings.Scaffolds.Contains(scaffold))
+                {
+                    return;
+                }
+
+                settings.Scaffolds.Remove(scaffold);
+
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
         }
 
         private Task<string[]> ShowScaffoldInputFormAsync(

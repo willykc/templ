@@ -110,7 +110,7 @@ namespace Willykc.Templ.Editor
 
         private void DrawValidityIcon(Rect rect, int index)
         {
-            var isValid = index < scaffoldsValidity.Length && scaffoldsValidity[index];
+            var isValid = index >= scaffoldsValidity.Length || scaffoldsValidity[index];
             var iconRect = new Rect(rect.x, rect.y + (Spacing * Double), IconSize, IconSize);
             var icon = isValid ? ValidScaffoldIcon : InvalidScaffoldIcon;
             EditorGUI.LabelField(iconRect, icon);
