@@ -19,36 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor.Tests
+namespace Willykc.Templ.Editor.Scaffold
 {
-    using Scaffold;
-
-    internal sealed class TemplScaffoldCoreMock : ITemplScaffoldCore
+    internal sealed class TemplScaffoldWindowManager : ITemplScaffoldWindowManager
     {
-        internal string[] paths = new string[0];
-        internal TemplScaffoldError[] errors = new TemplScaffoldError[0];
+        private static TemplScaffoldWindowManager instance;
 
-        internal string[] SkipPaths { get; private set; }
-        internal int GenerateScaffoldCount { get; private set; }
+        internal static TemplScaffoldWindowManager Instance =>
+            instance ??= new TemplScaffoldWindowManager();
 
-        string[] ITemplScaffoldCore.GenerateScaffold(
+        private TemplScaffoldWindowManager() { }
+
+        Task<ScriptableObject> ITemplScaffoldWindowManager.ShowInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
-            object input,
             Object selection,
-            string[] skipPaths)
-        {
-            SkipPaths = skipPaths;
-            GenerateScaffoldCount++;
-            return paths;
-        }
+            Action closed,
+            CancellationToken cancellationToken) =>
+            TemplScaffoldInputForm.ShowAsync(
+                scaffold,
+                targetPath,
+                selection,
+                closed,
+                cancellationToken);
 
-        TemplScaffoldError[] ITemplScaffoldCore.ValidateScaffoldGeneration(
+        void ITemplScaffoldWindowManager.CloseInputForm() => TemplScaffoldInputForm.CloseCurrent();
+
+        Task<string[]> ITemplScaffoldWindowManager.ShowOverwriteDialogAsync(
             TemplScaffold scaffold,
             string targetPath,
-            object input,
-            Object selection) => errors;
+            string[] paths,
+            CancellationToken cancellationToken) =>
+            TemplScaffoldOverwriteDialog.ShowAsync(scaffold, targetPath, paths, cancellationToken);
     }
 }

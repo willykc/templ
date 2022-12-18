@@ -19,13 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Willykc.Templ.Editor.Abstraction
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace Willykc.Templ.Editor.Scaffold
 {
-    internal interface IFileSystem
+    internal interface ITemplScaffoldWindowManager
     {
-        internal void WriteAllText(string path, string contents);
-        internal void CreateDirectory(string path);
-        internal bool FileExists(string path);
-        internal bool DirectoryExists(string path);
+        internal Task<ScriptableObject> ShowInputFormAsync(
+            TemplScaffold scaffold,
+            string targetPath,
+            Object selection,
+            Action closed,
+            CancellationToken cancellationToken);
+        internal void CloseInputForm();
+        internal Task<string[]> ShowOverwriteDialogAsync(
+            TemplScaffold scaffold,
+            string targetPath,
+            string[] paths,
+            CancellationToken cancellationToken);
     }
 }

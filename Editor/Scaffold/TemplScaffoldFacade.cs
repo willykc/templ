@@ -21,6 +21,7 @@
  */
 using JetBrains.Annotations;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,10 +34,13 @@ namespace Willykc.Templ.Editor.Scaffold
 
     internal sealed class TemplScaffoldFacade : ITemplScaffoldFacade
     {
+        private const int MaxOverwriteTries = 20;
+
         private readonly ILogger log;
         private readonly ISettingsProvider settingsProvider;
         private readonly IAssetDatabase assetDatabase;
         private readonly IEditorUtility editorUtility;
+        private readonly ITemplScaffoldWindowManager windowManager;
         private readonly ITemplScaffoldCore scaffoldCore;
         private readonly object lockHandle = new object();
 
@@ -49,12 +53,14 @@ namespace Willykc.Templ.Editor.Scaffold
             ISettingsProvider settingsProvider,
             IAssetDatabase assetDatabase,
             IEditorUtility editorUtility,
+            ITemplScaffoldWindowManager windowManager,
             ITemplScaffoldCore scaffoldCore)
         {
             this.log = log;
             this.settingsProvider = settingsProvider;
             this.assetDatabase = assetDatabase;
             this.editorUtility = editorUtility;
+            this.windowManager = windowManager;
             this.scaffoldCore = scaffoldCore;
         }
 
@@ -67,12 +73,25 @@ namespace Willykc.Templ.Editor.Scaffold
             OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
-            scaffold = scaffold
-                ? scaffold
-                : throw new ArgumentException($"{nameof(scaffold)} must not be null");
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            scaffold = scaffold ? scaffold : throw new ArgumentNullException(nameof(scaffold));
             targetPath = !string.IsNullOrWhiteSpace(targetPath)
                 ? targetPath
                 : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
+
+            if (!scaffold.IsValid)
+            {
+                throw new InvalidOperationException($"{nameof(scaffold)} must be valid");
+            }
+
+            if (!assetDatabase.IsValidFolder(targetPath))
+            {
+                throw new DirectoryNotFoundException($"Directory does not exist: {targetPath}");
+            }
 
             lock (lockHandle)
             {
@@ -85,22 +104,30 @@ namespace Willykc.Templ.Editor.Scaffold
                 isGenerating = true;
             }
 
-            var generatedPaths = scaffold.DefaultInput && input == null
-                ? await ShowScaffoldInputFormAsync(
-                    scaffold,
-                    targetPath,
-                    selection,
-                    overwriteOption,
-                    cancellationToken)
-                : await ValidateAndGenerateScaffoldAsync(
-                    scaffold,
-                    targetPath,
-                    input,
-                    selection,
-                    overwriteOption,
-                    cancellationToken);
+            string[] generatedPaths = null;
 
-            isGenerating = false;
+            try
+            {
+                generatedPaths = scaffold.DefaultInput && input == null
+                    ? await ShowScaffoldInputFormAsync(
+                        scaffold,
+                        targetPath,
+                        selection,
+                        overwriteOption,
+                        cancellationToken)
+                    : await TryGenerateScaffoldAsync(
+                        scaffold,
+                        targetPath,
+                        input,
+                        selection,
+                        overwriteOption,
+                        cancellationToken);
+            }
+            finally
+            {
+                isGenerating = false;
+            }
+
             return generatedPaths;
         }
 
@@ -155,7 +182,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private Task<string[]> ShowScaffoldInputFormAsync(
+        private async Task<string[]> ShowScaffoldInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
             Object selection,
@@ -164,16 +191,21 @@ namespace Willykc.Templ.Editor.Scaffold
         {
             var completionSource = new TaskCompletionSource<string[]>();
             var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var form =
-                TemplScaffoldInputForm.Show(scaffold, targetPath, selection, cancellationToken);
-            string[] generatedPaths = null;
-            form.GenerateClicked += OnGenerateClicked;
-            form.Closed += OnInputFormClosed;
-            return completionSource.Task;
 
-            async void OnGenerateClicked(ScriptableObject input)
+            void OnInputFormClosed() => tokenSource.Cancel();
+
+            var tries = 0;
+
+            while (!tokenSource.IsCancellationRequested &&
+                tries++ < MaxOverwriteTries &&
+                await windowManager.ShowInputFormAsync(
+                scaffold,
+                targetPath,
+                selection,
+                OnInputFormClosed,
+                cancellationToken) is ScriptableObject input)
             {
-                generatedPaths = await ValidateAndGenerateScaffoldAsync(
+                string[] generatedPaths = await TryGenerateScaffoldAsync(
                     scaffold,
                     targetPath,
                     input,
@@ -181,31 +213,26 @@ namespace Willykc.Templ.Editor.Scaffold
                     overwriteOption,
                     tokenSource.Token);
 
-                if (generatedPaths == null)
+                if (generatedPaths == null && !tokenSource.IsCancellationRequested)
                 {
-                    return;
+                    continue;
                 }
 
-                form.Close();
+                windowManager.CloseInputForm();
+                return generatedPaths;
             }
 
-            void OnInputFormClosed()
-            {
-                form.GenerateClicked -= OnGenerateClicked;
-                form.Closed -= OnInputFormClosed;
-                isGenerating = false;
-                tokenSource.Cancel();
-                completionSource.SetResult(generatedPaths);
-            }
+            windowManager.CloseInputForm();
+            return null;
         }
 
-        private async Task<string[]> ValidateAndGenerateScaffoldAsync(
+        private async Task<string[]> TryGenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
             object input,
             Object selection,
             OverwriteOptions overwriteOption,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             var errors =
                 scaffoldCore.ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
@@ -225,8 +252,7 @@ namespace Willykc.Templ.Editor.Scaffold
             {
                 OverwriteOptions.OverwriteAll => TemplSettings.EmptyStringArray,
                 OverwriteOptions.SkipAll => existingFilePaths,
-                _ => await TemplScaffoldOverwriteDialog
-                    .ShowAsync(scaffold, targetPath, existingFilePaths, token)
+                _ => await GetSkipPaths(scaffold, targetPath, existingFilePaths, cancellationToken)
             };
 
             if (existingFilePaths.Length > 0 && skipPaths == null)
@@ -237,5 +263,17 @@ namespace Willykc.Templ.Editor.Scaffold
             return scaffoldCore
                 .GenerateScaffold(scaffold, targetPath, input, selection, skipPaths);
         }
+
+        private async Task<string[]> GetSkipPaths(
+            TemplScaffold scaffold,
+            string targetPath,
+            string[] existingFilePaths,
+            CancellationToken cancellationToken) => existingFilePaths.Length > 0
+            ? await windowManager.ShowOverwriteDialogAsync(
+                scaffold,
+                targetPath,
+                existingFilePaths,
+                cancellationToken)
+            : null;
     }
 }

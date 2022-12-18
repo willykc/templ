@@ -32,6 +32,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal List<string> DirectoryPath { get; } = new List<string>();
         internal List<string> Contents { get; } = new List<string>();
         internal List<string> FileExists { get; } = new List<string>();
+        internal List<string> DirectoryExists { get; } = new List<string>();
         internal int WriteAllTextCount { get; private set; }
         internal int CreateDirectoryCount { get; private set; }
         internal bool ThrowException { get; set; }
@@ -54,6 +55,8 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         }
 
         bool IFileSystem.FileExists(string path) => FileExists.Contains(path);
+
+        bool IFileSystem.DirectoryExists(string path) => DirectoryExists.Contains(path);
 
         internal void Clear()
         {

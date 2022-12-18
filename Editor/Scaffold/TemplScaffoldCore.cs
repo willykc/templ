@@ -252,7 +252,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             try
             {
-                if (node is TemplScaffoldDirectory)
+                if (node is TemplScaffoldDirectory && !fileSystem.DirectoryExists(renderedPath))
                 {
                     fileSystem.CreateDirectory(renderedPath);
                     paths.Add(renderedPath);

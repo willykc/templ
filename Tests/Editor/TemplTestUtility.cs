@@ -20,7 +20,11 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 
 namespace Willykc.Templ.Editor.Tests
@@ -29,6 +33,7 @@ namespace Willykc.Templ.Editor.Tests
     {
         private const string AssetsPath = "Assets/";
         private const string MetaExtension = ".meta";
+        private const int DefaultCoroutineTimeoutMilliseconds = 5000;
 
         internal static T CreateTestAsset<T>(string path, out string testAssetPath)
             where T : UnityEngine.Object
@@ -71,5 +76,30 @@ namespace Willykc.Templ.Editor.Tests
 
             return AssetDatabase.DeleteAsset(path) && AssetDatabase.DeleteAsset(dirPath);
         }
+
+        internal static IEnumerator ToCoroutine(
+            Task task,
+            int timeoutMilliseconds = DefaultCoroutineTimeoutMilliseconds)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (!task.IsCompleted && !task.IsCanceled)
+            {
+                if (stopwatch.ElapsedMilliseconds > timeoutMilliseconds)
+                {
+                    throw new TimeoutException();
+                }
+
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                throw task.Exception;
+            }
+        }
+
+        internal static IEnumerator ToCoroutine(Func<Task> taskDelegate,
+            int timeoutMilliseconds = DefaultCoroutineTimeoutMilliseconds) =>
+            ToCoroutine(taskDelegate.Invoke(), timeoutMilliseconds);
     }
 }

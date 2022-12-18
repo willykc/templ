@@ -63,7 +63,7 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffold scaffold,
             string targetPath,
             string[] paths,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             if (current)
             {
@@ -96,7 +96,7 @@ namespace Willykc.Templ.Editor.Scaffold
             window.paths = paths.OrderBy(p => p).ToArray();
             window.pathsSelection = paths.ToDictionary(p => p, _ => true);
             window.completionSource = new TaskCompletionSource<string[]>();
-            window.cancellationToken = token;
+            window.cancellationToken = cancellationToken;
             window.autoRepaintOnSceneChange = true;
             window.ShowUtility();
             current = window;

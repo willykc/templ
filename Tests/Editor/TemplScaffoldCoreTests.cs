@@ -377,6 +377,37 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenExistingDirectory_WhenGenerating_ThenShouldNotReturnPath()
+        {
+            // Setup
+            fileSystemMock.DirectoryExists.Add(expectedDirectoryPath);
+
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.IsNotEmpty(paths, "Paths expected");
+            Assert.That(paths, Does.Not.Contain(expectedDirectoryPath),
+                "Existing directory path returned");
+        }
+
+        [Test]
+        public void GivenExistingDirectory_WhenGenerating_ThenShouldCreateDirectory()
+        {
+            // Setup
+            fileSystemMock.DirectoryExists.Add(expectedDirectoryPath);
+
+            // Act
+            var paths = subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.CreateDirectoryCount,
+                "Created already existing directory");
+        }
+
+        [Test]
         public void GivenValidScaffold_WhenGenerating_ThenShouldCreateCorrectDirectories()
         {
             // Act
