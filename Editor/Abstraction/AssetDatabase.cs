@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Abstraction
 {
@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor.Abstraction
 
         private AssetDatabase() { }
 
-        string IAssetDatabase.GetAssetPath(Object asset) =>
+        string IAssetDatabase.GetAssetPath(UnityObject asset) =>
             UnityEditor.AssetDatabase.GetAssetPath(asset);
 
         void IAssetDatabase.ImportAsset(string path) =>

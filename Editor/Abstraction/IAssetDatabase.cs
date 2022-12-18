@@ -19,16 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface IAssetDatabase
     {
         internal bool IsValidFolder(string path);
-        internal T LoadAssetAtPath<T>(string path) where T : Object;
+        internal T LoadAssetAtPath<T>(string path) where T : UnityObject;
         internal void SaveAssets();
-        internal string GetAssetPath(Object asset);
+        internal string GetAssetPath(UnityObject asset);
         internal void ImportAsset(string path);
     }
 }

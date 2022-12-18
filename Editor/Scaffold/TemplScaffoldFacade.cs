@@ -26,7 +26,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -70,7 +70,7 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffold scaffold,
             string targetPath,
             object input,
-            Object selection,
+            UnityObject selection,
             OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
@@ -188,7 +188,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private async Task<string[]> ShowScaffoldInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
-            Object selection,
+            UnityObject selection,
             OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {
@@ -233,7 +233,7 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffold scaffold,
             string targetPath,
             object input,
-            Object selection,
+            UnityObject selection,
             OverwriteOptions overwriteOption,
             CancellationToken cancellationToken)
         {

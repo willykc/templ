@@ -21,6 +21,7 @@
  */
 using NUnit.Framework;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -54,7 +55,7 @@ namespace Willykc.Templ.Editor.Tests
 
         private ITemplScaffoldCore subject;
         private InputType testInput;
-        private Object testSelection;
+        private UnityObject testSelection;
         private string expectedDirectoryPath;
         private string expectedFilePath;
         private string expectedContent;

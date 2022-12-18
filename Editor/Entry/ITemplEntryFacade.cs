@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Entry
 {
@@ -39,7 +39,7 @@ namespace Willykc.Templ.Editor.Entry
         /// <param name="template">The template to render.</param>
         /// <param name="outputAssetPath">The output asset path.</param>
         /// <returns>The entry ID.</returns>
-        string AddEntry<T> (Object inputAsset, ScribanAsset template, string outputAssetPath)
+        string AddEntry<T> (UnityObject inputAsset, ScribanAsset template, string outputAssetPath)
             where T : TemplEntry, new();
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Willykc.Templ.Editor.Entry
         /// <param name="outputAssetPath">The output asset path.</param>
         void UpdateEntry(
             string id,
-            Object inputAsset = null,
+            UnityObject inputAsset = null,
             ScribanAsset template = null,
             string outputAssetPath = null);
 

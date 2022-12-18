@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -67,7 +68,7 @@ namespace Willykc.Templ.Editor.Tests
                 templEntryCoreMock = new TemplEntryCoreMock());
 
             settingsProviderMock.settingsExist = true;
-            settingsProviderMock.settings = UnityEngine.Object.Instantiate(settings);
+            settingsProviderMock.settings = UnityObject.Instantiate(settings);
             assetDatabaseMock.mockLoadAsset = testDirectory;
             assetDatabaseMock.mockIsValidFolder = true;
             firstEntryId = settingsProviderMock.settings.Entries[0].Id;
@@ -76,7 +77,7 @@ namespace Willykc.Templ.Editor.Tests
         [TearDown]
         public void AfterEach()
         {
-            UnityEngine.Object.DestroyImmediate(settingsProviderMock.settings);
+            UnityObject.DestroyImmediate(settingsProviderMock.settings);
         }
 
         [OneTimeTearDown]
@@ -216,7 +217,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenInvalidTemplate_WhenAddingEntry_ThenShouldThrowException()
         {
             // Setup
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var template = UnityObject.Instantiate(testTemplate);
             SetTemplateAsInvalid(template);
 
             void Act()
@@ -229,7 +230,7 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
 
             // Clean
-            UnityEngine.Object.DestroyImmediate(template);
+            UnityObject.DestroyImmediate(template);
         }
 
         [Test]
@@ -325,7 +326,7 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
 
             // Clean
-            UnityEngine.Object.DestroyImmediate(input);
+            UnityObject.DestroyImmediate(input);
         }
 
         [Test]
@@ -393,7 +394,7 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Setup
             settingsProviderMock.settingsExist = false;
-            var input = UnityEngine.Object.Instantiate(testText);
+            var input = UnityObject.Instantiate(testText);
 
             void Act()
             {
@@ -451,7 +452,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenInvalidTemplate_WhenUpdatingEntry_ThenShouldThrowException()
         {
             // Setup
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var template = UnityObject.Instantiate(testTemplate);
             SetTemplateAsInvalid(template);
 
             void Act()
@@ -464,7 +465,7 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
 
             // Clean
-            UnityEngine.Object.DestroyImmediate(template);
+            UnityObject.DestroyImmediate(template);
         }
 
         [Test]
@@ -563,15 +564,15 @@ namespace Willykc.Templ.Editor.Tests
             Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
 
             // Clean
-            UnityEngine.Object.DestroyImmediate(input);
+            UnityObject.DestroyImmediate(input);
         }
 
         [Test]
         public void GivenValidParameters_WhenUpdatingEntry_ThenShouldUpdateEntryInSettings()
         {
             // Setup
-            var input = UnityEngine.Object.Instantiate(testText);
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var input = UnityObject.Instantiate(testText);
+            var template = UnityObject.Instantiate(testTemplate);
             var outputPath = "Packages/com.willykc.templ/Tests/Editor/out4.txt";
 
             // Act
@@ -591,8 +592,8 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Setup
             var trail = "//";
-            var input = UnityEngine.Object.Instantiate(testText);
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var input = UnityObject.Instantiate(testText);
+            var template = UnityObject.Instantiate(testTemplate);
             var outputPath = $"{trail}Packages/com.willykc.templ/Tests/Editor/out4.txt{trail}";
 
             // Act
@@ -610,8 +611,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidParameters_WhenUpdatingEntry_ThenShouldSetSettingsDirty()
         {
             // Setup
-            var input = UnityEngine.Object.Instantiate(testText);
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var input = UnityObject.Instantiate(testText);
+            var template = UnityObject.Instantiate(testTemplate);
             var outputPath = "Packages/com.willykc.templ/Tests/Editor/out4.txt";
 
             // Act
@@ -625,8 +626,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidParameters_WhenUpdatingEntry_ThenShouldSaveAllAssets()
         {
             // Setup
-            var input = UnityEngine.Object.Instantiate(testText);
-            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var input = UnityObject.Instantiate(testText);
+            var template = UnityObject.Instantiate(testTemplate);
             var outputPath = "Packages/com.willykc.templ/Tests/Editor/out4.txt";
 
             // Act

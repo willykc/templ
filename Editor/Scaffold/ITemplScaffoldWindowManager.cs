@@ -23,7 +23,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -32,7 +32,7 @@ namespace Willykc.Templ.Editor.Scaffold
         internal Task<ScriptableObject> ShowInputFormAsync(
             TemplScaffold scaffold,
             string targetPath,
-            Object selection,
+            UnityObject selection,
             Action closed,
             CancellationToken cancellationToken);
         internal void CloseInputForm();

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Abstraction
 {
@@ -40,7 +40,7 @@ namespace Willykc.Templ.Editor.Abstraction
         bool IEditorUtility.DisplayDialog(string title, string message, string ok) =>
             UnityEditor.EditorUtility.DisplayDialog(title, message, ok);
 
-        void IEditorUtility.SetDirty(Object target) =>
+        void IEditorUtility.SetDirty(UnityObject target) =>
             UnityEditor.EditorUtility.SetDirty(target);
     }
 }

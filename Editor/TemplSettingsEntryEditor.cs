@@ -26,6 +26,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
@@ -309,9 +310,9 @@ namespace Willykc.Templ.Editor
 
         private static void SanitizeDirectoryProperty(
             SerializedProperty directoryProperty,
-            UnityEngine.Object previousDirectoryValue)
+            UnityObject previousDirectoryValue)
         {
-            if (directoryProperty.objectReferenceValue is UnityEngine.Object directory &&
+            if (directoryProperty.objectReferenceValue is UnityObject directory &&
                 !AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(directory)))
             {
                 directoryProperty.objectReferenceValue = previousDirectoryValue;

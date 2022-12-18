@@ -21,7 +21,7 @@
  */
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -44,7 +44,7 @@ namespace Willykc.Templ.Editor.Scaffold
             TemplScaffold scaffold,
             string targetPath,
             object input = null,
-            Object selection = null,
+            UnityObject selection = null,
             OverwriteOptions overwriteOption = OverwriteOptions.ShowPrompt,
             CancellationToken cancellationToken = default);
 

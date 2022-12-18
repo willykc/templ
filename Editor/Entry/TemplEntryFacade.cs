@@ -24,7 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Entry
 {
@@ -67,7 +67,7 @@ namespace Willykc.Templ.Editor.Entry
         }
 
         string ITemplEntryFacade.AddEntry<T>(
-            Object inputAsset,
+            UnityObject inputAsset,
             ScribanAsset template,
             string outputAssetPath)
         {
@@ -181,7 +181,7 @@ namespace Willykc.Templ.Editor.Entry
 
         void ITemplEntryFacade.UpdateEntry(
             string id,
-            Object inputAsset,
+            UnityObject inputAsset,
             ScribanAsset template,
             string outputAssetPath)
         {
@@ -367,6 +367,6 @@ namespace Willykc.Templ.Editor.Entry
 
         private static bool IsValidInputField(FieldInfo field) =>
             field.IsDefined(typeof(TemplInputAttribute), false) &&
-            field.FieldType.IsSubclassOf(typeof(Object));
+            field.FieldType.IsSubclassOf(typeof(UnityObject));
     }
 }

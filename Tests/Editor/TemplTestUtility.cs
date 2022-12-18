@@ -23,9 +23,9 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -36,7 +36,7 @@ namespace Willykc.Templ.Editor.Tests
         private const int DefaultCoroutineTimeoutMilliseconds = 5000;
 
         internal static T CreateTestAsset<T>(string path, out string testAssetPath)
-            where T : UnityEngine.Object
+            where T : UnityObject
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -64,7 +64,7 @@ namespace Willykc.Templ.Editor.Tests
             return AssetDatabase.LoadAssetAtPath<T>(testAssetPath);
         }
 
-        internal static bool DeleteTestAsset(UnityEngine.Object asset)
+        internal static bool DeleteTestAsset(UnityObject asset)
         {
             if (!asset)
             {

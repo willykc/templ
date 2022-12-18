@@ -26,6 +26,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using CompilationPipeline = UnityEditor.Compilation.CompilationPipeline;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
@@ -133,18 +134,18 @@ namespace Willykc.Templ.Editor
         #endregion
 
         #region Asset Database
-        public static string GetAssetPath(UnityEngine.Object asset) =>
+        public static string GetAssetPath(UnityObject asset) =>
             AssetDatabase.GetAssetPath(asset);
 
-        public static string GetAssetGuid(UnityEngine.Object asset) =>
+        public static string GetAssetGuid(UnityObject asset) =>
             AssetDatabase.AssetPathToGUID(GetAssetPath(asset));
 
-        public static string GetAssetFileId(UnityEngine.Object asset) =>
+        public static string GetAssetFileId(UnityObject asset) =>
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset, out var _, out long id)
             ? id.ToString()
             : string.Empty;
 
-        public static string GetAssetInstanceID(UnityEngine.Object asset) => asset
+        public static string GetAssetInstanceID(UnityObject asset) => asset
             ? asset.GetInstanceID().ToString()
             : string.Empty;
         #endregion

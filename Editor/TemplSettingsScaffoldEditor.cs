@@ -23,6 +23,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
@@ -133,7 +134,7 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private void SanitizeRepeatedScaffold(SerializedProperty element, Object previousReference)
+        private void SanitizeRepeatedScaffold(SerializedProperty element, UnityObject previousReference)
         {
             if (element.objectReferenceValue is TemplScaffold scaffold && scaffold &&
                 settings.Scaffolds.Contains(scaffold) && scaffold != previousReference)

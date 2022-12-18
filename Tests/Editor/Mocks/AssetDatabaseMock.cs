@@ -19,8 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
@@ -34,13 +35,13 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string mockSettingsPath;
         internal string mockDirectoryPath;
         internal bool mockIsValidFolder;
-        internal Object mockLoadAsset;
+        internal UnityObject mockLoadAsset;
 
         internal string ImportAssetPath { get; private set; }
         internal int SaveAssetsCount { get; private set; }
         internal string IsValidFolderPath { get; private set; }
 
-        string IAssetDatabase.GetAssetPath(Object asset)
+        string IAssetDatabase.GetAssetPath(UnityObject asset)
         {
             if (asset is TemplSettings)
             {

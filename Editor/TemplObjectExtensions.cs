@@ -22,12 +22,13 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
     internal static class TemplObjectExtensions
     {
-        internal static string GetAssetDirectoryPath(this Object asset)
+        internal static string GetAssetDirectoryPath(this UnityObject asset)
         {
             var path = AssetDatabase.GetAssetPath(asset);
 
@@ -41,7 +42,7 @@ namespace Willykc.Templ.Editor
                 : Path.Combine(path);
         }
 
-        internal static bool IsReadOnly(this Object asset)
+        internal static bool IsReadOnly(this UnityObject asset)
         {
             var path = AssetDatabase.GetAssetPath(asset);
 

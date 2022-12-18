@@ -19,10 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityObject = UnityEngine.Object;
+
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
     using Abstraction;
-    using UnityEngine;
 
     internal sealed class EditorUtilityMock : IEditorUtility
     {
@@ -47,7 +48,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
             DisplayProgressBarCount++;
         }
 
-        void IEditorUtility.SetDirty(Object target)
+        void IEditorUtility.SetDirty(UnityObject target)
         {
             SetDirtyCount++;
         }

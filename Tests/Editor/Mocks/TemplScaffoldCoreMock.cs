@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -37,7 +37,7 @@ namespace Willykc.Templ.Editor.Tests
             TemplScaffold scaffold,
             string targetPath,
             object input,
-            Object selection,
+            UnityObject selection,
             string[] skipPaths)
         {
             SkipPaths = skipPaths;
@@ -49,6 +49,6 @@ namespace Willykc.Templ.Editor.Tests
             TemplScaffold scaffold,
             string targetPath,
             object input,
-            Object selection) => errors;
+            UnityObject selection) => errors;
     }
 }

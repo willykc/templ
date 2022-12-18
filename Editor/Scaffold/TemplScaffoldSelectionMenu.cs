@@ -22,6 +22,7 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -152,7 +153,7 @@ namespace Willykc.Templ.Editor.Scaffold
             }
 
             var first = generatedPaths[0];
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath(first, typeof(Object));
+            Selection.activeObject = AssetDatabase.LoadAssetAtPath(first, typeof(UnityObject));
         }
     }
 }

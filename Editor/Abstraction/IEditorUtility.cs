@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Abstraction
 {
@@ -28,6 +28,6 @@ namespace Willykc.Templ.Editor.Abstraction
         internal void DisplayProgressBar(string title, string info, float progress);
         internal void ClearProgressBar();
         internal bool DisplayDialog(string title, string message, string ok);
-        internal void SetDirty(Object target);
+        internal void SetDirty(UnityObject target);
     }
 }
