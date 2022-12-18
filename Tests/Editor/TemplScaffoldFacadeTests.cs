@@ -564,6 +564,24 @@ namespace Willykc.Templ.Editor.Tests
         });
 
         [UnityTest]
+        public IEnumerator GivenTrailingPathSeparators_WhenGenerating_ThenShouldTrimTargetPath()
+        => ToCoroutine(async () =>
+        {
+            // Setup
+            var trail = "//";
+            var targetPath = trail + TestTargetPath + trail;
+
+            // Act
+            await subject.GenerateScaffoldAsync(newScaffoldMock, targetPath);
+
+            // Verify
+            Assert.That(assetDatabaseMock.IsValidFolderPath, Does.Not.StartsWith(trail),
+                "Did not trim start of target path");
+            Assert.That(assetDatabaseMock.IsValidFolderPath, Does.Not.EndWith(trail),
+                "Did not trim end of target path");
+        });
+
+        [UnityTest]
         public IEnumerator GivenNoDefaultInput_WhenGenerating_ThenShouldNotShowInputForm()
         => ToCoroutine(async () =>
         {

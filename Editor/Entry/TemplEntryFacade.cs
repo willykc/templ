@@ -29,6 +29,7 @@ using Object = UnityEngine.Object;
 namespace Willykc.Templ.Editor.Entry
 {
     using Abstraction;
+    using static TemplSettings;
 
     internal sealed class TemplEntryFacade : ITemplEntryFacade
     {
@@ -81,8 +82,10 @@ namespace Willykc.Templ.Editor.Entry
             template = template
                 ? template
                 : throw new ArgumentNullException(nameof(template));
-            outputAssetPath = outputAssetPath
-                ?? throw new ArgumentNullException(nameof(outputAssetPath));
+            outputAssetPath = !string.IsNullOrWhiteSpace(outputAssetPath)
+                ? outputAssetPath
+                : throw new ArgumentException(
+                    $"{nameof(outputAssetPath)} must not be null or empty");
 
             var settings = settingsProvider.GetSettings();
 
@@ -105,6 +108,7 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(template));
             }
 
+            outputAssetPath = outputAssetPath.Trim(PathSeparators);
             string filename = null;
 
             try
@@ -113,13 +117,14 @@ namespace Willykc.Templ.Editor.Entry
             }
             catch (Exception exception)
             {
-                throw new ArgumentException($"{outputAssetPath} is not a valid path",
+                throw new ArgumentException($"'{outputAssetPath}' is not a valid path",
                     nameof(outputAssetPath), exception);
             }
 
-            if(filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            if(filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 ||
+                string.IsNullOrWhiteSpace(filename))
             {
-                throw new ArgumentException($"{filename} is not a valid file name",
+                throw new ArgumentException($"'{filename}' is not a valid file name",
                     nameof(outputAssetPath));
             }
 
@@ -129,14 +134,14 @@ namespace Willykc.Templ.Editor.Entry
             if (!directory || !assetDatabase.IsValidFolder(directoryPath))
             {
                 throw new DirectoryNotFoundException(
-                    $"{nameof(outputAssetPath)}'s directory does not exist");
+                    $"Directory does not exist: '{directoryPath}'");
             }
 
             var entryType = typeof(T);
 
             if (!IsValidEntryType(entryType))
             {
-                throw new InvalidOperationException($"{entryType.Name} is not a valid entry type");
+                throw new InvalidOperationException($"'{entryType.Name}' is not a valid entry type");
             }
 
             if (settings.Entries.Select(e => e.OutputAssetPath).Contains(outputAssetPath))
@@ -208,6 +213,10 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(template));
             }
 
+            outputAssetPath = outputAssetPath != null
+                ? outputAssetPath.Trim(PathSeparators)
+                : outputAssetPath;
+
             string filename = null;
 
             try
@@ -218,14 +227,15 @@ namespace Willykc.Templ.Editor.Entry
             }
             catch (Exception exception)
             {
-                throw new ArgumentException($"{outputAssetPath} is not a valid path",
+                throw new ArgumentException($"'{outputAssetPath}' is not a valid path",
                     nameof(outputAssetPath), exception);
             }
 
             if (outputAssetPath != null &&
-                filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+                (filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 ||
+                string.IsNullOrWhiteSpace(filename)))
             {
-                throw new ArgumentException($"{filename} is not a valid file name",
+                throw new ArgumentException($"'{filename}' is not a valid file name",
                     nameof(outputAssetPath));
             }
 
@@ -238,7 +248,7 @@ namespace Willykc.Templ.Editor.Entry
                 (!directory || !assetDatabase.IsValidFolder(directoryPath)))
             {
                 throw new DirectoryNotFoundException(
-                    $"{nameof(outputAssetPath)}'s directory does not exist");
+                    $"Directory does not exist: '{directoryPath}'");
             }
 
             var entry = settings.Entries.FirstOrDefault(e => e.Id == id);

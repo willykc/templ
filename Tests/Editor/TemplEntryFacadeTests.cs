@@ -22,6 +22,7 @@
 using NUnit.Framework;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -166,7 +167,20 @@ namespace Willykc.Templ.Editor.Tests
             }
 
             // Verify
-            Assert.Throws<ArgumentNullException>(Act, "Did not throw expected exception");
+            Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenEmptyOutputAssetPath_WhenAddingEntry_ThenShouldThrowException()
+        {
+            void Act()
+            {
+                // Act
+                subject.AddEntry<EntryMock>(testText, testTemplate, "");
+            }
+
+            // Verify
+            Assert.Throws<ArgumentException>(Act, "Did not throw expected exception");
         }
 
         [Test]
@@ -334,6 +348,24 @@ namespace Willykc.Templ.Editor.Tests
             Assert.AreEqual(numberOfEntriesBeforeTest + 1,
                 settingsProviderMock.settings.Entries.Count,
                 "Did not increase number of entries by one");
+        }
+
+        [Test]
+        public void GivenTrailingPathSeparators_WhenAddingEntry_ThenShouldTrimOutputPath()
+        {
+            // Setup
+            var trail = "//";
+            var outputPath = trail + TestOutputPath + trail;
+
+            // Act
+            var id = subject.AddEntry<EntryMock>(testText, testTemplate, outputPath);
+
+            // Verify
+            var actual = settingsProviderMock.settings.Entries.Single(e => e.Id == id).OutputPath;
+            Assert.That(actual, Does.Not.StartWith(trail),
+                "Did not trim start of output asset path");
+            Assert.That(actual, Does.Not.EndWith(trail),
+                "Did not trim end of output asset path");
         }
 
         [Test]
@@ -552,6 +584,26 @@ namespace Willykc.Templ.Editor.Tests
                 "Did not update template");
             Assert.AreEqual(settingsProviderMock.settings.Entries[0].OutputPath, outputPath,
                 "Did not update output asset path");
+        }
+
+        [Test]
+        public void GivenTrailingPathSeparators_WhenUpdatingEntry_ThenShouldTrimOutputPath()
+        {
+            // Setup
+            var trail = "//";
+            var input = UnityEngine.Object.Instantiate(testText);
+            var template = UnityEngine.Object.Instantiate(testTemplate);
+            var outputPath = $"{trail}Packages/com.willykc.templ/Tests/Editor/out4.txt{trail}";
+
+            // Act
+            subject.UpdateEntry(firstEntryId, input, template, outputPath);
+
+            // Verify
+            var actual = settingsProviderMock.settings.Entries[0].OutputPath;
+            Assert.That(actual, Does.Not.StartWith(trail),
+                "Did not trim start of output asset path");
+            Assert.That(actual, Does.Not.EndWith(trail),
+                "Did not trim end of output asset path");
         }
 
         [Test]

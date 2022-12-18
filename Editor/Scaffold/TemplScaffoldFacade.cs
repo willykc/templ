@@ -31,6 +31,7 @@ using Object = UnityEngine.Object;
 namespace Willykc.Templ.Editor.Scaffold
 {
     using Abstraction;
+    using static TemplSettings;
 
     internal sealed class TemplScaffoldFacade : ITemplScaffoldFacade
     {
@@ -88,9 +89,11 @@ namespace Willykc.Templ.Editor.Scaffold
                 throw new InvalidOperationException($"{nameof(scaffold)} must be valid");
             }
 
+            targetPath = targetPath.Trim(PathSeparators);
+
             if (!assetDatabase.IsValidFolder(targetPath))
             {
-                throw new DirectoryNotFoundException($"Directory does not exist: {targetPath}");
+                throw new DirectoryNotFoundException($"Directory does not exist: '{targetPath}'");
             }
 
             lock (lockHandle)
