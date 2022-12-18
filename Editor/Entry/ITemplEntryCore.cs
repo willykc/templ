@@ -24,7 +24,6 @@ namespace Willykc.Templ.Editor.Entry
     internal interface ITemplEntryCore
     {
         internal void FlagChangedEntry(TemplEntry entry);
-        internal bool IsPathReferencedByEntry(TemplEntry entry, string path);
         internal void OnAfterAssemblyReload();
         internal void OnAssetsChanged(AssetsPaths changes);
         internal bool OnWillDeleteAsset(string path);

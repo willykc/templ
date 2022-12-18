@@ -33,11 +33,6 @@ namespace Willykc.Templ.Editor.Tests
             throw new System.NotImplementedException();
         }
 
-        bool ITemplEntryCore.IsPathReferencedByEntry(TemplEntry entry, string path)
-        {
-            throw new System.NotImplementedException();
-        }
-
         void ITemplEntryCore.OnAfterAssemblyReload()
         {
             throw new System.NotImplementedException();

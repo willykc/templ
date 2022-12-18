@@ -171,9 +171,6 @@ namespace Willykc.Templ.Editor.Entry
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
-        bool ITemplEntryCore.IsPathReferencedByEntry(TemplEntry entry, string path) =>
-            IsPathReferencedByEntry(entry, path);
-
         void ITemplEntryCore.RenderEntry(string id)
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
