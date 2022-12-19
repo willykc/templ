@@ -101,7 +101,7 @@ namespace Willykc.Templ.Editor.Entry
         internal string InputFieldName => InputField?.Name;
 
         internal string ExposedInputName =>
-            InputField?.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is string exposedAs &&
+            InputField?.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is { } exposedAs &&
             !string.IsNullOrWhiteSpace(exposedAs)
             ? exposedAs
             : InputFieldName;

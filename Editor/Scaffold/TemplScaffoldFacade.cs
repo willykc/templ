@@ -206,7 +206,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 targetPath,
                 selection,
                 OnInputFormClosed,
-                cancellationToken) is ScriptableObject input)
+                cancellationToken) is { } input)
             {
                 string[] generatedPaths = await TryGenerateScaffoldAsync(
                     scaffold,
@@ -253,7 +253,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             var skipPaths = overwriteOption switch
             {
-                OverwriteOptions.OverwriteAll => TemplSettings.EmptyStringArray,
+                OverwriteOptions.OverwriteAll => EmptyStringArray,
                 OverwriteOptions.SkipAll => existingFilePaths,
                 _ => await GetSkipPaths(scaffold, targetPath, existingFilePaths, cancellationToken)
             };

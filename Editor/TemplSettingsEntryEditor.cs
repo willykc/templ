@@ -310,7 +310,7 @@ namespace Willykc.Templ.Editor
             SerializedProperty directoryProperty,
             UnityObject previousDirectoryValue)
         {
-            if (directoryProperty.objectReferenceValue is UnityObject directory &&
+            if (directoryProperty.objectReferenceValue is { } directory &&
                 !AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(directory)))
             {
                 directoryProperty.objectReferenceValue = previousDirectoryValue;
@@ -331,7 +331,7 @@ namespace Willykc.Templ.Editor
             property.objectReferenceValue is ScribanAsset template && !template.HasErrors;
 
         private static string GetEntryDisplayName(Type type) =>
-            type.GetCustomAttribute<TemplEntryInfoAttribute>()?.DisplayName is string name &&
+            type.GetCustomAttribute<TemplEntryInfoAttribute>()?.DisplayName is { } name &&
             !string.IsNullOrWhiteSpace(name)
             ? name
             : type.Name;
