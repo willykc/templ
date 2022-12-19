@@ -21,7 +21,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -49,8 +48,7 @@ namespace Willykc.Templ.Editor.Scaffold
         internal bool IsValid =>
             IsValidNode &&
             !IsNameDuplicated &&
-            !string.IsNullOrWhiteSpace(name) &&
-            name.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
+            name.IsValidFileName() &&
             children.All(c => c.IsValid);
 
         protected virtual bool IsValidNode => true;

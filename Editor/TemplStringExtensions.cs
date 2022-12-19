@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -33,12 +34,16 @@ namespace Willykc.Templ.Editor
         private const char Whitespace = ' ';
 
         private static readonly char[] Separators = new[] { Dash, Underscore, Whitespace };
+        private static readonly char[] ForcedInvalidFileNameCharacters =
+            new[] { '?', '<', '>', ':', '*', '|', '"', '/', '\\' };
+        private static readonly char[] InvalidFileNameCharacters =
+            ForcedInvalidFileNameCharacters.Concat(Path.GetInvalidFileNameChars()).ToArray();
 
         internal static string ReplaceFirst(this string input, string search, string replace) =>
             string.IsNullOrEmpty(input) ||
             string.IsNullOrEmpty(search) ||
             string.IsNullOrEmpty(replace) ||
-            (input.IndexOf(search) is int pos && pos < 0)
+            (input.IndexOf(search, StringComparison.Ordinal) is var pos && pos < 0)
             ? input
             : input.Substring(0, pos) + replace + input.Substring(pos + search.Length);
 
@@ -76,6 +81,10 @@ namespace Willykc.Templ.Editor
                 first: char.ToUpperInvariant,
                 afterSeparator: char.ToUpperInvariant,
                 anyOther: c => c);
+
+        internal static bool IsValidFileName(this string filename) =>
+            !string.IsNullOrWhiteSpace(filename) &&
+            filename.IndexOfAny(InvalidFileNameCharacters) == -1;
 
         private static string ConvertCase(
             string text,

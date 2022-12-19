@@ -75,8 +75,7 @@ namespace Willykc.Templ.Editor.Entry
             !template.HasErrors &&
             directory &&
             !directory.IsReadOnly() &&
-            !string.IsNullOrWhiteSpace(filename) &&
-            filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
+            filename.IsValidFileName();
 
         internal DefaultAsset Directory
         {
@@ -91,9 +90,7 @@ namespace Willykc.Templ.Editor.Entry
         }
 
         internal string FullPath =>
-            directory &&
-            !string.IsNullOrWhiteSpace(filename) &&
-            filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1
+            directory && filename.IsValidFileName()
             ? Path.GetFullPath(OutputAssetPath)
             : string.Empty;
 

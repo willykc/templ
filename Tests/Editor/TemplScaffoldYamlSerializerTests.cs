@@ -31,6 +31,7 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplScaffoldYamlSerializerTests
     {
+        private static readonly string NewLine = Environment.NewLine;
         private TemplScaffold testScaffold;
         private ScribanAsset testScaffoldTemplate;
 
@@ -53,8 +54,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidScaffold_WhenSerializing_ThenShouldProduceCorrectTextRepresentation()
         {
             // Setup
-            var expectedOutput = "- NewDirectory{{Input.name}}:\r\n    " +
-                "- NewFile{{Selection.name}}: 123163d8e239dda4993b73291555da3c\r\n";
+            var expectedOutput = $"- NewDirectory{{{{Input.name}}}}:{NewLine}    " +
+                $"- NewFile{{{{Selection.name}}}}: 123163d8e239dda4993b73291555da3c{NewLine}";
 
             // Act
             var result = subject.SerializeTree(testScaffold.Root, useGuids: true);
@@ -67,7 +68,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenValidScaffold_WhenSerializingWithoutGUIDs_ThenShouldUsePaths()
         {
             // Setup
-            var expectedEnd = "TestScaffoldTemplate.sbn\r\n";
+            var expectedEnd = $"TestScaffoldTemplate.sbn{NewLine}";
 
             // Act
             var result = subject.SerializeTree(testScaffold.Root);
@@ -82,8 +83,8 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             var directoryName = "NewDirectory";
             var fileName = "NewFile";
-            var serializedTree = $"- {directoryName}:\r\n    " +
-                $"- {fileName}: 123163d8e239dda4993b73291555da3c\r\n";
+            var serializedTree = $"- {directoryName}:{NewLine}    " +
+                $"- {fileName}: 123163d8e239dda4993b73291555da3c{NewLine}";
 
             // Act
             var result = subject.DeserializeTree(serializedTree);
@@ -98,8 +99,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenYAMLWithNoRootCollection_WhenDeserializing_ThenShouldThrowException()
         {
             // Setup
-            var serializedTree = "NewDirectory:\r\n    " +
-                "- NewFile: 123163d8e239dda4993b73291555da3c\r\n";
+            var serializedTree = $"NewDirectory:{NewLine}    " +
+                $"- NewFile: 123163d8e239dda4993b73291555da3c{NewLine}";
 
             void Act()
             {
@@ -116,7 +117,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenYAMLWithNoDictionaryUnderNode_WhenDeserializing_ThenShouldThrowException()
         {
             // Setup
-            var serializedTree = "- NewDirectory:\r\n    - NewFile\r\n";
+            var serializedTree = $"- NewDirectory:{NewLine}    - NewFile{NewLine}";
 
             void Act()
             {
@@ -133,7 +134,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenYAMLWithNoTemplateReference_WhenDeserializing_ThenShouldThrowException()
         {
             // Setup
-            var serializedTree = "- NewDirectory:\r\n    - NewFile:\r\n";
+            var serializedTree = $"- NewDirectory:{NewLine}    - NewFile:{NewLine}";
 
             void Act()
             {

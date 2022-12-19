@@ -121,8 +121,7 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(outputAssetPath), exception);
             }
 
-            if(filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 ||
-                string.IsNullOrWhiteSpace(filename))
+            if(!filename.IsValidFileName())
             {
                 throw new ArgumentException($"'{filename}' is not a valid file name",
                     nameof(outputAssetPath));
@@ -231,9 +230,7 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(outputAssetPath), exception);
             }
 
-            if (outputAssetPath != null &&
-                (filename.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 ||
-                string.IsNullOrWhiteSpace(filename)))
+            if (outputAssetPath != null && !filename.IsValidFileName())
             {
                 throw new ArgumentException($"'{filename}' is not a valid file name",
                     nameof(outputAssetPath));

@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -303,8 +302,7 @@ namespace Willykc.Templ.Editor
             property.stringValue = property.stringValue.Length > MaxFilenameLength
                 ? property.stringValue.Substring(0, MaxFilenameLength)
                 : property.stringValue;
-            return !string.IsNullOrWhiteSpace(property.stringValue) &&
-            property.stringValue.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
+            return property.stringValue.IsValidFileName() &&
             (!fullPathDuplicates?.Contains(entry.fullPathCache) ?? true);
         }
 

@@ -23,7 +23,6 @@ using Scriban;
 using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityObject = UnityEngine.Object;
 
@@ -399,7 +398,7 @@ namespace Willykc.Templ.Editor.Scaffold
                     $"node {node.NodePath}", TemplScaffoldErrorType.Filename);
             }
 
-            if (node.RenderedName.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            if (!node.RenderedName.IsValidFileName())
             {
                 AddError(errors, "Invalid characters found in " +
                     $"{nameof(TemplScaffoldErrorType.Filename)}: {node.RenderedName} for " +
