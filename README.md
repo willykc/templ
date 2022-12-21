@@ -8,6 +8,7 @@ Integrates [Scriban](https://github.com/scriban/scriban/) template engine with U
 * Automatic generation when input assets or templates change.
 * Generation of scaffold tree structures with directories and files.
 * Extensible design allows custom inputs and template functions.
+* Public API allows full control of asset generation.
 
 ## Unity version support
 

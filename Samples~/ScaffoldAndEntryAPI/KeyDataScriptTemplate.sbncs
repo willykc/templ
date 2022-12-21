@@ -1,0 +1,6 @@
+using UnityEngine;
+
+public class KeyDataScript : ScriptableObject
+{
+    public string data;
+}

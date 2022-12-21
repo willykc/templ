@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent delete of referenced assets in live entries in Unity Editor.
 - Public scaffold API.
 - Public live entry API.
+- Samples showing API usage.
 
 ### Changed
 
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scaffold generation.
 - Template functions for case transformations.
 - Template functions for asset database operations.
+- Scaffold samples.
 
 ### Changed
 

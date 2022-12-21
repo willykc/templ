@@ -2,7 +2,7 @@
   "name": "com.willykc.templ",
   "version": "0.2.0-preview",
   "displayName": "Templ",
-  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with directories and files.\n - Extensible design allows custom inputs and template functions.",
+  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with directories and files.\n - Extensible design allows custom inputs and template functions.\n - Public API allows full control of asset generation.",
   "keywords": [
     "template",
     "code",
@@ -76,6 +76,11 @@
       "displayName": "Dynamic Scaffold with Input",
       "description": "Contains sample dynamic scaffold with default input scriptable object",
       "path": "Samples~/DynamicScaffold"
+    },
+    {
+      "displayName": "Scaffold and Entry API",
+      "description": "Contains sample scaffold and templates used with public API",
+      "path": "Samples~/ScaffoldAndEntryAPI"
     }
   ]
 }
