@@ -89,7 +89,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 throw new InvalidOperationException($"{nameof(scaffold)} must be valid");
             }
 
-            targetPath = targetPath.Trim(PathSeparators);
+            targetPath = SanitizePath(targetPath);
 
             if (!assetDatabase.IsValidFolder(targetPath))
             {
@@ -283,5 +283,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 existingFilePaths,
                 cancellationToken)
             : null;
+
+        private static string SanitizePath(string targetPath) =>
+            targetPath.Trim(PathSeparators).Replace(WindowsPathSeparator, AssetPathSeparator);
     }
 }

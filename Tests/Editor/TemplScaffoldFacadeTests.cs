@@ -36,6 +36,7 @@ namespace Willykc.Templ.Editor.Tests
     using Scaffold;
     using static TemplEntryCoreTests;
     using static TemplScaffoldCoreTests;
+    using static TemplSettings;
     using static TemplTestUtility;
 
     internal class TemplScaffoldFacadeTests
@@ -596,10 +597,23 @@ namespace Willykc.Templ.Editor.Tests
             await subject.GenerateScaffoldAsync(newScaffoldMock, targetPath);
 
             // Verify
-            Assert.That(assetDatabaseMock.IsValidFolderPath, Does.Not.StartsWith(trail),
-                "Did not trim start of target path");
-            Assert.That(assetDatabaseMock.IsValidFolderPath, Does.Not.EndWith(trail),
-                "Did not trim end of target path");
+            Assert.AreEqual(TestTargetPath, assetDatabaseMock.IsValidFolderPath,
+                "Did not trim target path");
+        });
+
+        [UnityTest]
+        public IEnumerator GivenWindowsPathSeparators_WhenGenerating_ThenShouldSanitizeAssetPath()
+        => ToCoroutine(async () =>
+        {
+            // Setup
+            var targetPath = TestTargetPath.Replace(AssetPathSeparator, WindowsPathSeparator);
+
+            // Act
+            await subject.GenerateScaffoldAsync(newScaffoldMock, targetPath);
+
+            // Verify
+            Assert.AreEqual(TestTargetPath, assetDatabaseMock.IsValidFolderPath,
+                "Did not sanitize target path");
         });
 
         [UnityTest]
