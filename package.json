@@ -81,6 +81,11 @@
       "displayName": "Scaffold and Entry API",
       "description": "Contains sample scaffold and templates used with public API",
       "path": "Samples~/ScaffoldAndEntryAPI"
+    },
+    {
+      "displayName": "Multiple Selection Scaffold",
+      "description": "Contains sample scaffold for multiple selection using public API",
+      "path": "Samples~/MultipleSelectionScaffold"
     }
   ]
 }

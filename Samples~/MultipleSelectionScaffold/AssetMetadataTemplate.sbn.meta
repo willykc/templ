@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cc18ed2f0ef29764ba4500dfd52c8dfb
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: 'Name: {{Selection.name}}
+
+    Path: {{Selection | GetAssetPath}}'
+  parsingErrors: []
