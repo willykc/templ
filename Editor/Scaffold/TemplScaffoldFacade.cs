@@ -153,6 +153,11 @@ namespace Willykc.Templ.Editor.Scaffold
 
             lock (lockHandle)
             {
+                if (settings.Scaffolds.Contains(scaffold))
+                {
+                    return;
+                }
+
                 settings.Scaffolds.Add(scaffold);
 
                 editorUtility.SetDirty(settings);

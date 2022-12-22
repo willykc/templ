@@ -22,6 +22,10 @@
 using NUnit.Framework;
 using System;
 using System.Collections;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityObject = UnityEngine.Object;
@@ -30,10 +34,6 @@ namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
     using Scaffold;
-    using System.IO;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
     using static TemplEntryCoreTests;
     using static TemplScaffoldCoreTests;
     using static TemplTestUtility;
@@ -171,6 +171,22 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenAlreadyEnabledScaffold_WhenEnablingScaffold_ThenShouldDoNothing()
+        {
+            // Setup
+            var expectedCount = settingsProviderMock.settings.Scaffolds.Count;
+
+            // Act
+            subject.EnableScaffoldForSelection(existingScaffoldMock);
+
+            // Verify
+            Assert.AreEqual(0, editorUtilityMock.SetDirtyCount, "Unexpectedly set Settings dirty");
+            Assert.AreEqual(0, assetDatabaseMock.SaveAssetsCount, "Unexpectedly saved assets");
+            Assert.AreEqual(expectedCount, settingsProviderMock.settings.Scaffolds.Count,
+                "Unexpected amount of enabled scaffolds");
+        }
+
+        [Test]
         public void GivenNoSettings_WhenDisablingScaffoldForSelection_ThenShouldThrowException()
         {
             // Setup
@@ -249,12 +265,17 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenAlreadyDisabledScaffold_WhenDisablingScaffold_ThenShouldDoNothing()
         {
+            // Setup
+            var expectedCount = settingsProviderMock.settings.Scaffolds.Count;
+
             // Act
             subject.DisableScaffoldForSelection(newScaffoldMock);
 
             // Verify
             Assert.AreEqual(0, editorUtilityMock.SetDirtyCount, "Unexpectedly set Settings dirty");
             Assert.AreEqual(0, assetDatabaseMock.SaveAssetsCount, "Unexpectedly saved assets");
+            Assert.AreEqual(expectedCount, settingsProviderMock.settings.Scaffolds.Count,
+                "Unexpected amount of enabled scaffolds");
         }
 
         [UnityTest]
