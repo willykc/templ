@@ -33,6 +33,7 @@ namespace Willykc.Templ.Editor.Tests
     using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
+    using static TemplSettings;
 
     internal class TemplEntryFacadeTests
     {
@@ -311,6 +312,23 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenExistingEquivalentOutputPath_WhenAddingEntry_ThenShouldThrowException()
+        {
+            // Setup
+            var existingOutputPath = settingsProviderMock.settings.Entries[0].OutputPath
+                .Replace(AssetPathSeparator, WindowsPathSeparator);
+
+            void Act()
+            {
+                // Act
+                subject.AddEntry<EntryMock>(testText, testTemplate, existingOutputPath);
+            }
+
+            // Verify
+            Assert.Throws<InvalidOperationException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
         public void GivenIncorrectInputType_WhenAddingEntry_ThenShouldThrowException()
         {
             // Setup
@@ -537,6 +555,23 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Setup
             var existingOutputPath = settingsProviderMock.settings.Entries[1].OutputPath;
+
+            void Act()
+            {
+                // Act
+                subject.UpdateEntry(firstEntryId, outputAssetPath: existingOutputPath);
+            }
+
+            // Verify
+            Assert.Throws<InvalidOperationException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenExistingEquivalentOutputPath_WhenUpdatingEntry_ThenShouldThrowException()
+        {
+            // Setup
+            var existingOutputPath = settingsProviderMock.settings.Entries[1].OutputPath
+                .Replace(AssetPathSeparator, WindowsPathSeparator);
 
             void Act()
             {
@@ -817,6 +852,75 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(1, templEntryCoreMock.RenderAllValidEntriesCount,
                 "Did not render all valid entries");
+        }
+
+        [Test]
+        public void GivenNoSettings_WhenCheckingEntryExists_ThenShouldThrowException()
+        {
+            // Setup
+            settingsProviderMock.settingsExist = false;
+
+            void Act()
+            {
+                // Act
+                subject.EntryExist(TestOutputPath);
+            }
+
+            // Verify
+            Assert.Throws<InvalidOperationException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenNullOutputAssetPath_WhenCheckingEntryExists_ThenShouldThrowException()
+        {
+            void Act()
+            {
+                // Act
+                subject.EntryExist(null);
+            }
+
+            // Verify
+            Assert.Throws<ArgumentNullException>(Act, "Did not throw expected exception");
+        }
+
+        [Test]
+        public void GivenExistingEntry_WhenCheckingEntryExists_ThenShouldReturnTrue()
+        {
+            // Setup
+            var path = settingsProviderMock.settings.Entries[0].OutputAssetPath;
+
+            // Act
+            var resutl = subject.EntryExist(path);
+
+            // Verify
+            Assert.IsTrue(resutl, "Did not return true for existing entry");
+        }
+
+        [Test]
+        public void GivenExistingEquivalentOutputPath_WhenCheckingEntryExists_ThenShouldReturnTrue()
+        {
+            // Setup
+            var path = settingsProviderMock.settings.Entries[0].OutputAssetPath
+                .Replace(AssetPathSeparator, WindowsPathSeparator);
+
+            // Act
+            var resutl = subject.EntryExist(path);
+
+            // Verify
+            Assert.IsTrue(resutl, "Did not return true for existing entry");
+        }
+
+        [Test]
+        public void GivenNonExistingEntry_WhenCheckingEntryExists_ThenShouldReturnFalse()
+        {
+            // Setup
+            var path = "Non/Existing/Entry/Path.txt";
+
+            // Act
+            var resutl = subject.EntryExist(path);
+
+            // Verify
+            Assert.IsFalse(resutl, "Did not return false for non existing entry");
         }
 
         private static void SetTemplateAsInvalid(ScribanAsset template)

@@ -140,10 +140,11 @@ namespace Willykc.Templ.Editor.Entry
 
             if (!IsValidEntryType(entryType))
             {
-                throw new InvalidOperationException($"'{entryType.Name}' is not a valid entry type");
+                throw new InvalidOperationException(
+                    $"'{entryType.Name}' is not a valid entry type");
             }
 
-            if (settings.Entries.Select(e => e.OutputAssetPath).Contains(outputAssetPath))
+            if (settings.Entries.Any(e => PathsEquivalent(e.OutputAssetPath, outputAssetPath)))
             {
                 throw new InvalidOperationException("Existing entry already uses " +
                     $"'{outputAssetPath}' as output asset path");
@@ -255,11 +256,10 @@ namespace Willykc.Templ.Editor.Entry
                 throw new InvalidOperationException($"No entry could be found with id '{id}'");
             }
 
-            var otherEntriesPaths = settings.Entries
-                .Where(e => e != entry)
-                .Select(e => e.OutputAssetPath);
+            var pathConflicts = settings.Entries
+                .Any(e => e != entry && PathsEquivalent(e.OutputAssetPath, outputAssetPath));
 
-            if (otherEntriesPaths.Contains(outputAssetPath))
+            if (pathConflicts)
             {
                 throw new InvalidOperationException("Existing entry already uses " +
                     $"'{outputAssetPath}' as output asset path");
@@ -315,6 +315,25 @@ namespace Willykc.Templ.Editor.Entry
             }
         }
 
+        bool ITemplEntryFacade.EntryExist(string outputAssetPath)
+        {
+            if (!settingsProvider.SettingsExist())
+            {
+                throw new InvalidOperationException($"{nameof(TemplSettings)} not found");
+            }
+
+            outputAssetPath = outputAssetPath
+                ?? throw new ArgumentNullException(nameof(outputAssetPath));
+
+            var settings = settingsProvider.GetSettings();
+
+            lock (lockHandle)
+            {
+                return settings.Entries
+                    .Any(e => PathsEquivalent(e.OutputAssetPath, outputAssetPath));
+            }
+        }
+
         void ITemplEntryFacade.ForceRenderEntry(string id)
         {
             if (!settingsProvider.SettingsExist())
@@ -365,5 +384,10 @@ namespace Willykc.Templ.Editor.Entry
         private static bool IsValidInputField(FieldInfo field) =>
             field.IsDefined(typeof(TemplInputAttribute), false) &&
             field.FieldType.IsSubclassOf(typeof(UnityObject));
+
+        private static bool PathsEquivalent(string pathA, string pathB) => string.Equals(
+            Path.GetFullPath(pathA ?? string.Empty).TrimEnd(PathSeparators),
+            Path.GetFullPath(pathB ?? string.Empty).TrimEnd(PathSeparators),
+            StringComparison.InvariantCultureIgnoreCase);
     }
 }

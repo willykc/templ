@@ -42,7 +42,10 @@ namespace Willykc.Templ.Editor
         internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
         internal static readonly TemplScaffold[] EmptyScaffoldArray = new TemplScaffold[0];
         internal static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
-        internal static readonly char[] PathSeparators = new[] { '/', '\\' };
+        internal static readonly char AssetPathSeparator = '/';
+        internal static readonly char WindowsPathSeparator = '\\';
+        internal static readonly char[] PathSeparators =
+            new[] { AssetPathSeparator, WindowsPathSeparator };
 
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";

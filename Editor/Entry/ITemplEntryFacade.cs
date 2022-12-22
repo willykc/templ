@@ -62,6 +62,13 @@ namespace Willykc.Templ.Editor.Entry
         void RemoveEntry(string id);
 
         /// <summary>
+        /// Determines if an entry exist with the given outputAssetPath.
+        /// </summary>
+        /// <param name="outputAssetPath">The output asset path.</param>
+        /// <returns>True or false depending on existance of entry.</returns>
+        bool EntryExist(string outputAssetPath);
+
+        /// <summary>
         /// Forces to render a specific entry in settings. In case entry ID matches
         /// an invalid entry, it will not be rendered.
         /// </summary>

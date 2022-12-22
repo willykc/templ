@@ -70,6 +70,11 @@ namespace Willykc.Templ.Samples
 
             try
             {
+                if (entryManager.EntryExist(outputPath))
+                {
+                    return;
+                }
+
                 var id = entryManager.AddEntry<ScriptableObjectEntry>(data, template, outputPath);
                 entryManager.ForceRenderEntry(id);
             }
