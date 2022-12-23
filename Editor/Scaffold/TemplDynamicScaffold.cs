@@ -28,7 +28,7 @@ namespace Willykc.Templ.Editor.Scaffold
         fileName = NewPrefix + nameof(TemplDynamicScaffold),
         menuName = MenuName,
         order = 3)]
-    internal sealed class TemplDynamicScaffold : TemplScaffold
+    public sealed class TemplDynamicScaffold : TemplScaffold
     {
         internal const string NameOfTreeTemplate = nameof(treeTemplate);
 
