@@ -40,9 +40,9 @@ namespace Willykc.Templ.Editor.Scaffold
         [NonSerialized]
         private TemplScaffoldRoot innerRoot;
 
-        internal override TemplScaffoldRoot Root => innerRoot;
+        public ScribanAsset TreeTemplate => treeTemplate;
 
-        internal ScribanAsset TreeTemplate => treeTemplate;
+        internal override TemplScaffoldRoot Root => innerRoot;
 
         internal override bool IsValid => treeTemplate && !treeTemplate.HasErrors;
 

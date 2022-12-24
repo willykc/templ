@@ -48,7 +48,7 @@ namespace Willykc.Templ.Editor.Scaffold
         [SerializeReference]
         private TemplScaffoldRoot root = GetNewRoot();
 
-        internal ScriptableObject DefaultInput => defaultInput;
+        public ScriptableObject DefaultInput => defaultInput;
         internal virtual TemplScaffoldRoot Root => root;
         internal virtual bool IsValid => root.IsValid;
 

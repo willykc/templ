@@ -32,7 +32,7 @@ namespace Willykc.Templ.Editor.Entry
         TemplEntry[] GetEntries();
 
         /// <summary>
-        /// Adds a new entry in settings.
+        /// Adds a new entry in settings. Added entries will not render automatically.
         /// </summary>
         /// <typeparam name="T">The type of entry.</typeparam>
         /// <param name="inputAsset">The input asset to monitor for changes.</param>
@@ -43,7 +43,7 @@ namespace Willykc.Templ.Editor.Entry
             where T : TemplEntry, new();
 
         /// <summary>
-        /// Updates an existing entry in settings.
+        /// Updates an existing entry in settings. Updated entries will not render automatically.
         /// </summary>
         /// <param name="id">The ID of the entry.</param>
         /// <param name="inputAsset">The input asset to monitor for changes.</param>
@@ -65,7 +65,7 @@ namespace Willykc.Templ.Editor.Entry
         /// Determines if an entry exist with the given outputAssetPath.
         /// </summary>
         /// <param name="outputAssetPath">The output asset path.</param>
-        /// <returns>True or false depending on existance of entry.</returns>
+        /// <returns>True or false depending on existence of entry.</returns>
         bool EntryExist(string outputAssetPath);
 
         /// <summary>

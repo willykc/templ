@@ -364,7 +364,7 @@ namespace Willykc.Templ.Editor.Tests
             catch (Exception exception)
             {
                 // Verify
-                Assert.That(exception, Is.TypeOf<InvalidOperationException>(),
+                Assert.That(exception, Is.TypeOf<ArgumentException>(),
                     "Unexpected exception type");
             }
         });

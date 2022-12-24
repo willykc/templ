@@ -86,7 +86,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (!scaffold.IsValid)
             {
-                throw new InvalidOperationException($"{nameof(scaffold)} must be valid");
+                throw new ArgumentException($"{nameof(scaffold)} must be valid");
             }
 
             targetPath = SanitizePath(targetPath);

@@ -38,8 +38,8 @@ namespace Willykc.Templ.Editor.Scaffold
         /// <param name="input">The input value to use during generation.</param>
         /// <param name="selection">The selection value to use during generation.</param>
         /// <param name="overwriteOption">The options to control asset overwrite behaviour.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The array of generated asset paths.</returns>
+        /// <param name="cancellationToken">The cancellation token. It can only cancel UI prompts, once generation starts it must fail or conclude.</param>
+        /// <returns>The array of generated asset paths. Null is returned in case user cancels UI prompts or generation errors are found.</returns>
         Task<string[]> GenerateScaffoldAsync(
             TemplScaffold scaffold,
             string targetPath,
