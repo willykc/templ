@@ -57,11 +57,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         bool IFileSystem.FileExists(string path) => FileExists.Contains(path);
 
         bool IFileSystem.DirectoryExists(string path) => DirectoryExists.Contains(path);
-
-        internal void Clear()
-        {
-            Path.Clear();
-            Contents.Clear();
-        }
     }
 }

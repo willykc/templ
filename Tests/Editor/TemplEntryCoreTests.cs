@@ -23,6 +23,7 @@ using NUnit.Framework;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -56,7 +57,9 @@ namespace Willykc.Templ.Editor.Tests
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
+        private TemplSettings settingsInstance;
         private TemplSettings edgeCasesSettings;
+        private TemplSettings edgeCasesSettingsInstance;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
         private EntryMock secondEntryMock;
@@ -85,8 +88,6 @@ namespace Willykc.Templ.Editor.Tests
                 out testTemplatePath);
             testText =
                 TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out testTextPath);
-            firstEntryMock = settings.Entries[0] as EntryMock;
-            secondEntryMock = settings.Entries[1] as EntryMock;
         }
 
         [SetUp]
@@ -108,14 +109,18 @@ namespace Willykc.Templ.Editor.Tests
                 editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = true;
-            settingsProviderMock.settings = settings;
+            settingsInstance = UnityObject.Instantiate(settings);
+            edgeCasesSettingsInstance = UnityObject.Instantiate(edgeCasesSettings);
+            settingsProviderMock.settings = settingsInstance;
+            firstEntryMock = settingsInstance.Entries[0] as EntryMock;
+            secondEntryMock = settingsInstance.Entries[1] as EntryMock;
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
-            secondEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsInstance);
+            UnityObject.DestroyImmediate(edgeCasesSettingsInstance);
         }
 
         [OneTimeTearDown]
@@ -498,7 +503,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenTemplateWithError_WhenRenderAllValidEntries_ThenShouldLogError()
         {
             // Setup
-            settingsProviderMock.settings = edgeCasesSettings;
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
 
             // Act
             subject.RenderAllValidEntries();
@@ -511,8 +516,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenTemplateWithOutputPath_WhenRenderAllValidEntries_ThenShouldRenderPath()
         {
             // Setup
-            settingsProviderMock.settings = edgeCasesSettings;
-            var targetEntry = edgeCasesSettings.Entries[1];
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
+            var targetEntry = edgeCasesSettingsInstance.Entries[1];
 
             // Act
             subject.RenderAllValidEntries();
@@ -526,8 +531,8 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenTemplateWithPathFunction_WhenRenderAllValidEntries_ThenShouldRenderResult()
         {
             // Setup
-            settingsProviderMock.settings = edgeCasesSettings;
-            var targetEntry = edgeCasesSettings.Entries[2];
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
+            var targetEntry = edgeCasesSettingsInstance.Entries[2];
 
             // Act
             subject.RenderAllValidEntries();

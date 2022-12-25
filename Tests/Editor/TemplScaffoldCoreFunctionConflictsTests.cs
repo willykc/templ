@@ -77,9 +77,6 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenValidating_ThenShouldReturnCorrectError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath);
 
@@ -93,14 +90,11 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenGenerating_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.GenerateScaffold(testScaffold, TestTargetPath);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
     }
 }

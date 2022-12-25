@@ -73,11 +73,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         T IAssetDatabase.LoadAssetAtPath<T>(string path) => mockLoadAsset as T;
 
         void IAssetDatabase.SaveAssets() => SaveAssetsCount++;
-
-        internal void Clear()
-        {
-            mockAssetPath = default;
-            ImportAssetPath = default;
-        }
     }
 }

@@ -45,12 +45,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         {
             WarnCount++;
         }
-
-        internal void Clear()
-        {
-            ErrorCount = default;
-            InfoCount = default;
-            WarnCount = default;
-        }
     }
 }

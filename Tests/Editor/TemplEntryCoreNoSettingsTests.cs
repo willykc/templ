@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -63,13 +64,13 @@ namespace Willykc.Templ.Editor.Tests
                 editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = false;
-            settingsProviderMock.settings = settings;
+            settingsProviderMock.settings = UnityObject.Instantiate(settings);
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsProviderMock.settings);
         }
 
         [OneTimeTearDown]

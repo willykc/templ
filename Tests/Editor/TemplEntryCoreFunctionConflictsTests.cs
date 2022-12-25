@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -66,15 +67,14 @@ namespace Willykc.Templ.Editor.Tests
                 templateFunctionProviderMock,
                 editorUtilityMock = new EditorUtilityMock());
 
-
             settingsProviderMock.settingsExist = true;
-            settingsProviderMock.settings = settings;
+            settingsProviderMock.settings = UnityObject.Instantiate(settings);
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsProviderMock.settings);
         }
 
         [OneTimeTearDown]
@@ -93,14 +93,11 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenAssetsChange_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -121,13 +118,12 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Setup
             sessionStateMock.value = firstEntryMock.Id;
-            loggerMock.Clear();
 
             // Act
             subject.OnAfterAssemblyReload();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -159,14 +155,11 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenRenderAllValidEntries_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -183,14 +176,13 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenRenderSingleEntry_ThenShouldLogError()
         {
             // Setup
-            loggerMock.Clear();
             var id = firstEntryMock.Id;
 
             // Act
             subject.RenderEntry(id);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]

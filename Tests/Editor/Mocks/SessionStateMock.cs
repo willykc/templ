@@ -47,14 +47,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
             SetKey = key;
             SetValue = value;
         }
-
-        internal void Clear()
-        {
-            value = default;
-            EraseKey = default;
-            GetKey = default;
-            SetKey = default;
-            SetValue = default;
-        }
     }
 }

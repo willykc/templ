@@ -50,14 +50,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal override bool IsTemplateChanged(AssetChange change) => templateChanged;
 
         protected override bool IsInputChanged(AssetChange change) => inputChanged;
-
-        internal void Clear()
-        {
-            valid = true;
-            defer = default;
-            inputChanged = default;
-            templateChanged = default;
-            outputAssetPath = default;
-        }
     }
 }
