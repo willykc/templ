@@ -29,7 +29,6 @@ using UnityObject = UnityEngine.Object;
 namespace Willykc.Templ.Editor.Entry
 {
     using Abstraction;
-    using static TemplSettings;
 
     internal sealed class TemplEntryFacade : ITemplEntryFacade
     {
@@ -108,7 +107,7 @@ namespace Willykc.Templ.Editor.Entry
                     nameof(template));
             }
 
-            outputAssetPath = outputAssetPath.Trim(PathSeparators);
+            outputAssetPath = outputAssetPath.SanitizePath();
             string filename = null;
 
             try
@@ -144,7 +143,7 @@ namespace Willykc.Templ.Editor.Entry
                     $"'{entryType.Name}' is not a valid entry type");
             }
 
-            if (settings.Entries.Any(e => PathsEquivalent(e.OutputAssetPath, outputAssetPath)))
+            if (settings.Entries.Any(e => e.OutputAssetPath.PathsEquivalent(outputAssetPath)))
             {
                 throw new InvalidOperationException("Existing entry already uses " +
                     $"'{outputAssetPath}' as output asset path");
@@ -214,7 +213,7 @@ namespace Willykc.Templ.Editor.Entry
             }
 
             outputAssetPath = outputAssetPath != null
-                ? outputAssetPath.Trim(PathSeparators)
+                ? outputAssetPath.SanitizePath()
                 : outputAssetPath;
 
             string filename = null;
@@ -257,7 +256,7 @@ namespace Willykc.Templ.Editor.Entry
             }
 
             var pathConflicts = settings.Entries
-                .Any(e => e != entry && PathsEquivalent(e.OutputAssetPath, outputAssetPath));
+                .Any(e => e != entry && e.OutputAssetPath.PathsEquivalent(outputAssetPath));
 
             if (pathConflicts)
             {
@@ -330,7 +329,7 @@ namespace Willykc.Templ.Editor.Entry
             lock (lockHandle)
             {
                 return settings.Entries
-                    .Any(e => PathsEquivalent(e.OutputAssetPath, outputAssetPath));
+                    .Any(e => e.OutputAssetPath.PathsEquivalent(outputAssetPath));
             }
         }
 
@@ -384,10 +383,5 @@ namespace Willykc.Templ.Editor.Entry
         private static bool IsValidInputField(FieldInfo field) =>
             field.IsDefined(typeof(TemplInputAttribute), false) &&
             field.FieldType.IsSubclassOf(typeof(UnityObject));
-
-        private static bool PathsEquivalent(string pathA, string pathB) => string.Equals(
-            Path.GetFullPath(pathA ?? string.Empty).TrimEnd(PathSeparators),
-            Path.GetFullPath(pathB ?? string.Empty).TrimEnd(PathSeparators),
-            StringComparison.InvariantCultureIgnoreCase);
     }
 }

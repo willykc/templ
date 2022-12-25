@@ -36,11 +36,13 @@ namespace Willykc.Templ.Editor.Tests
     using Scaffold;
     using static TemplEntryCoreTests;
     using static TemplScaffoldCoreTests;
-    using static TemplSettings;
     using static TemplTestUtility;
 
     internal class TemplScaffoldFacadeTests
     {
+        private const char AssetPathSeparator = '/';
+        private const char WindowsPathSeparator = '\\';
+        
         private ITemplScaffoldFacade subject;
         private SettingsProviderMock settingsProviderMock;
         private AssetDatabaseMock assetDatabaseMock;

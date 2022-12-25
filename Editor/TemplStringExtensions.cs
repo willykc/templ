@@ -32,10 +32,14 @@ namespace Willykc.Templ.Editor
         private const char Dash = '-';
         private const char Underscore = '_';
         private const char Whitespace = ' ';
-
+        private const char AssetPathSeparator = '/';
+        private const char WindowsPathSeparator = '\\';
+        
+        private static readonly char[] PathSeparators =
+            new[] { AssetPathSeparator, WindowsPathSeparator };
         private static readonly char[] Separators = new[] { Dash, Underscore, Whitespace };
         private static readonly char[] ForcedInvalidFileNameCharacters =
-            new[] { '?', '<', '>', ':', '*', '|', '"', '/', '\\' };
+            new[] { '?', '<', '>', ':', '*', '|', '"', AssetPathSeparator, WindowsPathSeparator };
         private static readonly char[] InvalidFileNameCharacters =
             ForcedInvalidFileNameCharacters.Concat(Path.GetInvalidFileNameChars()).ToArray();
 
@@ -86,6 +90,14 @@ namespace Willykc.Templ.Editor
             !string.IsNullOrWhiteSpace(filename) &&
             filename.IndexOfAny(InvalidFileNameCharacters) == -1;
 
+        internal static string SanitizePath(this string targetPath) =>
+            targetPath.Trim(PathSeparators).Replace(WindowsPathSeparator, AssetPathSeparator);
+
+        internal static bool PathsEquivalent(this string pathA, string pathB) => string.Equals(
+            Path.GetFullPath(pathA ?? string.Empty).TrimEnd(PathSeparators),
+            Path.GetFullPath(pathB ?? string.Empty).TrimEnd(PathSeparators),
+            StringComparison.InvariantCultureIgnoreCase);
+
         private static string ConvertCase(
             string text,
             char separator,
@@ -93,7 +105,7 @@ namespace Willykc.Templ.Editor
             Func<char, char> afterSeparator,
             Func<char, char> anyOther)
         {
-            text = Sanitize(text);
+            text = SanitizeCase(text);
             var builder = new StringBuilder();
 
             for (var i = 0; i < text.Length; i++)
@@ -150,7 +162,7 @@ namespace Willykc.Templ.Editor
                 : default;
         }
 
-        private static string Sanitize(string text)
+        private static string SanitizeCase(string text)
         {
             text ??= string.Empty;
             text = text.Trim();

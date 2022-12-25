@@ -33,11 +33,13 @@ namespace Willykc.Templ.Editor.Tests
     using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
-    using static TemplSettings;
 
     internal class TemplEntryFacadeTests
     {
         private const string TestOutputPath = "Packages/com.willykc.templ/Tests/Editor/out3.txt";
+        private const char AssetPathSeparator = '/';
+        private const char WindowsPathSeparator = '\\';
+        
         private ITemplEntryFacade subject;
         private SettingsProviderMock settingsProviderMock;
         private AssetDatabaseMock assetDatabaseMock;
