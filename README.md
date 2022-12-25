@@ -26,7 +26,7 @@ openupm add com.willykc.templ
 
 After installation completes, a prompt will show up in the Unity editor. When clicking on Proceed, the **TemplSettings** asset will be created under the *Assets/Editor/TemplData* directory.
 
-The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu.
+The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu. In case **TemplSettings** is removed, clicking on the same menu will create a fresh copy at the default location shown above.
 
 Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Templ/Scriban Template*.
 
@@ -34,11 +34,11 @@ Create new templates by right-clicking anywhere in the project hierarchy and sel
 
 Live entries allow automatic generation of assets whenever *input* assets change.
 
-Add and configure live entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). Templ includes by default two entry types: **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
+Add and configure live entries in the **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). The default entry types are **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
-**ScriptableObjectEntry** takes as input any scriptable object and must be referred to in templates as `scriptableObject`.
+**ScriptableObjectEntry** takes as input any scriptable object. The scriptable object is exposed to templates as `scriptableObject`.
 
-**AssemblyDefinitionEntry** takes as input any assembly definition and must be referred to in templates as `assembly`.
+**AssemblyDefinitionEntry** takes as input any assembly definition. The assembly itself (not the assembly definition asset) is exposed to templates as `assembly`.
 
 ## Scaffolds
 
@@ -58,11 +58,11 @@ Every scaffold change can be undone/redone as any other operation in the Unity e
 
 Add any scaffold to the *Selectable Scaffolds* list in **TemplSettings** to enable it for generation.
 
-Select *Generate Templ Scaffold* from the context menu after right-clicking any existing asset in the project hierarchy. The selected asset will be exposed to the scaffold as **Selection**, and can be accessed in templates and node names.
-
-A selection menu will be shown with all valid scaffolds in the *Selectable Scaffolds* list.
+Right-click on any existing asset in the project hierarchy and select *Generate Templ Scaffold* from the context menu. A selection menu will be shown with all valid scaffolds in the *Selectable Scaffolds* list.
 
 Select the scaffold you wish to generate. If the selected scaffold is configured with a default input, a dialog will be shown where input values can be edited before generation. Press the button below to generate the scaffold. If the selected scaffold is not configured with a default input, then the scaffold will be generated immediately after selected.
+
+The selected asset in the project hierarchy will be exposed to the scaffold as **Selection**, and can be accessed in templates and node names.
 
 Scaffolds can be regenerated in the same directory. Just before regeneration, a dialog will be shown to allow selecting which assets should be overwritten or skipped.
 
@@ -99,7 +99,9 @@ Templates can be referenced in YAML by asset paths or GUIDs.
 
 Any standard scaffold can serve as the basis for a dynamic scaffold by opening the context menu in the scaffold inspector and selecting *Copy YAML Tree* or *Copy YAML Tree with GUIDs*.
 
-## Reserved Keywords
+YAML is parsed using SharpYaml. The license can be found [here](https://github.com/xoofx/SharpYaml/blob/master/LICENSE.txt).
+
+## Reserved Template Keywords
 
 * **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
 * **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
@@ -119,7 +121,7 @@ The Scriban license can be found [here](https://github.com/scriban/scriban/blob/
 
 ## Samples
 
-The included samples showcase some of Templ's use cases.
+The included samples showcase some use cases.
 
 The following output file extensions should be used when configuring live entries from samples:
 
@@ -133,13 +135,13 @@ The following output file extensions should be used when configuring live entrie
 
 ## Extensibility
 
-The sample **Extensions** contains a custom entry type that takes as input a **TextAsset**, and custom template functions exposed to Scriban when rendering templates. It is recommended as a starting point for creating custom entries and/or custom template functions.
+The sample **Extensions** contains a custom entry type that takes as input a **TextAsset**. It also contains custom template functions exposed to Scriban when rendering templates. It is recommended as a starting point for creating custom entries and/or custom template functions.
 
-### Custom Entry
+### Custom Entries
 
-To add a custom entry, extend and implement the `TemplEntry` abstract class. Apply `[TemplEntryInfo]` attribute and specify `changeTypes`, `Deferred` and `DisplayName` parameters. The `changeTypes` parameter controls which type of changes should the entry respond to: `Import`, `Move` and/or `Delete`. The `Deferred` property controls whether template is rendered before or after assembly reloads and defaults to `false`.  The `DisplayName` property defines how the custom entry should be displayed in the **TemplSettings** live entries *Add* dropdown menu. If no value is specified for `DisplayName`, the dropdown menu will display the custom entry type name. The custom entry class must not be abstract, must provide a public default constructor, and the containing assembly name must not start with `Unity`.
+To add a custom entry, extend and implement the `TemplEntry` abstract class. Apply the `[TemplEntryInfo]` attribute and specify `changeTypes`, `Deferred` and `DisplayName` parameters. The `changeTypes` parameter determines which type of changes should the entry respond to: `Import`, `Move` and/or `Delete`. The `Deferred` property determines whether the template should be rendered before or after assembly reloads and defaults to `false`. The `DisplayName` property determines how the custom entry should be displayed in the dropdown menu when adding it in the **TemplSettings**. If no value is specified for `DisplayName`, the dropdown menu will display the custom entry class name. The custom entry class must not be abstract, must provide a public default constructor, and the containing assembly name must not start with `Unity`.
 
-Apply `[TemplInput]` attribute to the desired input field. By default, the input field value is exposed to templates as the field name itself. To define exactly how to expose input values to templates, use the `ExposedAs` property. The selected input field must be public and extend `UnityEngine.Object` type.
+Apply the `[TemplInput]` attribute to the desired input field. By default, the input field value is exposed to templates as the field name itself. To define exactly how to expose input values to templates, use the `ExposedAs` property. The selected input field must be public and extend `UnityEngine.Object` type.
 
 Override the `InputField` getter to provide a custom value to Scriban.
 
@@ -149,13 +151,15 @@ Override the `IsInputChanged` method to customize how to determine if input asse
 
 ### Custom template functions
 
-To add custom template functions, define a static class and apply `[TemplFunctions]` attribute to it. Every static method declared in this class will be exposed to Scriban when rendering templates.
+To add custom template functions, define a static class and apply the `[TemplFunctions]` attribute to it. Every static method declared in this class will be exposed to Scriban when rendering templates.
 
-Templ includes by default a number of [custom template functions](Editor/TemplFunctions.cs). Templ will log an error when custom template function names collide, and will not render any template until custom template function name duplicates are removed.
+Several [custom template functions](Editor/TemplFunctions.cs) are included by default. An error will be logged when custom template function names collide. Templates will not render until custom template function name duplicates are removed.
 
-`Assert` is one of the default custom template functions in Templ. It allows to assert any boolean condition in templates and show a specific error message when the condition is not met.
+`Assert` is one of the default custom template functions. It allows to assert any boolean condition in templates and show a specific error message when the condition is not met.
 
 ## Public API
+
+The following methods and types are exposed as a public API to allow more control over asset generation. Live entries can be managed and rendered on demand. Scaffolds can be generated and enabled or disabled for selection.
 
 ```c#
 TemplManagers.EntryManager.GetEntries()
