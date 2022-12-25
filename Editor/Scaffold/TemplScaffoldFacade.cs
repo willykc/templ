@@ -82,11 +82,13 @@ namespace Willykc.Templ.Editor.Scaffold
             scaffold = scaffold ? scaffold : throw new ArgumentNullException(nameof(scaffold));
             targetPath = !string.IsNullOrWhiteSpace(targetPath)
                 ? targetPath
-                : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty");
+                : throw new ArgumentException($"{nameof(targetPath)} must not be null or empty",
+                nameof(targetPath));
 
             if (!scaffold.IsValid)
             {
-                throw new ArgumentException($"{nameof(scaffold)} must be valid");
+                throw new ArgumentException($"{nameof(scaffold)} must be valid",
+                    nameof(scaffold));
             }
 
             targetPath = SanitizePath(targetPath);
