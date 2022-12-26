@@ -9,6 +9,5 @@ namespace Willykc.Templ.Samples
     {
         [TemplInput]
         public TextAsset text;
-
     }
 }

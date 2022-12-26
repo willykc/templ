@@ -86,6 +86,11 @@
       "displayName": "Multiple Selection Scaffold",
       "description": "Contains sample scaffold for multiple selection using public API",
       "path": "Samples~/MultipleSelectionScaffold"
+    },
+    {
+      "displayName": "Multiple Inputs Entry",
+      "description": "Contains sample custom entry for multiple inputs",
+      "path": "Samples~/MultipleInputsEntry"
     }
   ]
 }

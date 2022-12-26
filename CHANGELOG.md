@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public scaffold API.
 - Public live entry API.
 - Samples showing API usage.
+- Sample custom entry for multiple inputs.
 
 ### Changed
 

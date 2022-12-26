@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor
     using Entry;
     using Scaffold;
 
-    internal sealed class TemplSettings : ScriptableObject
+    public sealed class TemplSettings : ScriptableObject
     {
         internal const string NameOfEntries = nameof(entries);
         internal const string NameOfScaffolds = nameof(scaffolds);

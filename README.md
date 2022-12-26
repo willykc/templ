@@ -132,6 +132,7 @@ The following output file extensions should be used when configuring live entrie
 * **AssemblyDefinition to ScriptableObject**: *.asset*
 * **AssemblyDefinition to Prefab**: *.prefab*
 * **Extensions**: *.txt*
+* **Multiple Inputs Entry**: *.txt*
 
 ## Extensibility
 
@@ -143,7 +144,7 @@ To add a custom entry, extend and implement the `TemplEntry` abstract class. App
 
 Apply the `[TemplInput]` attribute to the desired input field. By default, the input field value is exposed to templates as the field name itself. To define exactly how to expose input values to templates, use the `ExposedAs` property. Using special or whitespace characters in the `ExposedAs` property will require [the special variable 'this'](https://github.com/scriban/scriban/blob/master/doc/language.md#41-the-special-variable-this) in templates. The chosen input field must be public and extend `UnityEngine.Object` type.
 
-Override the `InputField` getter to provide a custom value to Scriban.
+Override the `InputValue` getter to provide a custom value to Scriban.
 
 Override the `IsValidInputField` getter to customize how to determine if input field is valid.
 
