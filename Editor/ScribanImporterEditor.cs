@@ -40,14 +40,14 @@ namespace Willykc.Templ.Editor
         private const string ErrorMessage = "Template errors found:" + NewLine;
 
         private string text;
-        private string path;
         private bool isReferencedInSettings;
+
+        private ScribanImporter Importer => serializedObject.targetObject as ScribanImporter;
 
         public override void OnEnable()
         {
             base.OnEnable();
-            var importer = serializedObject.targetObject as ScribanImporter;
-            path = importer.assetPath;
+            var path = Importer.assetPath;
             var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings &&
@@ -58,8 +58,8 @@ namespace Willykc.Templ.Editor
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            var importer = serializedObject.targetObject as ScribanImporter;
-            var property = serializedObject.FindProperty(nameof(importer.text));
+            var importer = Importer;
+            var property = serializedObject.FindProperty(nameof(Importer.text));
 
             if (importer.parsingErrors.Length > 0)
             {
@@ -80,6 +80,7 @@ namespace Willykc.Templ.Editor
 
         protected override void Apply()
         {
+            var path = Importer.assetPath;
             File.WriteAllText(path, text);
             base.Apply();
         }

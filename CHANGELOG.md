@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Live entries editor not responding when custom entry class becomes invalid.
 - Filename validation failing for some characters in MacOS.
+- Changes not saving to disk right after creating and renaming a new Scriban Template.
 
 ## [0.2.0-preview] - 2022-11-06
 
