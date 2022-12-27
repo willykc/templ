@@ -264,6 +264,62 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenFlaggedNonDeferredEntry_WhenAssetsChange_ThenEntryShouldRender()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Did not render");
+        }
+
+        [Test]
+        public void GivenFlaggedNonDeferredEntry_WhenAssetsChange_ThenShouldRemoveEntryIdFromFlags()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.That(sessionStateMock.SetValue, Does.Not.Contain(firstEntryMock.Id),
+                "Did not remove entry id from flags");
+        }
+
+        [Test]
+        public void GivenFlaggedDeferredEntry_WhenAssetsChange_ThenEntryShouldNotRender()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+            firstEntryMock.defer = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFlaggedDeferredEntry_WhenAssetsChange_ThenShouldNotRemoveEntryIdFromFlags()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+            firstEntryMock.defer = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.That(sessionStateMock.SetValue, Does.Contain(firstEntryMock.Id),
+                "Removed entry id from flags");
+        }
+
+        [Test]
         public void GivenNoEntryFlagged_WhenAssemblyReloads_ThenEntryShouldNotRender()
         {
             // Act

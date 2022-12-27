@@ -35,7 +35,6 @@ namespace Willykc.Templ.Samples
             (inputs && inputs.inputs?.Any(i => IsMatch(i, change)) == true);
 
         private static bool IsMatch(UnityObject input, AssetChange change) =>
-            AssetDatabase.GetAssetPath(input) == change.currentPath ||
-            AssetDatabase.GetAssetPath(input) == change.previousPath;
+            AssetDatabase.GetAssetPath(input) == change.currentPath;
     }
 }

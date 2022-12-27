@@ -40,7 +40,7 @@ namespace Willykc.Templ.Editor.Entry
         private readonly IEditorUtility editorUtility;
         private readonly ITemplEntryCore entryCore;
 
-        public TemplEntryFacade(
+        internal TemplEntryFacade(
             ISettingsProvider settingsProvider,
             IAssetDatabase assetDatabase,
             IEditorUtility editorUtility,

@@ -101,8 +101,12 @@ namespace Willykc.Templ.Editor.Entry
                 return;
             }
 
+            var eagerDeferred = GetEagerDeferredEntries();
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
-                .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)));
+                .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)))
+                .Union(eagerDeferred)
+                .Distinct();
+
             FlagDeferredEntries(entriesToRender, changes);
             RenderEagerEntries(entriesToRender, changes);
         }
@@ -187,6 +191,25 @@ namespace Willykc.Templ.Editor.Entry
             }
 
             RenderEntries(new[] { entry });
+        }
+
+        private IList<TemplEntry> GetEagerDeferredEntries()
+        {
+            var deferred = sessionState.GetString(TemplDeferredKey);
+
+            if (string.IsNullOrEmpty(deferred))
+            {
+                return EmptyEntryArray;
+            }
+
+            var eagerDeferred = settingsProvider.GetSettings().ValidEntries
+                .Where(e => !e.Deferred && deferred.Contains(e.Id))
+                .ToList();
+            deferred = eagerDeferred
+                .Select(e => e.Id)
+                .Aggregate(deferred, (result, next) => result.Replace(next, string.Empty));
+            sessionState.SetString(TemplDeferredKey, deferred);
+            return eagerDeferred;
         }
 
         private bool IsPathReferencedByEntry(TemplEntry entry, string path) => (new[]
