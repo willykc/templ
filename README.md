@@ -148,7 +148,7 @@ Override the `InputValue` getter to provide a custom value to Scriban.
 
 Override the `IsValidInputField` getter to customize how to determine if input field is valid.
 
-Override the `IsInputChanged` method to customize how to determine if input asset has changed or is about to be deleted.
+Override the `IsInputChanged` method to customize how to determine if input asset has changed, moved or is about to be deleted. The parameter of this method is of type `AssetChange` which exposes the fields `type`, `currentPath` and `previousPath`. The `type` field can be `Import`, `Move` or `Delete`. In case of `Import`, `currentPath` will be the path of the imported or updated asset. In case of `Move`, `currentPath` is the destination path and `previousPath` is the origin path. In case of `Delete`, `currentPath` is the path of the asset before deleting.
 
 ### Custom template functions
 
@@ -508,7 +508,7 @@ Extends: `UnityEngine.ScriptableObject`
 | :--- | :--- | :--- | :--- |
 | `Text` | `System.String` | `get;` | Template text. |
 | `HasErrors` | `System.Boolean` | `get;` | Template validity. |
-| `ParsingErrors` | `System.String[]` | `get;` | List of syntax errors. |
+| `ParsingErrors` | `System.String[]` | `get;` | Array of syntax errors. |
 
 ```c#
 class TemplEntry

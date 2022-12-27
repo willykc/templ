@@ -51,22 +51,37 @@ namespace Willykc.Templ.Editor.Entry
         [NonSerialized]
         internal string fullPathCache;
 
+        /// <summary>
+        /// Unique entry id.
+        /// </summary>
         public string Id => guid;
 
+        /// <summary>
+        /// Entry template.
+        /// </summary>
         public ScribanAsset Template
         {
             get => template;
             internal set => template = value;
         }
 
+        /// <summary>
+        /// Monitored asset.
+        /// </summary>
         public UnityObject InputAsset
         {
             get => InputField?.GetValue(this) as UnityObject;
             internal set => InputField?.SetValue(this, value);
         }
 
+        /// <summary>
+        /// Path to the output asset.
+        /// </summary>
         public string OutputPath => OutputAssetPath;
 
+        /// <summary>
+        /// Entry validity.
+        /// </summary>
         public bool IsValid =>
             !string.IsNullOrEmpty(InputFieldName) &&
             ChangeTypes != ChangeType.None &&

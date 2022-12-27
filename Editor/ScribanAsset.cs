@@ -29,8 +29,17 @@ namespace Willykc.Templ.Editor
 
     public sealed class ScribanAsset : ScriptableObject
     {
+        /// <summary>
+        /// Template text.
+        /// </summary>
         public string Text => text;
+        /// <summary>
+        /// Template validity.
+        /// </summary>
         public bool HasErrors => hasErrors;
+        /// <summary>
+        /// Array of syntax errors.
+        /// </summary>
         public string[] ParsingErrors { get; private set; }
 
         [SerializeField, HideInInspector]

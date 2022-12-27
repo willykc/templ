@@ -61,7 +61,13 @@ namespace Willykc.Templ.Editor
                 scaffoldCore);
         }
 
+        /// <summary>
+        /// Public API to manage entries.
+        /// </summary>
         public static ITemplEntryFacade EntryManager { get; }
+        /// <summary>
+        /// Public API to manage scaffolds.
+        /// </summary>
         public static ITemplScaffoldFacade ScaffoldManager { get; }
     }
 }

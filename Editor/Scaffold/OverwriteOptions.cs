@@ -21,11 +21,26 @@
  */
 namespace Willykc.Templ.Editor.Scaffold
 {
+    /// <summary>
+    /// Options for overwriting existing files.
+    /// </summary>
     public enum OverwriteOptions
     {
+        /// <summary>
+        /// Show prompt for overwrites.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// Show prompt for overwrites.
+        /// </summary>
         ShowPrompt = 1,
+        /// <summary>
+        /// Overwrite all existing files.
+        /// </summary>
         OverwriteAll = 2,
+        /// <summary>
+        /// Leave all existing files.
+        /// </summary>
         SkipAll = 3
     }
 }

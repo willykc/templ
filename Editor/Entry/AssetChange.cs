@@ -21,12 +21,24 @@
  */
 namespace Willykc.Templ.Editor.Entry
 {
+    /// <summary>
+    /// Represents a change in the asset database.
+    /// </summary>
     public struct AssetChange
     {
         private const string Empty = "";
 
+        /// <summary>
+        /// The type of change.
+        /// </summary>
         public ChangeType type;
+        /// <summary>
+        /// The current path of the changed asset.
+        /// </summary>
         public string currentPath;
+        /// <summary>
+        /// The previous path of the changed asset in case of moving or deleting.
+        /// </summary>
         public string previousPath;
 
         internal AssetChange(

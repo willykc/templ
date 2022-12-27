@@ -26,6 +26,10 @@ namespace Willykc.Templ.Editor.Entry
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class TemplInputAttribute : Attribute
     {
+        /// <summary>
+        /// Determines how the input value is exposed to the templates. In case of special or
+        /// whitespace characters, the special this variable must be used in templates.
+        /// </summary>
         public string ExposedAs { get; set; }
     }
 }

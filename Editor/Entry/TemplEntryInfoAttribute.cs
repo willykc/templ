@@ -26,8 +26,21 @@ namespace Willykc.Templ.Editor.Entry
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class TemplEntryInfoAttribute : Attribute
     {
+        /// <summary>
+        /// Types of changes the entry is meant to monitor.
+        /// </summary>
         public ChangeType ChangeTypes { get; }
+
+        /// <summary>
+        /// The display name when adding the entry in the settings. Defaults to the name of the
+        /// entry class.
+        /// </summary>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Determines if the entry should be rendered before (false) or after (true) recompilation.
+        /// Defaults to false.
+        /// </summary>
         public bool Deferred { get; set; }
 
         public TemplEntryInfoAttribute(
