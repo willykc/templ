@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved validation for live entries.
 - Scaffold selection menu now shows a single list of scaffolds by their asset names.
 - Scaffold selection is now disabled when editor is compiling.
+- Delete scaffold node shortcut is now Ctrl/Cmd + Delete;
 
 ### Fixed
 
