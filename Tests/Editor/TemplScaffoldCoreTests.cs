@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
@@ -27,6 +28,7 @@ namespace Willykc.Templ.Editor.Tests
 {
     using Mocks;
     using Scaffold;
+    using static TemplEntryCoreTests;
 
     internal class TemplScaffoldCoreTests
     {
@@ -52,7 +54,6 @@ namespace Willykc.Templ.Editor.Tests
         private const string InputName = "roach";
 
         private static readonly string[] Elements = new[] { "one", "two" };
-
         private ITemplScaffoldCore subject;
         private InputType testInput;
         private UnityObject testSelection;
@@ -69,8 +70,10 @@ namespace Willykc.Templ.Editor.Tests
         private TemplScaffold testEmptyDirectoryScaffold;
         private TemplScaffold testNullTemplateScaffold;
         private ScribanAsset testTreeTemplate;
+        private ScribanAsset testTemplate;
         private ScribanAsset testEmptyTreeTemplate;
         private ScribanAsset testScaffoldTemplate;
+        private string testTemplatePath;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -80,6 +83,8 @@ namespace Willykc.Templ.Editor.Tests
             testScaffold = TemplTestUtility.CreateTestAsset<TemplScaffold>(TestScaffoldPath, out _);
             testTreeTemplate = TemplTestUtility
                 .CreateTestAsset<ScribanAsset>(TestTreeTemplatePath, out _);
+            testTemplate = TemplTestUtility
+                .CreateTestAsset<ScribanAsset>(TestTemplatePath, out testTemplatePath);
             testDynamicScaffold = TemplTestUtility
                 .CreateTestAsset<TemplScaffold>(TestDynamicScaffoldPath, out _);
             testEmptyTreeTemplate = TemplTestUtility
@@ -120,6 +125,7 @@ namespace Willykc.Templ.Editor.Tests
             TemplTestUtility.DeleteTestAsset(testScaffoldTemplate);
             TemplTestUtility.DeleteTestAsset(testScaffold);
             TemplTestUtility.DeleteTestAsset(testTreeTemplate);
+            TemplTestUtility.DeleteTestAsset(testTemplate);
             TemplTestUtility.DeleteTestAsset(testDynamicScaffold);
             TemplTestUtility.DeleteTestAsset(testEmptyTreeTemplate);
             TemplTestUtility.DeleteTestAsset(testDynamicScaffoldWithEmptyTemplate);
@@ -168,6 +174,9 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.AreEqual(TemplScaffoldErrorType.Undefined, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Found empty tree"), "Wrong error");
+
+            // Clean
+            UnityObject.DestroyImmediate(emptyScaffold);
         }
 
         [Test]
@@ -195,6 +204,9 @@ namespace Willykc.Templ.Editor.Tests
             Assert.IsNotEmpty(errors, "Errors expected");
             Assert.AreEqual(TemplScaffoldErrorType.Template, errors[0].Type, "Wrong error type");
             Assert.That(errors[0].Message.Contains("Null or invalid tree template"), "Wrong error");
+
+            // Clean
+            UnityObject.DestroyImmediate(emptyScaffold);
         }
 
         [Test]
@@ -513,6 +525,59 @@ namespace Willykc.Templ.Editor.Tests
                 "Unexpected number of calls to clear progress bar");
         }
 
+        [Test]
+        public void GivenIncludeInTemplate_WhenGenerating_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            testInput.enable_include = true;
+            testInput.include_path = testTemplatePath;
+
+            // Act
+            subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
+                "Unexpected number of created files");
+            Assert.That(fileSystemMock.Contents[0], Does.EndWith("Hello !"),
+                "Did not render included template");
+        }
+
+        [Test]
+        public void GivenIncludeWithGUID_WhenGenerating_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            testInput.enable_include = true;
+            testInput.include_path = AssetDatabase.AssetPathToGUID(testTemplatePath);
+
+            // Act
+            subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(1, fileSystemMock.WriteAllTextCount,
+                "Unexpected number of created files");
+            Assert.That(fileSystemMock.Contents[0], Does.EndWith("Hello !"),
+                "Did not render included template");
+        }
+
+        [Test]
+        public void GivenIncludeWithWrongPath_WhenGenerating_ThenShouldLogError()
+        {
+            // Setup
+            testInput.enable_include = true;
+            testInput.include_path = "wrong/path";
+
+            // Act
+            subject.GenerateScaffold(testScaffold,
+                TestTargetPath, testInput, testSelection);
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount,
+                "Unexpected number of created files");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
+        }
+
         internal struct InputType
         {
             public string name;
@@ -525,6 +590,8 @@ namespace Willykc.Templ.Editor.Tests
             public bool induce_empty_nodename_error;
             public bool induce_invalid_filename_error;
             public bool induce_parse_error;
+            public bool enable_include;
+            public string include_path;
         }
     }
 }

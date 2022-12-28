@@ -21,6 +21,7 @@
  */
 using NUnit.Framework;
 using System.IO;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
@@ -70,6 +71,7 @@ namespace Willykc.Templ.Editor.Tests
         private TextAsset testText;
         private string testTemplatePath;
         private string testTextPath;
+        private string testOutputPathTemplatePath;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -80,7 +82,8 @@ namespace Willykc.Templ.Editor.Tests
             testErrorTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestErrorTemplatePath, out _);
             testOutputPathTemplate =
-                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestOutputPathTemplatePath, out _);
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestOutputPathTemplatePath,
+                out testOutputPathTemplatePath);
             testPathFunctionTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestPathFunctionTemplatePath, out _);
             testTemplate =
@@ -776,6 +779,88 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
+        }
+
+        [Test]
+        public void GivenTemplateWithInclude_WhenRenderEntry_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = $"{{{{include '{testOutputPathTemplatePath}'}}}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0],
+                "Wrong render result");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        [Test]
+        public void GivenIncludeWithGUID_WhenRenderEntry_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var giud = AssetDatabase.AssetPathToGUID(testOutputPathTemplatePath);
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = $"{{{{include '{giud}'}}}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0],
+                "Wrong render result");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        [Test]
+        public void GivenIncludeWithWrongPath_WhenRenderEntry_ThenShouldLogError()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = "{{include 'wrong/path'}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        private static void SetTemplate(TemplEntry entry, ScribanAsset template)
+        {
+            var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            typeof(TemplEntry)
+                .GetField(nameof(TemplEntry.Template), flags)
+                .SetValue(entry, template);
+        }
+
+        private static void SetTemplateText(ScribanAsset template, string text)
+        {
+            var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            typeof(ScribanAsset)
+                .GetField(nameof(ScribanAsset.Text), flags)
+                .SetValue(template, text);
         }
     }
 }

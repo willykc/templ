@@ -32,7 +32,7 @@ Create new templates by right-clicking anywhere in the project hierarchy and sel
 
 ## Live Entries
 
-Live entries allow automatic generation of assets whenever *input* assets change.
+Live entries allow automatic generation of assets whenever the *input* asset or template change.
 
 Add and configure live entries in the **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). The default entry types are **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
@@ -101,7 +101,7 @@ Any standard scaffold can serve as the basis for a dynamic scaffold by opening t
 
 YAML is parsed using SharpYaml. The license can be found [here](https://github.com/xoofx/SharpYaml/blob/master/LICENSE.txt).
 
-## Reserved Template Keywords
+## Reserved template keywords
 
 * **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
 * **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
@@ -115,7 +115,11 @@ The Scriban [language](https://github.com/scriban/scriban/blob/master/doc/langua
 
 It is recommended to use [Visual Studio Code](https://code.visualstudio.com/) and [Scriban syntax highlights](https://marketplace.visualstudio.com/items?itemName=xoofx.scriban) to write and edit templates.
 
-By default, Templ will create new templates with *.sbn* extension. For script templates, change the extension to *.sbncs* for better syntax highlights.
+By default, new templates will be created with *.sbn* extension. For script templates, change the extension to *.sbncs* for better syntax highlights.
+
+Note that, by convention, properties are exposed to templates in snake case. For example, a property named `myProperty` will be exposed as `my_property` in templates. The only exceptions are the *Reserved template keywords* listed above, and *Custom template functions* explained further below, which are all exposed exactly as they are defined.
+
+The [include function](https://github.com/scriban/scriban/blob/master/doc/language.md#911-include-name-arg1argn) is supported. A template can be included in another template by specifying its asset path or asset GUID. Live entries will not render automatically when an included template changes.
 
 The Scriban license can be found [here](https://github.com/scriban/scriban/blob/master/license.txt).
 

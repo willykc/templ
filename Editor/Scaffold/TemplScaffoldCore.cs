@@ -425,7 +425,11 @@ namespace Willykc.Templ.Editor.Scaffold
                 scriptObject.Add(nodeInput.Key, nodeInput.Value);
             }
 
-            var templateContext = new TemplateContext();
+            var templateContext = new TemplateContext()
+            {
+                TemplateLoader = AssetTemplateLoader.Instance
+            };
+
             templateContext.PushGlobal(scriptObject);
             return templateContext;
         }

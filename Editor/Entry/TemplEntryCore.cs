@@ -384,7 +384,12 @@ namespace Willykc.Templ.Editor.Entry
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
             scriptObject.Add(entry.ExposedInputName, entry.TheInputValue);
             scriptObject.Add(NameOfOutputAssetPath, entry.OutputAssetPath);
-            var context = new TemplateContext();
+
+            var context = new TemplateContext()
+            {
+                TemplateLoader = AssetTemplateLoader.Instance
+            };
+
             context.PushGlobal(scriptObject);
             return context;
         }

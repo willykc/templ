@@ -12,14 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DisplayName` property in `TemplEntryInfoAttribute` to define how custom `TemplEntry` subclasses should be shown in dropdown menu.
 - `ExposedAs` property in `TemplInputAttribute` to define how custom input values are exposed to templates.
 - Prevent delete of referenced assets in live entries in Unity Editor.
+- Improved validation for live entries.
 - Public scaffold API.
 - Public live entry API.
 - Samples showing API usage.
 - Sample custom entry for multiple inputs.
+- Support for `include` function in templates with asset path or GUID.
 
 ### Changed
 
-- Improved validation for live entries.
 - Scaffold selection menu now shows a single list of scaffolds by their asset names.
 - Scaffold selection is now disabled when editor is compiling.
 - Delete scaffold node shortcut is now Ctrl/Cmd + Delete;
