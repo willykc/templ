@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplScaffoldCoreFunctionConflictsTests
     {
-        private TemplScaffoldCore subject;
+        private ITemplScaffoldCore subject;
         private FileSystemMock fileSystemMock;
         private LoggerMock loggerMock;
         private EditorUtilityMock editorUtilityMock;
@@ -77,9 +77,6 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenValidating_ThenShouldReturnCorrectError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath);
 
@@ -93,14 +90,11 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenGenerating_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.GenerateScaffold(testScaffold, TestTargetPath);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
     }
 }

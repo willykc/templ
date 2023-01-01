@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,31 @@ using System;
 
 namespace Willykc.Templ.Editor.Entry
 {
+    /// <summary>
+    /// Change type as flags enum.
+    /// </summary>
     [Flags]
     public enum ChangeType
     {
+        /// <summary>
+        /// No change.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// When an asset is imported or reimported (updated).
+        /// </summary>
         Import = 1,
+        /// <summary>
+        /// When an asset is moved.
+        /// </summary>
         Move = 2,
+        /// <summary>
+        /// When an asset is deleted.
+        /// </summary>
         Delete = 4,
+        /// <summary>
+        /// All types of changes at once.
+        /// </summary>
         All = Import | Move | Delete,
     }
 }

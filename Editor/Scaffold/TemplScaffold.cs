@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ using UnityEngine;
 namespace Willykc.Templ.Editor.Scaffold
 {
     [CreateAssetMenu(fileName = NewPrefix + nameof(TemplScaffold), menuName = MenuName, order = 2)]
-    internal class TemplScaffold : ScriptableObject
+    public class TemplScaffold : ScriptableObject
     {
         internal const string NameOfDefaultInput = nameof(defaultInput);
         internal const string NameOfRoot = nameof(root);
@@ -48,7 +48,11 @@ namespace Willykc.Templ.Editor.Scaffold
         [SerializeReference]
         private TemplScaffoldRoot root = GetNewRoot();
 
-        internal ScriptableObject DefaultInput => defaultInput;
+        /// <summary>
+        /// Default input instance.
+        /// </summary>
+        public ScriptableObject DefaultInput => defaultInput;
+
         internal virtual TemplScaffoldRoot Root => root;
         internal virtual bool IsValid => root.IsValid;
 

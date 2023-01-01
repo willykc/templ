@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,11 +59,11 @@ namespace Willykc.Templ.Editor.Scaffold
         private GUIStyle buttonPanelStyle;
         private GUIStyle scrollViewStyle;
 
-        internal static Task<string[]> Show(
+        internal static Task<string[]> ShowAsync(
             TemplScaffold scaffold,
             string targetPath,
             string[] paths,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             if (current)
             {
@@ -96,7 +96,8 @@ namespace Willykc.Templ.Editor.Scaffold
             window.paths = paths.OrderBy(p => p).ToArray();
             window.pathsSelection = paths.ToDictionary(p => p, _ => true);
             window.completionSource = new TaskCompletionSource<string[]>();
-            window.cancellationToken = token;
+            window.cancellationToken = cancellationToken;
+            window.autoRepaintOnSceneChange = true;
             window.ShowUtility();
             current = window;
             return window.completionSource.Task;
@@ -117,8 +118,8 @@ namespace Willykc.Templ.Editor.Scaffold
 
         private void OnDestroy()
         {
-            completionSource.SetResult(skipPaths);
             current = null;
+            completionSource.SetResult(skipPaths);
         }
 
         private void DrawPathToggles()

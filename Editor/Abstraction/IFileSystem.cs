@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,9 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface IFileSystem
     {
-        void WriteAllText(string path, string contents);
-        void CreateDirectory(string path);
-        bool FileExists(string path);
+        internal void WriteAllText(string path, string contents);
+        internal void CreateDirectory(string path);
+        internal bool FileExists(string path);
+        internal bool DirectoryExists(string path);
     }
 }

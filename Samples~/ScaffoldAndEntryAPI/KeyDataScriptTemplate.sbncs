@@ -1,0 +1,9 @@
+using UnityEngine;
+
+namespace Willykc.Templ.Samples
+{
+    public class KeyDataScript : ScriptableObject
+    {
+        public string data;
+    }
+}

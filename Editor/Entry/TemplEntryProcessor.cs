@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,23 +21,16 @@
  */
 using UnityEditor;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
+    using static TemplManagers;
+
     [InitializeOnLoad]
     internal sealed class TemplEntryProcessor : AssetPostprocessor
     {
-        internal static TemplEntryCore EntryCore { get; }
-
         static TemplEntryProcessor()
         {
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-            EntryCore = new TemplEntryCore(
-                Abstraction.AssetDatabase.Instance,
-                Abstraction.FileSystem.Instance,
-                Abstraction.SessionState.Instance,
-                Abstraction.Logger.Instance,
-                Abstraction.SettingsProvider.Instance,
-                Abstraction.TemplateFunctionProvider.Instance);
         }
 
         private static void OnPostprocessAllAssets(
@@ -61,13 +54,10 @@ namespace Willykc.Templ.Editor
         private sealed class AssemblyReferenceDeleteHandler :
             UnityEditor.AssetModificationProcessor
         {
-            private static AssetDeleteResult OnWillDeleteAsset(
-                string path,
-                RemoveAssetOptions options)
-            {
-                EntryCore.OnWillDeleteAsset(path);
-                return AssetDeleteResult.DidNotDelete;
-            }
+            private static AssetDeleteResult OnWillDeleteAsset(string path, RemoveAssetOptions _) =>
+                EntryCore.OnWillDeleteAsset(path)
+                ? AssetDeleteResult.DidNotDelete
+                : AssetDeleteResult.FailedDelete;
         }
     }
 }

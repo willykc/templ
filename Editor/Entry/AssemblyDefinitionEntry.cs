@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,11 @@ using Assembly = System.Reflection.Assembly;
 
 namespace Willykc.Templ.Editor.Entry
 {
-    [TemplEntryInfo(ChangeType.All, deferred: true)]
-    internal sealed class AssemblyDefinitionEntry : TemplEntry
+    [TemplEntryInfo(
+        changeTypes: ChangeType.All,
+        DisplayName = "Assembly Definition",
+        Deferred = true)]
+    public sealed class AssemblyDefinitionEntry : TemplEntry
     {
         private const string AssemblyReferenceExtension = ".asmref";
         private const string ScriptExtension = ".cs";

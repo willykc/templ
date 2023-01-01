@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor
 {
+    using Entry;
+
     [CustomEditor(typeof(ScribanImporter))]
     internal sealed class ScribanImporterEditor : ScriptedImporterEditor
     {
@@ -38,26 +40,26 @@ namespace Willykc.Templ.Editor
         private const string ErrorMessage = "Template errors found:" + NewLine;
 
         private string text;
-        private string path;
         private bool isReferencedInSettings;
+
+        private ScribanImporter Importer => serializedObject.targetObject as ScribanImporter;
 
         public override void OnEnable()
         {
             base.OnEnable();
-            var importer = serializedObject.targetObject as ScribanImporter;
-            path = importer.assetPath;
+            var path = Importer.assetPath;
             var asset = AssetDatabase.LoadAssetAtPath<ScribanAsset>(path);
             var settings = TemplSettings.Instance;
             isReferencedInSettings = settings &&
-                (settings.Entries.Any(e => e.template == asset) ||
+                (settings.Entries.Any(e => TemplEntry.IsSubclass(e) && e.Template == asset) ||
                 settings.Scaffolds.Any(s => s && s.ContainsTemplate(asset)));
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            var importer = serializedObject.targetObject as ScribanImporter;
-            var property = serializedObject.FindProperty(nameof(importer.text));
+            var importer = Importer;
+            var property = serializedObject.FindProperty(nameof(Importer.text));
 
             if (importer.parsingErrors.Length > 0)
             {
@@ -78,6 +80,7 @@ namespace Willykc.Templ.Editor
 
         protected override void Apply()
         {
+            var path = Importer.assetPath;
             File.WriteAllText(path, text);
             base.Apply();
         }

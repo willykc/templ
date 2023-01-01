@@ -1,1 +1,2 @@
 Hello {{Input.name}} {{Selection.name}}: {{OutputAssetPath}} root: {{RootPath}} seed: {{Seed}}
+{{- if Input.enable_include }}{{include Input.include_path}}{{ end -}}

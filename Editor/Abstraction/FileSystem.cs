@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,8 @@ namespace Willykc.Templ.Editor.Abstraction
 
         void IFileSystem.CreateDirectory(string path) => Directory.CreateDirectory(path);
 
-        public bool FileExists(string path) => File.Exists(path);
+        bool IFileSystem.FileExists(string path) => File.Exists(path);
+
+        bool IFileSystem.DirectoryExists(string path) => Directory.Exists(path);
     }
 }

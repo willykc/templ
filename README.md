@@ -8,6 +8,7 @@ Integrates [Scriban](https://github.com/scriban/scriban/) template engine with U
 * Automatic generation when input assets or templates change.
 * Generation of scaffold tree structures with directories and files.
 * Extensible design allows custom inputs and template functions.
+* Public API allows full control of asset generation.
 
 ## Unity version support
 
@@ -23,21 +24,21 @@ openupm add com.willykc.templ
 
 ## Getting started
 
-After installation completes, a prompt should show up in the Unity editor. When clicking on Proceed, the **TemplSettings** asset will be created under the *Assets/Editor/TemplData* directory.
+After installation completes, a prompt will show up in the Unity editor. When clicking on Proceed, the **TemplSettings** asset will be created under the *Assets/Editor/TemplData* directory.
 
-The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu.
+The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu. In case **TemplSettings** is removed, clicking on the same menu will create a fresh copy at the default location shown above.
 
 Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Templ/Scriban Template*.
 
 ## Live Entries
 
-Live entries allow automatic generation of assets whenever *input* assets change.
+Live entries allow automatic generation of assets whenever the *input* asset or template change.
 
-Add and configure live entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). Templ includes by default two entry types: **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
+Add and configure live entries in the **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). The default entry types are **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
-**ScriptableObjectEntry** takes as input any scriptable object and must be referred to in templates as `scriptableObject`.
+**ScriptableObjectEntry** takes as input any scriptable object. The scriptable object is exposed to templates as `scriptableObject`.
 
-**AssemblyDefinitionEntry** takes as input any assembly definition and must be referred to in templates as `assembly`.
+**AssemblyDefinitionEntry** takes as input any assembly definition. The assembly itself (not the assembly definition asset) is exposed to templates as `assembly`.
 
 ## Scaffolds
 
@@ -57,11 +58,11 @@ Every scaffold change can be undone/redone as any other operation in the Unity e
 
 Add any scaffold to the *Selectable Scaffolds* list in **TemplSettings** to enable it for generation.
 
-Select *Generate Templ Scaffold* from the context menu after right-clicking any existing asset in the project hierarchy. The selected asset will be exposed to the scaffold as **Selection**, and can be accessed in templates and node names.
-
-A selection menu will be shown with all valid scaffolds in the *Selectable Scaffolds* list.
+Right-click on any existing asset in the project hierarchy and select *Generate Templ Scaffold* from the context menu. A selection menu will be shown with all valid scaffolds in the *Selectable Scaffolds* list.
 
 Select the scaffold you wish to generate. If the selected scaffold is configured with a default input, a dialog will be shown where input values can be edited before generation. Press the button below to generate the scaffold. If the selected scaffold is not configured with a default input, then the scaffold will be generated immediately after selected.
+
+The selected asset in the project hierarchy will be exposed to the scaffold as **Selection**, and can be accessed in templates and node names.
 
 Scaffolds can be regenerated in the same directory. Just before regeneration, a dialog will be shown to allow selecting which assets should be overwritten or skipped.
 
@@ -98,7 +99,9 @@ Templates can be referenced in YAML by asset paths or GUIDs.
 
 Any standard scaffold can serve as the basis for a dynamic scaffold by opening the context menu in the scaffold inspector and selecting *Copy YAML Tree* or *Copy YAML Tree with GUIDs*.
 
-## Reserved Keywords
+YAML is parsed using SharpYaml. The license can be found [here](https://github.com/xoofx/SharpYaml/blob/master/LICENSE.txt).
+
+## Reserved template keywords
 
 * **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
 * **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
@@ -112,13 +115,17 @@ The Scriban [language](https://github.com/scriban/scriban/blob/master/doc/langua
 
 It is recommended to use [Visual Studio Code](https://code.visualstudio.com/) and [Scriban syntax highlights](https://marketplace.visualstudio.com/items?itemName=xoofx.scriban) to write and edit templates.
 
-By default, Templ will create new templates with *.sbn* extension. For script templates, change the extension to *.sbncs* for better syntax highlights.
+By default, new templates will be created with *.sbn* extension. For script templates, change the extension to *.sbncs* for better syntax highlights.
+
+Note that, by convention, properties are exposed to templates in snake case. For example, a property named `myProperty` will be exposed as `my_property` in templates. The only exceptions are the *Reserved template keywords* listed above, and *Custom template functions* explained further below, which are all exposed exactly as they are defined.
+
+The [include function](https://github.com/scriban/scriban/blob/master/doc/language.md#911-include-name-arg1argn) is supported. A template can be included in another template by specifying its asset path or asset GUID. Live entries will not render automatically when an included template changes.
 
 The Scriban license can be found [here](https://github.com/scriban/scriban/blob/master/license.txt).
 
 ## Samples
 
-The included samples showcase some of Templ's use cases.
+The included samples showcase some use cases.
 
 The following output file extensions should be used when configuring live entries from samples:
 
@@ -129,28 +136,460 @@ The following output file extensions should be used when configuring live entrie
 * **AssemblyDefinition to ScriptableObject**: *.asset*
 * **AssemblyDefinition to Prefab**: *.prefab*
 * **Extensions**: *.txt*
+* **Multiple Inputs Entry**: *.txt*
 
 ## Extensibility
 
-The sample **Extensions** contains a custom entry type that takes as input a **TextAsset**, and custom template functions exposed to Scriban when rendering templates. It is recommended as a starting point for creating custom entries and/or custom template functions.
+The sample **Extensions** contains a custom entry type that takes as input a **TextAsset**. It also contains custom template functions exposed to Scriban when rendering templates. It is recommended as a starting point for creating custom entries and/or custom template functions.
 
-### Custom Entry
+### Custom Entries
 
-To add a custom entry, extend and implement the `TemplEntry` abstract class. Apply `[TemplEntryInfo]` attribute and specify `ChangeTypes` and `Deferred` property values. The `ChangeTypes` property controls which type of changes should the entry respond to: `Import`, `Move` and/or `Delete`. The `Deferred` property controls whether template is rendered before or after assembly reloads. The custom entry class must not be abstract. Containing assembly name must not start with `Unity`.
+To add a custom entry, extend and implement the `TemplEntry` abstract class. Apply the `[TemplEntryInfo]` attribute and specify `changeTypes`, `Deferred` and `DisplayName` parameters. The `changeTypes` parameter determines which type of changes should the entry respond to: `Import`, `Move` and/or `Delete`. The `Deferred` property determines whether the template should be rendered before or after assembly reloads and defaults to `false`. The `DisplayName` property determines how the custom entry should be displayed in the dropdown menu when adding it in the **TemplSettings**. If no value is specified for `DisplayName`, the dropdown menu will display the custom entry class name. The custom entry class must not be abstract, must provide a public default constructor, and the containing assembly name must not start with `Unity`.
 
-Apply `[TemplInput]` attribute to desired input field. Selected input field must be public and extend `UnityEngine.Object` type.
+Apply the `[TemplInput]` attribute to the desired input field. By default, the input field value is exposed to templates as the field name itself. To define exactly how to expose input values to templates, use the `ExposedAs` property. Using special or whitespace characters in the `ExposedAs` property will require [the special variable 'this'](https://github.com/scriban/scriban/blob/master/doc/language.md#41-the-special-variable-this) in templates. The chosen input field must be public and extend `UnityEngine.Object` type.
 
-Override the `InputField` getter to provide a custom value to Scriban.
+Override the `InputValue` getter to provide a custom value to Scriban.
 
 Override the `IsValidInputField` getter to customize how to determine if input field is valid.
 
-Override the `IsInputChanged` method to customize how to determine if input asset has changed or is about to be deleted.
+Override the `IsInputChanged` method to customize how to determine if input asset has changed, moved or is about to be deleted. The parameter of this method is of type `AssetChange` which exposes the fields `type`, `currentPath` and `previousPath`. The `type` field can be `Import`, `Move` or `Delete`. In case of `Import`, `currentPath` will be the path of the imported or updated asset. In case of `Move`, `currentPath` is the destination path and `previousPath` is the origin path. In case of `Delete`, `currentPath` is the path of the asset before deleting.
 
 ### Custom template functions
 
-To add custom template functions, define a static class and apply `[TemplFunctions]` attribute to it. Every static method declared in this class will be exposed to Scriban when rendering templates.
+To add custom template functions, define a static class and apply the `[TemplFunctions]` attribute to it. Every static method declared in this class will be exposed to Scriban when rendering templates.
 
-Templ includes by default a number of [custom template functions](Editor/TemplFunctions.cs). Templ will log an error when custom template function names collide, and will not render any template until custom template function name duplicates are removed.
+Several [custom template functions](Editor/TemplFunctions.cs) are included by default. An error will be logged when custom template function names collide. Templates will not render until custom template function name duplicates are removed.
+
+`Assert` is one of the default custom template functions. It allows to assert any boolean condition in templates and show a specific error message when the condition is not met.
+
+## Public API
+
+The following methods and types are exposed as a public API to allow more control over asset generation. Live entries can be managed and rendered on demand. Scaffolds can be generated and enabled or disabled for selection.
+
+```c#
+TemplManagers.EntryManager.GetEntries()
+```
+
+Gets all configured entries in settings.
+
+### Returns
+
+| Type | Description |
+| :--- | :--- |
+| `Willykc.Templ.Editor.Entry.TemplEntry[]` | The array of configured entries. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+```c#
+TemplManagers.EntryManager.AddEntry<T>(UnityEngine.Object,Willykc.Templ.Editor.ScribanAsset,System.String)
+```
+
+Adds a new entry in settings. Added entries will not render automatically.
+
+| Type Parameter | Description |
+| :--- | :--- |
+| `T` | **Required**. The type of entry. |
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `inputAsset` | `UnityEngine.Object` | **Required**. The input asset to monitor for changes. |
+| `template` | `Willykc.Templ.Editor.ScribanAsset` | **Required**. The template to render. |
+| `outputAssetPath` | `System.String` | **Required**. The output asset path. |
+
+### Returns
+
+| Type | Description |
+| :--- | :--- |
+| `System.String` | The entry ID. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+-or-
+
+T is not a valid entry Type.
+
+-or-
+
+Existing entry already uses `outputAssetPath`.
+
+**ArgumentNullException**:
+
+`inputAsset` is null.
+
+-or-
+
+`template` is null.
+
+**ArgumentException**:
+
+`outputAssetPath` is null.
+
+-or-
+
+`outputAssetPath` is empty.
+
+-or-
+
+`outputAssetPath` is not a valid path.
+
+-or-
+
+`outputAssetPath` contains invalid file name characters.
+
+-or-
+
+`inputAsset` equals **TemplSettings** instance.
+
+-or-
+
+`inputAsset` is of Type `Willykc.Templ.Editor.ScribanAsset`.
+
+-or-
+
+`inputAsset` does not match Type of `[TemplInput]` field.
+
+-or-
+
+`template` contains syntax errors.
+
+**DirectoryNotFoundException**:
+
+`outputAssetPath`'s directory does not exist.
+
+```c#
+TemplManagers.EntryManager.UpdateEntry(System.String,UnityEngine.Object,Willykc.Templ.Editor.ScribanAsset,System.String)
+```
+
+Updates an existing entry in settings. Updated entries will not render automatically.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `System.String` | **Required**. The ID of the entry. |
+| `inputAsset` | `UnityEngine.Object` | **Optional**. The input asset to monitor for changes. |
+| `template` | `Willykc.Templ.Editor.ScribanAsset` | **Optional**. The template to render. |
+| `outputAssetPath` | `System.String` | **Optional**. The output asset path. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+-or-
+
+`id` does not match any existing entry.
+
+-or-
+
+Existing entry already uses `outputAssetPath`.
+
+**ArgumentNullException**:
+
+`id` is null.
+
+**ArgumentException**:
+
+`outputAssetPath` is not a valid path.
+
+-or-
+
+`outputAssetPath` contains invalid file name characters.
+
+-or-
+
+`inputAsset` equals **TemplSettings** instance.
+
+-or-
+
+`inputAsset` is of Type `Willykc.Templ.Editor.ScribanAsset`.
+
+-or-
+
+`inputAsset` does not match Type of `[TemplInput]` field.
+
+-or-
+
+`template` contains syntax errors.
+
+**DirectoryNotFoundException**:
+
+`outputAssetPath`'s directory does not exist.
+
+```c#
+TemplManagers.EntryManager.RemoveEntry(System.String)
+```
+
+Removes an existing entry from settings.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `System.String` | **Required**. The entry ID. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+-or-
+
+`id` does not match any existing entry.
+
+**ArgumentNullException**:
+
+`id` is null.
+
+```c#
+TemplManagers.EntryManager.EntryExists(System.String)
+```
+
+Determines if an entry exist with the given outputAssetPath.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `outputAssetPath` | `System.String` | **Required**. The output asset path. |
+
+### Returns
+
+| Type | Description |
+| :--- | :--- |
+| `System.Boolean` | True or false depending on existence of entry. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+**ArgumentNullException**:
+
+`outputAssetPath` is null.
+
+```c#
+TemplManagers.EntryManager.ForceRenderEntry(System.String)
+```
+
+Forces to render a specific entry in settings. In case entry ID matches an invalid entry, it will not be rendered.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `System.String` | **Required**. The entry ID. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+-or-
+
+`id` does not match any existing entry.
+
+-or-
+
+Matching entry is invalid.
+
+**ArgumentNullException**:
+
+`id` is null.
+
+```c#
+TemplManagers.EntryManager.ForceRenderAllValidEntries()
+```
+
+Forces to render all valid entries in settings.
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+```c#
+TemplManagers.ScaffoldManager.GenerateScaffoldAsync(Willykc.Templ.Editor.Scaffold.TemplScaffold,System.String,System.Object,UnityEngine.Object,Willykc.Templ.Editor.Scaffold.OverwriteOptions,System.Threading.CancellationToken)
+```
+
+Generates scaffold at target path. Asset database must be refreshed afterwards for the editor to show the generated assets.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scaffold` | `Willykc.Templ.Editor.Scaffold.TemplScaffold` | **Required**. The scaffold to generate. |
+| `targetPath` | `System.String` | **Required**. The asset path where to generate the scaffold. |
+| `input` | `System.Object` | **Optional**. The input value to use during generation. |
+| `selection` | `UnityEngine.Object` | **Optional**. The selection value to use during generation. |
+| `overwriteOption` | `Willykc.Templ.Editor.Scaffold.OverwriteOptions` | **Optional**. The options to control asset overwrite behaviour. |
+| `cancellationToken` | `System.Threading.CancellationToken` | **Optional**. The cancellation token. It can only cancel UI prompts, once generation starts it must fail or conclude. |
+
+### Returns
+
+| Type | Description |
+| :--- | :--- |
+| `System.String[]` | The array of generated asset paths. Null is returned in case user cancels UI prompts or generation errors are found. |
+
+### Exceptions
+
+**ArgumentNullException**:
+
+`scaffold` is null.
+
+**ArgumentException**:
+
+`targetPath` is null.
+
+-or-
+
+`targetPath` is empty.
+
+-or-
+
+`scaffold` is invalid.
+
+**DirectoryNotFoundException**:
+
+`targetPath`'s directory does not exist.
+
+```c#
+TemplManagers.ScaffoldManager.EnableScaffoldForSelection(Willykc.Templ.Editor.Scaffold.TemplScaffold)
+```
+
+Enables scaffold in settings for selection from the context menu.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scaffold` | `Willykc.Templ.Editor.Scaffold.TemplScaffold` | **Required**. The scaffold to enable for selection. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+**ArgumentNullException**:
+
+`scaffold` is null.
+
+**ArgumentException**:
+
+`scaffold` is invalid.
+
+```c#
+TemplManagers.ScaffoldManager.DisableScaffoldForSelection(Willykc.Templ.Editor.Scaffold.TemplScaffold)
+```
+
+Disables scaffold in settings for selection from the context menu.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `scaffold` | `Willykc.Templ.Editor.Scaffold.TemplScaffold` | **Required**. The scaffold to disable for selection. |
+
+### Exceptions
+
+**InvalidOperationException**:
+
+**TemplSettings** does not exist.
+
+**ArgumentNullException**:
+
+`scaffold` is null.
+
+```c#
+class ScribanAsset
+```
+
+Namespace: Willykc.Templ.Editor
+
+Extends: `UnityEngine.ScriptableObject`
+
+| Property | Type | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `Text` | `System.String` | `get;` | Template text. |
+| `HasErrors` | `System.Boolean` | `get;` | Template validity. |
+| `ParsingErrors` | `System.String[]` | `get;` | Array of syntax errors. |
+
+```c#
+class TemplEntry
+```
+
+Namespace: Willykc.Templ.Editor.Entry
+
+Extends: `System.Object`
+
+| Property | Type | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `Id` | `System.String` | `get;` | Unique entry id. |
+| `Template` | `ScribanAsset` | `get;` | Entry template. |
+| `InputAsset` | `UnityEngine.Object` | `get;` | Monitored asset. |
+| `OutputPath` | `System.String` | `get;` | Path to the output asset. |
+| `IsValid` | `System.Boolean` | `get;` | Entry validity. |
+
+```c#
+class ScriptableObjectEntry
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `scriptableObject` | `UnityEngine.ScriptableObject` | The input scriptable object. |
+
+Namespace: Willykc.Templ.Editor.Entry
+
+Extends: ` Willykc.Templ.Editor.Entry.TemplEntry`
+
+```c#
+class AssemblyDefinitionEntry
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `assembly` | `UnityEditorInternal.AssemblyDefinitionAsset` | The input assembly definition. |
+
+Namespace: Willykc.Templ.Editor.Entry
+
+Extends: ` Willykc.Templ.Editor.Entry.TemplEntry`
+
+```c#
+class TemplScaffold
+```
+
+Namespace: Willykc.Templ.Editor.Scaffold
+
+Extends: `UnityEngine.ScriptableObject`
+
+| Property | Type | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `DefaultInput` | `UnityEngine.ScriptableObject` | `get;` | Default input instance. |
+
+```c#
+class TemplDynamicScaffold
+```
+
+Namespace: Willykc.Templ.Editor.Scaffold
+
+Extends: `Willykc.Templ.Editor.Scaffold.TemplScaffold`
+
+| Property | Type | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `TreeTemplate` | `Willykc.Templ.Editor.ScribanAsset` | `get;` | Scaffold YAML tree template. |
+
+```c#
+enum OverwriteOptions
+```
+
+Namespace: Willykc.Templ.Editor.Scaffold
+
+| Name | Value | Description |
+| :--- | :--- | :--- 
+| `None` | 0 | Show prompt for overwrites. |
+| `ShowPrompt` | 1 | Show prompt for overwrites. |
+| `OverwriteAll` | 2 | Overwrite all existing files. |
+| `SkipAll` | 3 | Leave all existing files. |
 
 ## Coding guidelines
 

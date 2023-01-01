@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface ISessionState
     {
-        string GetString(string key);
-        void SetString(string key, string value);
-        void EraseString(string key);
+        internal string GetString(string key);
+        internal void SetString(string key, string value);
+        internal void EraseString(string key);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,24 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
+    using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
 
     internal class TemplEntryCoreNoSettingsTests
     {
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
@@ -57,16 +60,17 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                templateFunctionProviderMock = new TemplateFunctionProviderMock());
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = false;
-            settingsProviderMock.settings = settings;
+            settingsProviderMock.settings = UnityObject.Instantiate(settings);
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsProviderMock.settings);
         }
 
         [OneTimeTearDown]
@@ -92,7 +96,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenNoSettings_WhenAssemblyReloads_ThenEntryShouldNotRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -111,7 +115,20 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
+        }
+
+        [Test]
+        public void GivenNoSettings_WhenAssetDeleted_ThenShouldAllowDelete()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+
+            // Act
+            var allowDelete = subject.OnWillDeleteAsset(string.Empty);
+
+            // Verify
+            Assert.IsTrue(allowDelete, "Should allow delete");
         }
 
         [Test]
@@ -119,6 +136,19 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Act
             subject.RenderAllValidEntries();
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenNoSettings_WhenRenderSingleEntry_ThenEntryShouldNotRender()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,13 +44,6 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         void ILogger.Warn(string message)
         {
             WarnCount++;
-        }
-
-        internal void Clear()
-        {
-            ErrorCount = default;
-            InfoCount = default;
-            WarnCount = default;
         }
     }
 }

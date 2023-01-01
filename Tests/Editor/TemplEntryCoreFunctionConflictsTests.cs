@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,24 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
+    using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
 
     internal class TemplEntryCoreFunctionConflictsTests
     {
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
@@ -61,17 +64,17 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                templateFunctionProviderMock);
-
+                templateFunctionProviderMock,
+                editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = true;
-            settingsProviderMock.settings = settings;
+            settingsProviderMock.settings = UnityObject.Instantiate(settings);
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsProviderMock.settings);
         }
 
         [OneTimeTearDown]
@@ -90,14 +93,11 @@ namespace Willykc.Templ.Editor.Tests
         [Test]
         public void GivenFunctionConflicts_WhenAssetsChange_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -117,41 +117,26 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenFunctionConflicts_WhenAssemblyReloads_ThenShouldLogError()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
-            loggerMock.Clear();
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
         public void GivenFunctionConflicts_WhenAssemblyReloads_ThenEntriesShouldNotRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
-        }
-
-        [Test]
-        public void GivenFunctionConflicts_WhenAssetDeleted_ThenShouldLogError()
-        {
-            // Setup
-            firstEntryMock.inputChanged = true;
-            loggerMock.Clear();
-
-            // Act
-            subject.OnWillDeleteAsset(string.Empty);
-
-            // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -164,20 +149,17 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
         }
 
         [Test]
         public void GivenFunctionConflicts_WhenRenderAllValidEntries_ThenShouldLogError()
         {
-            // Setup
-            loggerMock.Clear();
-
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
 
         [Test]
@@ -185,6 +167,32 @@ namespace Willykc.Templ.Editor.Tests
         {
             // Act
             subject.RenderAllValidEntries();
+
+            // Verify
+            Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionConflicts_WhenRenderSingleEntry_ThenEntriesShouldNotRender()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");

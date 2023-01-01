@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,26 +23,34 @@ using Scriban;
 using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using UnityObject = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Entry
 {
     using Abstraction;
-    using Entry;
     using static TemplSettings;
+    using static TemplSettingsEditor;
 
-    internal sealed class TemplEntryCore
+    internal sealed class TemplEntryCore : ITemplEntryCore
     {
+        private const string LiveEntriesTitle = "Templ Live Entries";
+        private const string ProgressBarRenderingInfo = "Rendering...";
         private const string TemplChangedKey = "templ.changed";
         private const string TemplDeferredKey = "templ.deferred";
+        private const string OkDialogText = "Continue";
+        private const string DialogMessage = "An asset currently referenced by " +
+            LiveEntriesTitle + " was about to be deleted. Please remove all references in " +
+            nameof(TemplSettings) + " (" + MenuName + ") before trying to delete again.";
+
+        private const char AssetPathSeparator = '/';
 
         private readonly IAssetDatabase assetDatabase;
         private readonly IFileSystem fileSystem;
         private readonly ISessionState sessionState;
         private readonly ILogger log;
         private readonly ISettingsProvider settingsProvider;
-
+        private readonly IEditorUtility editorUtility;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
 
@@ -52,7 +60,8 @@ namespace Willykc.Templ.Editor
             ISessionState sessionState,
             ILogger log,
             ISettingsProvider settingsProvider,
-            ITemplateFunctionProvider templateFunctionProvider)
+            ITemplateFunctionProvider templateFunctionProvider,
+            IEditorUtility editorUtility)
         {
             this.assetDatabase = assetDatabase ??
                 throw new ArgumentNullException(nameof(assetDatabase));
@@ -64,6 +73,8 @@ namespace Willykc.Templ.Editor
                 throw new ArgumentNullException(nameof(log));
             this.settingsProvider = settingsProvider ??
                 throw new ArgumentNullException(nameof(settingsProvider));
+            this.editorUtility = editorUtility ??
+                throw new ArgumentNullException(nameof(editorUtility));
             templateFunctionProvider = templateFunctionProvider ??
                 throw new ArgumentNullException(nameof(templateFunctionProvider));
 
@@ -77,7 +88,7 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        internal void OnAssetsChanged(AssetsPaths changes)
+        void ITemplEntryCore.OnAssetsChanged(AssetsPaths changes)
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -90,13 +101,17 @@ namespace Willykc.Templ.Editor
                 return;
             }
 
+            var eagerDeferred = GetEagerDeferredEntries();
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
-                .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)));
+                .Where(e => DecomposeChanges(changes, e).Any(c => e.ShouldRender(c)))
+                .Union(eagerDeferred)
+                .Distinct();
+
             FlagDeferredEntries(entriesToRender, changes);
             RenderEagerEntries(entriesToRender, changes);
         }
 
-        internal void OnAfterAssemblyReload()
+        void ITemplEntryCore.OnAfterAssemblyReload()
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -111,22 +126,31 @@ namespace Willykc.Templ.Editor
             }
 
             var deferredEntries = settingsProvider.GetSettings().ValidEntries
-                .Where(e => deferred.Contains(e.guid));
+                .Where(e => deferred.Contains(e.Id));
             RenderEntries(deferredEntries);
             sessionState.EraseString(TemplDeferredKey);
         }
 
-        internal void OnWillDeleteAsset(string path)
+        bool ITemplEntryCore.OnWillDeleteAsset(string path)
         {
-            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
+            if (!settingsProvider.SettingsExist())
             {
-                return;
+                return true;
+            }
+
+            var settings = settingsProvider.GetSettings();
+
+            if (settings.Entries.Any(e => IsPathReferencedByEntry(e, path)))
+            {
+                editorUtility.DisplayDialog(LiveEntriesTitle, DialogMessage, OkDialogText);
+                return false;
             }
 
             FlagInputDeletedEntries(path);
+            return true;
         }
 
-        internal void FlagChangedEntry(TemplEntry entry)
+        void ITemplEntryCore.FlagChangedEntry(TemplEntry entry)
         {
             if (entry == null)
             {
@@ -135,13 +159,13 @@ namespace Willykc.Templ.Editor
 
             var existing = sessionState.GetString(TemplChangedKey);
 
-            if (!existing.Contains(entry.guid))
+            if (!existing.Contains(entry.Id))
             {
-                sessionState.SetString(TemplChangedKey, existing + entry.guid);
+                sessionState.SetString(TemplChangedKey, existing + entry.Id);
             }
         }
 
-        internal void RenderAllValidEntries()
+        void ITemplEntryCore.RenderAllValidEntries()
         {
             if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
@@ -151,10 +175,49 @@ namespace Willykc.Templ.Editor
             RenderEntries(settingsProvider.GetSettings().ValidEntries);
         }
 
-        private static UnityObject GetInput(TemplEntry e) =>
-            e.GetType()
-            .GetField(e.InputFieldName)
-            .GetValue(e) as UnityObject;
+        void ITemplEntryCore.RenderEntry(string id)
+        {
+            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
+            {
+                return;
+            }
+
+            var entry = settingsProvider.GetSettings().ValidEntries.FirstOrDefault(e => e.Id == id);
+
+            if (entry == null)
+            {
+                log.Error($"Could not find valid entry with id '{id}'");
+                return;
+            }
+
+            RenderEntries(new[] { entry });
+        }
+
+        private IList<TemplEntry> GetEagerDeferredEntries()
+        {
+            var deferred = sessionState.GetString(TemplDeferredKey);
+
+            if (string.IsNullOrEmpty(deferred))
+            {
+                return EmptyEntryArray;
+            }
+
+            var eagerDeferred = settingsProvider.GetSettings().ValidEntries
+                .Where(e => !e.Deferred && deferred.Contains(e.Id))
+                .ToList();
+            deferred = eagerDeferred
+                .Select(e => e.Id)
+                .Aggregate(deferred, (result, next) => result.Replace(next, string.Empty));
+            sessionState.SetString(TemplDeferredKey, deferred);
+            return eagerDeferred;
+        }
+
+        private bool IsPathReferencedByEntry(TemplEntry entry, string path) => (new[]
+        {
+            assetDatabase.GetAssetPath(entry.InputAsset),
+            assetDatabase.GetAssetPath(entry.Directory),
+            assetDatabase.GetAssetPath(entry.Template)
+        }).Any(p => !string.IsNullOrEmpty(p) && IsMatchPath(path, p));
 
         private bool FunctionConflictsDetected()
         {
@@ -183,7 +246,7 @@ namespace Willykc.Templ.Editor
             }
 
             var entriesToRender = settingsProvider.GetSettings().ValidEntries
-                .Where(e => changed.Contains(e.guid));
+                .Where(e => changed.Contains(e.Id));
             RenderEntries(entriesToRender);
             sessionState.EraseString(TemplChangedKey);
         }
@@ -193,7 +256,7 @@ namespace Willykc.Templ.Editor
             var deferred = entries
                 .Where(e => e.Deferred &&
                 DecomposeChanges(changes, e).All(c => !e.IsTemplateChanged(c)))
-                .Select(e => e.guid);
+                .Select(e => e.Id);
             var deferredFlags = string.Concat(deferred);
 
             if (!string.IsNullOrWhiteSpace(deferredFlags))
@@ -206,7 +269,7 @@ namespace Willykc.Templ.Editor
         {
             var deferred = settingsProvider.GetSettings().ValidEntries
                 .Where(e => e.ShouldRender(new AssetChange(ChangeType.Delete, path)))
-                .Select(e => e.guid);
+                .Select(e => e.Id);
             var deferredFlags = string.Concat(deferred);
 
             if (!string.IsNullOrWhiteSpace(deferredFlags))
@@ -228,20 +291,41 @@ namespace Willykc.Templ.Editor
         private void RenderEntries(IEnumerable<TemplEntry> entriesToRender)
         {
             var inputPaths = settingsProvider.GetSettings().ValidEntries
-                .Select(e => assetDatabase.GetAssetPath(GetInput(e)))
+                .Select(e => assetDatabase.GetAssetPath(e.InputAsset))
                 .ToArray();
             var templatePaths = settingsProvider.GetSettings().ValidEntries
-                .Select(e => assetDatabase.GetAssetPath(e.template))
+                .Select(e => assetDatabase.GetAssetPath(e.Template))
                 .ToArray();
 
-            foreach (var entry in entriesToRender)
+            try
             {
-                RenderEntry(entry, inputPaths, templatePaths);
+                RenderEntriesWithProgress(entriesToRender, inputPaths, templatePaths);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
             }
 
             if (entriesToRender.Any() && settingsProvider.GetSettings().HasInvalidEntries)
             {
-                log.Warn("Invalid settings found");
+                log.Warn("Invalid live entries found in settings");
+            }
+        }
+
+        private void RenderEntriesWithProgress(
+            IEnumerable<TemplEntry> entriesToRender,
+            string[] inputPaths,
+            string[] templatePaths)
+        {
+            var entryCount = entriesToRender.Count();
+
+            foreach (var (entry, index) in entriesToRender.Select(GetEntryWithIndex))
+            {
+                editorUtility.DisplayProgressBar(
+                    LiveEntriesTitle,
+                    ProgressBarRenderingInfo,
+                    (float)index / entryCount);
+                RenderEntry(entry, inputPaths, templatePaths);
             }
         }
 
@@ -255,7 +339,7 @@ namespace Willykc.Templ.Editor
             try
             {
                 var context = GetContext(entry);
-                var template = Template.Parse(entry.template.Text);
+                var template = Template.Parse(entry.Template.Text);
                 var result = template.Render(context);
                 fileSystem.WriteAllText(entry.FullPath, result);
                 assetDatabase.ImportAsset(entry.OutputAssetPath);
@@ -298,12 +382,27 @@ namespace Willykc.Templ.Editor
             var scriptObject = new ScriptObject();
             scriptObject.Import(typeof(TemplFunctions), renamer: member => member.Name);
             functions.ForEach(t => scriptObject.Import(t, renamer: member => member.Name));
-            scriptObject.Add(entry.InputFieldName, entry.TheInputValue);
+            scriptObject.Add(entry.ExposedInputName, entry.TheInputValue);
             scriptObject.Add(NameOfOutputAssetPath, entry.OutputAssetPath);
-            var context = new TemplateContext();
+
+            var context = new TemplateContext()
+            {
+                TemplateLoader = AssetTemplateLoader.Instance
+            };
+
             context.PushGlobal(scriptObject);
             return context;
         }
+
+        private static bool IsMatchPath(string path, string entryPath) =>
+            entryPath == path ||
+            GetAssetDirectoryPath(entryPath).StartsWith(path);
+
+        private static string GetAssetDirectoryPath(string path) =>
+            Path.GetDirectoryName(path).Replace(Path.DirectorySeparatorChar, AssetPathSeparator);
+
+        private static (TemplEntry, int) GetEntryWithIndex(TemplEntry entry, int index) =>
+            (entry, index);
 
         private static AssetChange[] DecomposeChanges(AssetsPaths changes, TemplEntry entry)
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,12 @@ using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using Willykc.Templ.Editor.Scaffold;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
+    using Scaffold;
+
     internal partial class TemplSettingsEditor
     {
         private const int MaxSize = 1000;
@@ -109,7 +111,7 @@ namespace Willykc.Templ.Editor
 
         private void DrawValidityIcon(Rect rect, int index)
         {
-            var isValid = index < scaffoldsValidity.Length && scaffoldsValidity[index];
+            var isValid = index >= scaffoldsValidity.Length || scaffoldsValidity[index];
             var iconRect = new Rect(rect.x, rect.y + (Spacing * Double), IconSize, IconSize);
             var icon = isValid ? ValidScaffoldIcon : InvalidScaffoldIcon;
             EditorGUI.LabelField(iconRect, icon);
@@ -132,7 +134,7 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        private void SanitizeRepeatedScaffold(SerializedProperty element, Object previousReference)
+        private void SanitizeRepeatedScaffold(SerializedProperty element, UnityObject previousReference)
         {
             if (element.objectReferenceValue is TemplScaffold scaffold && scaffold &&
                 settings.Scaffolds.Contains(scaffold) && scaffold != previousReference)

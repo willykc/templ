@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,15 @@ using Scriban;
 using Scriban.Runtime;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
-namespace Willykc.Templ.Editor
+namespace Willykc.Templ.Editor.Scaffold
 {
     using Abstraction;
-    using Scaffold;
     using static TemplSettings;
 
-    internal sealed class TemplScaffoldCore
+    internal sealed class TemplScaffoldCore : ITemplScaffoldCore
     {
         internal const string ScaffoldGenerationTitle = "Templ Scaffold Generation";
 
@@ -75,12 +73,12 @@ namespace Willykc.Templ.Editor
             }
         }
 
-        internal string[] GenerateScaffold(
+        string[] ITemplScaffoldCore.GenerateScaffold(
             TemplScaffold scaffold,
             string targetPath,
-            object input = null,
-            Object selection = null,
-            string[] skipPaths = null)
+            object input,
+            UnityObject selection,
+            string[] skipPaths)
         {
             skipPaths ??= EmptyStringArray;
             var errors = ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
@@ -96,19 +94,31 @@ namespace Willykc.Templ.Editor
             var showIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarGeneratingInfo);
 
-            GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths, skipPaths);
-
-            editorUtility.ClearProgressBar();
+            try
+            {
+                GenerateScaffoldTree(scaffold.Root, targetPath, showIncrement, paths, skipPaths);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
+            }
 
             log.Info($"{scaffold.name} scaffold generated successfully at {targetPath}");
             return paths.ToArray();
         }
 
-        internal TemplScaffoldError[] ValidateScaffoldGeneration(
+        TemplScaffoldError[] ITemplScaffoldCore.ValidateScaffoldGeneration(
+            TemplScaffold scaffold,
+            string targetPath,
+            object input,
+            UnityObject selection) =>
+            ValidateScaffoldGeneration(scaffold, targetPath, input, selection);
+
+        private TemplScaffoldError[] ValidateScaffoldGeneration(
             TemplScaffold scaffold,
             string targetPath,
             object input = null,
-            Object selection = null)
+            UnityObject selection = null)
         {
             scaffold = scaffold
                 ? scaffold
@@ -139,8 +149,15 @@ namespace Willykc.Templ.Editor
             var showProgressIncrement =
                 GetShowProgressIncrementAction(scaffold.Root.NodeCount, ProgressBarValidatingInfo);
 
-            CollectScaffoldErrors(scaffold.Root, validationContext, showProgressIncrement);
-            editorUtility.ClearProgressBar();
+            try
+            {
+                CollectScaffoldErrors(scaffold.Root, validationContext, showProgressIncrement);
+            }
+            finally
+            {
+                editorUtility.ClearProgressBar();
+            }
+
             return validationContext.errors.ToArray();
         }
 
@@ -234,7 +251,7 @@ namespace Willykc.Templ.Editor
 
             try
             {
-                if (node is TemplScaffoldDirectory)
+                if (node is TemplScaffoldDirectory && !fileSystem.DirectoryExists(renderedPath))
                 {
                     fileSystem.CreateDirectory(renderedPath);
                     paths.Add(renderedPath);
@@ -381,7 +398,7 @@ namespace Willykc.Templ.Editor
                     $"node {node.NodePath}", TemplScaffoldErrorType.Filename);
             }
 
-            if (node.RenderedName.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            if (!node.RenderedName.IsValidFileName())
             {
                 AddError(errors, "Invalid characters found in " +
                     $"{nameof(TemplScaffoldErrorType.Filename)}: {node.RenderedName} for " +
@@ -408,7 +425,11 @@ namespace Willykc.Templ.Editor
                 scriptObject.Add(nodeInput.Key, nodeInput.Value);
             }
 
-            var templateContext = new TemplateContext();
+            var templateContext = new TemplateContext()
+            {
+                TemplateLoader = AssetTemplateLoader.Instance
+            };
+
             templateContext.PushGlobal(scriptObject);
             return templateContext;
         }
@@ -464,7 +485,7 @@ namespace Willykc.Templ.Editor
         private struct ValidationContext
         {
             internal object input;
-            internal Object selection;
+            internal UnityObject selection;
             internal string path;
             internal List<TemplScaffoldError> errors;
             internal string seed;

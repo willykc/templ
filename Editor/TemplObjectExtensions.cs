@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,13 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
     internal static class TemplObjectExtensions
     {
-        internal static string GetAssetDirectoryPath(this Object asset)
+        internal static string GetAssetDirectoryPath(this UnityObject asset)
         {
             var path = AssetDatabase.GetAssetPath(asset);
 
@@ -41,7 +42,7 @@ namespace Willykc.Templ.Editor
                 : Path.Combine(path);
         }
 
-        internal static bool IsReadOnly(this Object asset)
+        internal static bool IsReadOnly(this UnityObject asset)
         {
             var path = AssetDatabase.GetAssetPath(asset);
 

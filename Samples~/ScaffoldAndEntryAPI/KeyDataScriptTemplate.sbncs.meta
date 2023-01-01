@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: bad214e3a36534b459aa33240f854c4e
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "using UnityEngine;\r\n\r\npublic class KeyDataScript : ScriptableObject\r\n{\r\n   
+    public string data;\r\n}\r\n"
+  parsingErrors: []

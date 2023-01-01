@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class {{Input.module}}Data : ScriptableObject
+namespace Willykc.Templ.Samples
 {
-    public string data;
+    public class {{Input.module}}Data : ScriptableObject
+    {
+        public string data;
+    }
 }

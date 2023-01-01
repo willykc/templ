@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,18 @@ namespace Willykc.Templ.Editor
 
     public sealed class ScribanAsset : ScriptableObject
     {
-        internal string Text => text;
-        internal bool HasErrors => hasErrors;
-        internal string[] ParsingErrors { get; private set; }
+        /// <summary>
+        /// Template text.
+        /// </summary>
+        public string Text => text;
+        /// <summary>
+        /// Template validity.
+        /// </summary>
+        public bool HasErrors => hasErrors;
+        /// <summary>
+        /// Array of syntax errors.
+        /// </summary>
+        public string[] ParsingErrors { get; private set; }
 
         [SerializeField, HideInInspector]
         private string text;

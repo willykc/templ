@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
@@ -31,9 +33,15 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string mockTemplatePath;
         internal string mockInputPath;
         internal string mockSettingsPath;
-        internal string ImportAssetPath { get; private set; }
+        internal string mockDirectoryPath;
+        internal bool mockIsValidFolder;
+        internal UnityObject mockLoadAsset;
 
-        string IAssetDatabase.GetAssetPath(Object asset)
+        internal string ImportAssetPath { get; private set; }
+        internal int SaveAssetsCount { get; private set; }
+        internal string IsValidFolderPath { get; private set; }
+
+        string IAssetDatabase.GetAssetPath(UnityObject asset)
         {
             if (asset is TemplSettings)
             {
@@ -47,15 +55,23 @@ namespace Willykc.Templ.Editor.Tests.Mocks
             {
                 return mockTemplatePath;
             }
+            if (asset is DefaultAsset)
+            {
+                return mockDirectoryPath;
+            }
             return mockAssetPath;
         }
 
         void IAssetDatabase.ImportAsset(string path) => ImportAssetPath = path;
 
-        internal void Clear()
+        bool IAssetDatabase.IsValidFolder(string path)
         {
-            mockAssetPath = default;
-            ImportAssetPath = default;
+            IsValidFolderPath = path;
+            return mockIsValidFolder;
         }
+
+        T IAssetDatabase.LoadAssetAtPath<T>(string path) => mockLoadAsset as T;
+
+        void IAssetDatabase.SaveAssets() => SaveAssetsCount++;
     }
 }

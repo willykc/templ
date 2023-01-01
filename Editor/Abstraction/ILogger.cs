@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,8 @@ namespace Willykc.Templ.Editor.Abstraction
 {
     internal interface ILogger
     {
-        void Info(string message);
-        void Warn(string message);
-        void Error(string message, Exception exception = null);
+        internal void Info(string message);
+        internal void Warn(string message);
+        internal void Error(string message, Exception exception = null);
     }
 }

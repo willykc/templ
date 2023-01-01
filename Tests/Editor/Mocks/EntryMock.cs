@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal string outputAssetPath;
 
         internal override string OutputAssetPath => string.IsNullOrWhiteSpace(outputAssetPath)
-            ? filename
+            ? base.OutputAssetPath
             : outputAssetPath;
 
         internal override bool Deferred => defer;
@@ -50,14 +50,5 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal override bool IsTemplateChanged(AssetChange change) => templateChanged;
 
         protected override bool IsInputChanged(AssetChange change) => inputChanged;
-
-        internal void Clear()
-        {
-            valid = true;
-            defer = default;
-            inputChanged = default;
-            templateChanged = default;
-            outputAssetPath = default;
-        }
     }
 }
