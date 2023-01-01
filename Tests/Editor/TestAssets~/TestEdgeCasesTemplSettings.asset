@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 144e3561454ea8f4ebdf9f95807852cb, type: 3}
+  m_Name: TestEdgeCasesTemplSettings
+  m_EditorClassIdentifier: 
+  entries:
+  - id: 0
+  - id: 1
+  - id: 2
+  references:
+    version: 1
+    00000000:
+      type: {class: EntryMock, ns: Willykc.Templ.Editor.Tests.Mocks, asm: Willykc.Templ.Editor.Tests}
+      data:
+        template: {fileID: 8120740285201943533, guid: 0485a71508f73aa47b0d17271499de2d, type: 3}
+        directory: {fileID: 102900000, guid: 942f538885a5db642a9980a5a8d8d276, type: 3}
+        filename: out1.txt
+        guid: 7154939f-05fe-4a6e-9828-2b4a172a04d9
+        text: {fileID: 4900000, guid: 2039a593cdb662f43bf30446836a24db, type: 3}
+        valid: 1
+    00000001:
+      type: {class: EntryMock, ns: Willykc.Templ.Editor.Tests.Mocks, asm: Willykc.Templ.Editor.Tests}
+      data:
+        template: {fileID: 8120740285201943533, guid: 95ac64a604e505c428ea5c9c8955a0d5, type: 3}
+        directory: {fileID: 102900000, guid: 942f538885a5db642a9980a5a8d8d276, type: 3}
+        filename: out2.txt
+        guid: 253416db-6784-454e-97ec-b28b3a845091
+        text: {fileID: 4900000, guid: 2039a593cdb662f43bf30446836a24db, type: 3}
+        valid: 1
+    00000002:
+      type: {class: EntryMock, ns: Willykc.Templ.Editor.Tests.Mocks, asm: Willykc.Templ.Editor.Tests}
+      data:
+        template: {fileID: 8120740285201943533, guid: 2522788f52646fd479a692037e367922, type: 3}
+        directory: {fileID: 102900000, guid: 942f538885a5db642a9980a5a8d8d276, type: 3}
+        filename: out3.txt
+        guid: fc682d90-4ddf-477c-b7a0-f849433d6b37
+        text: {fileID: 4900000, guid: 2039a593cdb662f43bf30446836a24db, type: 3}
+        valid: 1

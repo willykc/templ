@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,44 +20,55 @@
  * THE SOFTWARE.
  */
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor
 {
     using Entry;
     using static TemplEditorInitialization;
-    using static TemplEntryProcessor;
+    using static TemplManagers;
 
     internal partial class TemplSettingsEditor
     {
         private const int MaxFilenameLength = 64;
-        private const int ValidInputFieldCount = 1;
         private const int HeaderLineOffset = 6;
         private const string ForceRenderButtonText = "Force Render Templates";
         private const string LiveEntriesTitle = "Live " + nameof(TemplSettings.Entries);
+        private static readonly string CriticalEntryErrorMessage = "Critical error detected with " +
+            $"custom entry class. All custom entry classes must extend {nameof(TemplEntry)}. " +
+            "Custom entry classes must never be renamed or removed after creating entries with it.";
+        private static readonly string InvalidCustomEntryClassMessage = "Invalid custom entry " +
+            "class detected. All custom entry classes must declare " +
+            $"{nameof(TemplEntryInfoAttribute)} and have only one public input field decorated " +
+            $"with {nameof(TemplInputAttribute)}.";
         private static readonly string ErrorMessage = "Invalid entries detected. All fields must " +
             $"have values. {nameof(ScribanAsset)} or {nameof(TemplSettings)} can not be used as " +
-            $"input. {nameof(TemplEntry.template).Capitalize()} must be valid. " +
-            $"{nameof(TemplEntry.filename).Capitalize()} field must not contain invalid " +
+            $"input. {nameof(TemplEntry.Template)} must be valid. " +
+            $"{nameof(TemplEntry.Directory)} must not be read only. " +
+            $"{nameof(TemplEntry.Filename)} field must not contain invalid " +
             "characters and must be unique under the same " +
-            $"{nameof(TemplEntry.directory).Capitalize()}. Templ will only render templates for " +
+            $"{nameof(TemplEntry.Directory)}. Templ will only render templates for " +
             "valid entries.";
+
+        private static EntryMenuItem[] entryMenuItems;
 
         private ReorderableList entryList;
         private string[] fullPathDuplicates;
-        private Type[] entryTypes;
+        private int[] readOnlyDirectoryIds;
         private SerializedProperty entriesProperty;
         private bool isValidEntries;
+        private bool isCriticalEntryError;
 
         private void OnEnableEntries()
         {
-            entryTypes = TypeCache
-                .Where(IsEntryType)
+            entryMenuItems ??= TypeCache
+                .Where(TemplEntryFacade.IsValidEntryType)
+                .Select(t => new EntryMenuItem { type = t, displayName = GetEntryDisplayName(t) })
                 .ToArray();
             entriesProperty =
                 serializedObject.FindProperty(TemplSettings.NameOfEntries);
@@ -70,6 +81,13 @@ namespace Willykc.Templ.Editor
             entryList.onAddDropdownCallback += OnAddEntryDropdown;
             Undo.undoRedoPerformed += OnChangeEntries;
             settings.AfterReset += OnChangeEntries;
+
+            if (!settings.Entries.All(TemplEntry.IsSubclass))
+            {
+                isCriticalEntryError = true;
+                return;
+            }
+
             OnChangeEntries();
         }
 
@@ -83,7 +101,9 @@ namespace Willykc.Templ.Editor
 
         private void OnChangeEntries()
         {
+            isCriticalEntryError = false;
             CollectEntryDuplicates();
+            CollectReadOnlyDirectoryIds();
             CheckEntriesValidity();
         }
 
@@ -91,6 +111,12 @@ namespace Willykc.Templ.Editor
         {
             if (!Foldout(entriesProperty, LiveEntriesTitle))
             {
+                return;
+            }
+
+            if (isCriticalEntryError)
+            {
+                EditorGUILayout.HelpBox(CriticalEntryErrorMessage, MessageType.Error);
                 return;
             }
 
@@ -126,60 +152,96 @@ namespace Willykc.Templ.Editor
             var entry = settings.Entries[index];
             DrawHeaderLine(rect);
             rect.y += 4;
-            DrawFirstRow(rect, element, entry);
-            DrawSecondRow(rect, element, entry);
+
+            if (!IsValidEntryClass(entry))
+            {
+                DrawInvalidClassError(rect);
+                return;
+            }
+
+            var inputFieldProperty = element.FindPropertyRelative(entry.InputFieldName);
+            var directoryProperty = element.FindPropertyRelative(TemplEntry.NameOfDirectory);
+            var templateProperty = element.FindPropertyRelative(TemplEntry.NameOfTemplate);
+            var filenameProperty = element.FindPropertyRelative(TemplEntry.NameOfFilename);
+
+            var previousDirectoryValue = directoryProperty.objectReferenceValue;
+
+            DrawFirstRow(rect, inputFieldProperty, directoryProperty, entry);
+            DrawSecondRow(rect, templateProperty, filenameProperty, entry);
 
             if (EditorGUI.EndChangeCheck())
             {
+                SanitizeDirectoryProperty(directoryProperty, previousDirectoryValue);
                 EntryCore.FlagChangedEntry(entry);
             }
         }
 
-        private void DrawFirstRow(Rect rect, SerializedProperty element, TemplEntry entry)
+        private static void DrawInvalidClassError(Rect rect)
+        {
+            rect.y++;
+            rect.height -= 6;
+            EditorGUI.HelpBox(rect, InvalidCustomEntryClassMessage, MessageType.Error);
+        }
+
+        private bool IsValidEntryClass(TemplEntry entry) =>
+            !string.IsNullOrEmpty(entry.InputFieldName) && entry.ChangeTypes != ChangeType.None;
+
+        private void DrawFirstRow(
+            Rect rect,
+            SerializedProperty input,
+            SerializedProperty directory,
+            TemplEntry entry)
         {
             DrawPropertyField(new Rect(
                 rect.x,
                 rect.y,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(entry.InputFieldName),
+                input,
                 _ => entry.IsValidInput);
             DrawPropertyField(new Rect(
                 rect.x + (rect.width * Half) + Padding,
                 rect.y,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.directory)),
-                p => NotNullReference(p));
+                directory,
+                p => NotNullReference(p) && NotReadOnlyDirectory(p));
         }
 
-        private void DrawSecondRow(Rect rect, SerializedProperty element, TemplEntry entry)
+        private void DrawSecondRow(
+            Rect rect,
+            SerializedProperty template,
+            SerializedProperty filename,
+            TemplEntry entry)
         {
             DrawPropertyField(new Rect(
                 rect.x,
                 rect.y + Spacing + DoubleLine,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.template)),
+                template,
                 p => NotNullReference(p) && IsValidTemplate(p));
             DrawPropertyField(new Rect(
                 rect.x + (rect.width * Half) + Padding,
                 rect.y + Spacing + DoubleLine,
                 (rect.width * Half) - Padding,
                 Line),
-                element.FindPropertyRelative(nameof(TemplEntry.filename)),
+                filename,
                 p => ValidFilename(p, entry));
         }
 
         private void OnAddEntryDropdown(Rect buttonRect, ReorderableList list)
         {
-            var menu = new GenericMenu();
-
-            foreach (var entryType in entryTypes)
+            var menu = new GenericMenu
             {
-                menu.AddItem(new GUIContent(entryType.Name),
+                allowDuplicateNames = true
+            };
+
+            foreach (var entryMenuItem in entryMenuItems)
+            {
+                menu.AddItem(new GUIContent(entryMenuItem.displayName),
                 false, OnAddEntryElement,
-                entryType);
+                entryMenuItem.type);
             }
 
             menu.ShowAsContext();
@@ -214,6 +276,12 @@ namespace Willykc.Templ.Editor
                 property, GUIContent.none);
         }
 
+        private void CollectReadOnlyDirectoryIds() =>
+            readOnlyDirectoryIds = settings.Entries
+            .Where(e => e.Directory.IsReadOnly())
+            .Select(e => e.Directory.GetInstanceID())
+            .ToArray();
+
         private void CollectEntryDuplicates() =>
             fullPathDuplicates = settings.Entries
             .Select(e => e.fullPathCache = e.FullPath)
@@ -221,6 +289,9 @@ namespace Willykc.Templ.Editor
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToArray();
+
+        private bool NotReadOnlyDirectory(SerializedProperty property) =>
+            !readOnlyDirectoryIds.Contains(property.objectReferenceValue.GetInstanceID());
 
         private void CheckEntriesValidity() =>
             isValidEntries = settings.Entries.All(e => e.IsValid) && fullPathDuplicates.Length == 0;
@@ -231,19 +302,20 @@ namespace Willykc.Templ.Editor
             property.stringValue = property.stringValue.Length > MaxFilenameLength
                 ? property.stringValue.Substring(0, MaxFilenameLength)
                 : property.stringValue;
-            return !string.IsNullOrWhiteSpace(property.stringValue) &&
-            property.stringValue.IndexOfAny(Path.GetInvalidFileNameChars()) == -1 &&
+            return property.stringValue.IsValidFileName() &&
             (!fullPathDuplicates?.Contains(entry.fullPathCache) ?? true);
         }
 
-        private static bool IsEntryType(Type type) =>
-            type.IsSubclassOf(typeof(TemplEntry)) && !type.IsAbstract &&
-            type.IsDefined(typeof(TemplEntryInfoAttribute), false) &&
-            type.GetFields().Count(IsValidInputField) == ValidInputFieldCount;
-
-        private static bool IsValidInputField(FieldInfo field) =>
-            field.IsDefined(typeof(TemplInputAttribute), false) &&
-            field.FieldType.IsSubclassOf(typeof(UnityEngine.Object));
+        private static void SanitizeDirectoryProperty(
+            SerializedProperty directoryProperty,
+            UnityObject previousDirectoryValue)
+        {
+            if (directoryProperty.objectReferenceValue is { } directory &&
+                !AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(directory)))
+            {
+                directoryProperty.objectReferenceValue = previousDirectoryValue;
+            }
+        }
 
         private static void DrawHeaderLine(Rect rect) =>
             EditorGUI.LabelField(new Rect(
@@ -257,5 +329,17 @@ namespace Willykc.Templ.Editor
 
         private static bool IsValidTemplate(SerializedProperty property) =>
             property.objectReferenceValue is ScribanAsset template && !template.HasErrors;
+
+        private static string GetEntryDisplayName(Type type) =>
+            type.GetCustomAttribute<TemplEntryInfoAttribute>()?.DisplayName is { } name &&
+            !string.IsNullOrWhiteSpace(name)
+            ? name
+            : type.Name;
+
+        private struct EntryMenuItem
+        {
+            public string displayName;
+            public Type type;
+        }
     }
 }

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1651045204f4045b07a0e0a75c6d11, type: 3}
+  m_Name: MultipleInputs
+  m_EditorClassIdentifier: 
+  inputs:
+  - {fileID: 4900000, guid: a247220a1308f9d4a9d6f016b5b0b3e6, type: 3}
+  - {fileID: 4900000, guid: 3a2169c1bbe153e478a528f57f9ee580, type: 3}

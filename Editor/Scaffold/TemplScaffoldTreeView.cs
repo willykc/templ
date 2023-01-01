@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -181,7 +182,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 .Where(item => args.draggedItemIDs.Contains(item.id))
                 .ToList();
             DragAndDrop.SetGenericData(GenericDragID, draggedRows);
-            DragAndDrop.objectReferences = new UnityEngine.Object[] { };
+            DragAndDrop.objectReferences = new UnityObject[] { };
             string title = draggedRows.Count == 1
                 ? draggedRows[0].displayName
                 : MultipleDragTitle;

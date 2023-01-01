@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,19 @@ namespace Willykc.Templ.Editor
     internal static class TemplEditorInitialization
     {
         private const string UnityName = "Unity";
+        private const string ComUnityName = "com.unity";
         private const string UniTaskName = "UniTask";
         private const string NewtonsoftName = "Newtonsoft";
         private const string PsdPluginName = "PsdPlugin";
         private const string Log4netName = "log4net";
         private const string NUnitName = "nunit";
         private const string UnityplasticName = "unityplastic";
+        private const string MicrosoftName = "Microsoft";
+        private const string SystemName = "System";
         private const string TemplTestsName = "Willykc.Templ.Editor.Tests";
         private const string TemplInitKey = "templ.init";
+
+        private static readonly Type[] EmptyTypeArray = new Type[0];
 
         private static string currentDir;
         private static Type[] typeCache;
@@ -62,13 +67,28 @@ namespace Willykc.Templ.Editor
         private static Type[] CollectTypes() =>
             AppDomain.CurrentDomain.GetAssemblies()
             .Where(IsCandidate)
-            .SelectMany(a => a.GetTypes())
+            .SelectMany(TryGetTypes)
             .ToArray();
+
+        private static Type[] TryGetTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch
+            {
+                return EmptyTypeArray;
+            }
+        }
 
         private static bool IsCandidate(Assembly assembly) =>
             !assembly.IsDynamic &&
             assembly.Location.StartsWith(currentDir ??= Directory.GetCurrentDirectory()) &&
+            !assembly.FullName.StartsWith(SystemName) &&
+            !assembly.FullName.StartsWith(MicrosoftName) &&
             !assembly.FullName.StartsWith(UnityName) &&
+            !assembly.FullName.StartsWith(ComUnityName) &&
             !assembly.FullName.StartsWith(UniTaskName) &&
             !assembly.FullName.StartsWith(NewtonsoftName) &&
             !assembly.FullName.StartsWith(PsdPluginName) &&

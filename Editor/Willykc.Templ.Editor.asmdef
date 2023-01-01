@@ -10,7 +10,8 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "Scriban.dll",
-        "SharpYaml.dll"
+        "SharpYaml.dll",
+        "System.Threading.Tasks.Extensions.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

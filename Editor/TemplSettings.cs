@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ namespace Willykc.Templ.Editor
     using Entry;
     using Scaffold;
 
-    internal sealed class TemplSettings : ScriptableObject
+    public sealed class TemplSettings : ScriptableObject
     {
         internal const string NameOfEntries = nameof(entries);
         internal const string NameOfScaffolds = nameof(scaffolds);
@@ -40,6 +40,8 @@ namespace Willykc.Templ.Editor
 
         internal static readonly string[] EmptyStringArray = new string[0];
         internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
+        internal static readonly TemplScaffold[] EmptyScaffoldArray = new TemplScaffold[0];
+        internal static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
 
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";
@@ -57,23 +59,24 @@ namespace Willykc.Templ.Editor
         internal static TemplSettings Instance =>
             instance ? instance : instance = GetSettings();
 
-        internal IReadOnlyList<TemplEntry> Entries => entries;
-        internal IReadOnlyList<TemplScaffold> Scaffolds => scaffolds;
+        internal IList<TemplEntry> Entries => entries;
+        internal IList<TemplScaffold> Scaffolds => scaffolds;
 
         internal IReadOnlyList<TemplEntry> ValidEntries =>
             entries?
+            .Where(TemplEntry.IsSubclass)
             .GroupBy(e => e.FullPath)
             .Where(g => g.Count() == 1)
             .SelectMany(g => g)
             .Where(e => e.IsValid)
             .ToArray()
-            ?? new TemplEntry[] { };
+            ?? EmptyEntryArray;
 
         internal IReadOnlyList<TemplScaffold> ValidScaffolds =>
             scaffolds?
             .Where(s => s && s.IsValid)
             .ToArray()
-            ?? new TemplScaffold[] { };
+            ?? EmptyScaffoldArray;
 
         internal bool HasInvalidEntries => Entries.Count != ValidEntries.Count;
 

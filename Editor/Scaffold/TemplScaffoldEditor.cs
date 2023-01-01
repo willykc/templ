@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,8 +44,8 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string ExpandCollapseIconName = "UnityEditor.SceneHierarchyWindow@2x";
         private const string DirectoryTooltip = "Add Directory";
         private const string FileTooltip = "Add Template";
-        private const string DeleteTooltip = "Delete Node(s)";
-        private const string CloneTooltip = "Clone Node(s)";
+        private const string DeleteTooltip = "Delete Node(s) (Ctrl/Cmd + Delete)";
+        private const string CloneTooltip = "Clone Node(s) (Ctrl/Cmd + D)";
         private const string EditTooltip = "Edit Node (Double Click)";
         private const string ExpandCollapseTooltip = "Expand/Collapse All";
         private const string SessionStateKeyPrefix = "TemplScaffold";
@@ -228,7 +228,8 @@ namespace Willykc.Templ.Editor.Scaffold
                 CloneNodesActionName,
                 (Event.current.command || Event.current.control) && KeyPress(KeyCode.D));
             DrawButton(DeleteButtonContent, RightButtonStyle, scaffold.RemoveScaffoldNodes,
-                RemoveNodesActionName, KeyPress(KeyCode.Delete));
+                RemoveNodesActionName,
+                (Event.current.command || Event.current.control) && KeyPress(KeyCode.Delete));
             GUI.enabled = true;
         }
 

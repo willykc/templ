@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Abstraction
 {
@@ -31,10 +31,19 @@ namespace Willykc.Templ.Editor.Abstraction
 
         private AssetDatabase() { }
 
-        string IAssetDatabase.GetAssetPath(Object asset) =>
+        string IAssetDatabase.GetAssetPath(UnityObject asset) =>
             UnityEditor.AssetDatabase.GetAssetPath(asset);
 
         void IAssetDatabase.ImportAsset(string path) =>
             UnityEditor.AssetDatabase.ImportAsset(path);
+
+        bool IAssetDatabase.IsValidFolder(string path) =>
+            UnityEditor.AssetDatabase.IsValidFolder(path);
+
+        T IAssetDatabase.LoadAssetAtPath<T>(string path) =>
+            UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
+
+        void IAssetDatabase.SaveAssets() =>
+            UnityEditor.AssetDatabase.SaveAssets();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ namespace Willykc.Templ.Editor.Scaffold
         fileName = NewPrefix + nameof(TemplDynamicScaffold),
         menuName = MenuName,
         order = 3)]
-    internal sealed class TemplDynamicScaffold : TemplScaffold
+    public sealed class TemplDynamicScaffold : TemplScaffold
     {
         internal const string NameOfTreeTemplate = nameof(treeTemplate);
 
@@ -40,9 +40,12 @@ namespace Willykc.Templ.Editor.Scaffold
         [NonSerialized]
         private TemplScaffoldRoot innerRoot;
 
-        internal override TemplScaffoldRoot Root => innerRoot;
+        /// <summary>
+        /// Scaffold YAML tree template.
+        /// </summary>
+        public ScribanAsset TreeTemplate => treeTemplate;
 
-        internal ScribanAsset TreeTemplate => treeTemplate;
+        internal override TemplScaffoldRoot Root => innerRoot;
 
         internal override bool IsValid => treeTemplate && !treeTemplate.HasErrors;
 

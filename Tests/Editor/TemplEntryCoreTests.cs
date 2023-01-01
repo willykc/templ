@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,22 @@
  */
 using NUnit.Framework;
 using System.IO;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
+    using Entry;
     using Mocks;
 
     internal class TemplEntryCoreTests
     {
         internal const string TestSettingsPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestTemplSettings.asset";
+        internal const string TestEdgeCasesSettingsPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestEdgeCasesTemplSettings.asset";
         internal const string TestTextPath =
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestText.txt";
         internal const string TestTemplatePath =
@@ -43,14 +49,18 @@ namespace Willykc.Templ.Editor.Tests
             "Packages/com.willykc.templ/Tests/Editor/TestAssets~/TestPathFunctionTemplate.sbn";
         private const string ExpectedOutput = "Hello world!";
 
-        private TemplEntryCore subject;
+        private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileMock;
         private SessionStateMock sessionStateMock;
         private LoggerMock loggerMock;
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
+        private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
+        private TemplSettings settingsInstance;
+        private TemplSettings edgeCasesSettings;
+        private TemplSettings edgeCasesSettingsInstance;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
         private EntryMock secondEntryMock;
@@ -61,15 +71,19 @@ namespace Willykc.Templ.Editor.Tests
         private TextAsset testText;
         private string testTemplatePath;
         private string testTextPath;
+        private string testOutputPathTemplatePath;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
+            edgeCasesSettings =
+                TemplTestUtility.CreateTestAsset<TemplSettings>(TestEdgeCasesSettingsPath, out _);
             testErrorTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestErrorTemplatePath, out _);
             testOutputPathTemplate =
-                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestOutputPathTemplatePath, out _);
+                TemplTestUtility.CreateTestAsset<ScribanAsset>(TestOutputPathTemplatePath,
+                out testOutputPathTemplatePath);
             testPathFunctionTemplate =
                 TemplTestUtility.CreateTestAsset<ScribanAsset>(TestPathFunctionTemplatePath, out _);
             testTemplate =
@@ -77,8 +91,6 @@ namespace Willykc.Templ.Editor.Tests
                 out testTemplatePath);
             testText =
                 TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out testTextPath);
-            firstEntryMock = settings.Entries[0] as EntryMock;
-            secondEntryMock = settings.Entries[1] as EntryMock;
         }
 
         [SetUp]
@@ -96,23 +108,29 @@ namespace Willykc.Templ.Editor.Tests
                 sessionStateMock = new SessionStateMock(),
                 loggerMock = new LoggerMock(),
                 settingsProviderMock = new SettingsProviderMock(),
-                templateFunctionProviderMock = new TemplateFunctionProviderMock());
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock = new EditorUtilityMock());
 
             settingsProviderMock.settingsExist = true;
-            settingsProviderMock.settings = settings;
+            settingsInstance = UnityObject.Instantiate(settings);
+            edgeCasesSettingsInstance = UnityObject.Instantiate(edgeCasesSettings);
+            settingsProviderMock.settings = settingsInstance;
+            firstEntryMock = settingsInstance.Entries[0] as EntryMock;
+            secondEntryMock = settingsInstance.Entries[1] as EntryMock;
         }
 
         [TearDown]
         public void AfterEach()
         {
-            firstEntryMock.Clear();
-            secondEntryMock.Clear();
+            UnityObject.DestroyImmediate(settingsInstance);
+            UnityObject.DestroyImmediate(edgeCasesSettingsInstance);
         }
 
         [OneTimeTearDown]
         public void AfterAll()
         {
             TemplTestUtility.DeleteTestAsset(settings);
+            TemplTestUtility.DeleteTestAsset(edgeCasesSettings);
             TemplTestUtility.DeleteTestAsset(testErrorTemplate);
             TemplTestUtility.DeleteTestAsset(testOutputPathTemplate);
             TemplTestUtility.DeleteTestAsset(testPathFunctionTemplate);
@@ -186,7 +204,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
@@ -215,7 +233,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnAssetsChanged(changes);
 
             // Verify
-            Assert.AreNotEqual(firstEntryMock.guid, sessionStateMock.SetValue, "Unexpected flag");
+            Assert.AreNotEqual(firstEntryMock.Id, sessionStateMock.SetValue, "Unexpected flag");
         }
 
         [Test]
@@ -224,7 +242,7 @@ namespace Willykc.Templ.Editor.Tests
             // Setup
             assetDatabaseMock.mockSettingsPath = TestSettingsPath;
             changes.importedAssets = new string[] { TestSettingsPath };
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAssetsChanged(changes);
@@ -249,6 +267,62 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
+        public void GivenFlaggedNonDeferredEntry_WhenAssetsChange_ThenEntryShouldRender()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Did not render");
+        }
+
+        [Test]
+        public void GivenFlaggedNonDeferredEntry_WhenAssetsChange_ThenShouldRemoveEntryIdFromFlags()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.That(sessionStateMock.SetValue, Does.Not.Contain(firstEntryMock.Id),
+                "Did not remove entry id from flags");
+        }
+
+        [Test]
+        public void GivenFlaggedDeferredEntry_WhenAssetsChange_ThenEntryShouldNotRender()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+            firstEntryMock.defer = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFlaggedDeferredEntry_WhenAssetsChange_ThenShouldNotRemoveEntryIdFromFlags()
+        {
+            // Setup
+            sessionStateMock.value = firstEntryMock.Id;
+            firstEntryMock.defer = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.That(sessionStateMock.SetValue, Does.Contain(firstEntryMock.Id),
+                "Removed entry id from flags");
+        }
+
+        [Test]
         public void GivenNoEntryFlagged_WhenAssemblyReloads_ThenEntryShouldNotRender()
         {
             // Act
@@ -262,7 +336,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenEntryFlagged_WhenAssemblyReloads_ThenEntryShouldRender()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -276,7 +350,7 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenEntryFlagged_WhenAssemblyReloads_ThenFlagsShouldClear()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.OnAfterAssemblyReload();
@@ -305,7 +379,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.OnWillDeleteAsset(string.Empty);
 
             // Verify
-            Assert.AreEqual(secondEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(secondEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
@@ -331,20 +405,20 @@ namespace Willykc.Templ.Editor.Tests
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.AreEqual(secondEntryMock.guid, sessionStateMock.SetValue, "Did not flag entry");
+            Assert.AreEqual(secondEntryMock.Id, sessionStateMock.SetValue, "Did not flag entry");
         }
 
         [Test]
         public void GivenFlaggedEntry_WhenFlaggingChangeTwice_ThenShouldFlagEntryOnlyOnce()
         {
             // Setup
-            sessionStateMock.value = secondEntryMock.guid;
+            sessionStateMock.value = secondEntryMock.Id;
 
             // Act
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.AreNotEqual(secondEntryMock.guid, sessionStateMock.SetValue,
+            Assert.AreNotEqual(secondEntryMock.Id, sessionStateMock.SetValue,
                 "Flagged change twice");
         }
 
@@ -352,15 +426,15 @@ namespace Willykc.Templ.Editor.Tests
         public void GivenDifferentFlaggedEntry_WhenFlaggingChanges_ThenShouldFlagBothEntries()
         {
             // Setup
-            sessionStateMock.value = firstEntryMock.guid;
+            sessionStateMock.value = firstEntryMock.Id;
 
             // Act
             subject.FlagChangedEntry(secondEntryMock);
 
             // Verify
-            Assert.IsTrue(sessionStateMock.SetValue.Contains(firstEntryMock.guid),
+            Assert.IsTrue(sessionStateMock.SetValue.Contains(firstEntryMock.Id),
                 "Did not flag first entry");
-            Assert.IsTrue(sessionStateMock.SetValue.Contains(secondEntryMock.guid),
+            Assert.IsTrue(sessionStateMock.SetValue.Contains(secondEntryMock.Id),
                 "Did not flag second entry");
         }
 
@@ -371,7 +445,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(2, fileMock.WriteAllTextCount);
+            Assert.AreEqual(2, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -384,7 +458,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -397,7 +471,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.WarnCount);
+            Assert.AreEqual(1, loggerMock.WarnCount, "Unexpected number of warnings logged");
         }
 
         [Test]
@@ -411,7 +485,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -425,7 +499,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -439,7 +513,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -453,7 +527,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
@@ -467,7 +541,7 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, fileMock.WriteAllTextCount);
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
         }
 
         [Test]
@@ -481,59 +555,312 @@ namespace Willykc.Templ.Editor.Tests
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
         public void GivenTemplateWithError_WhenRenderAllValidEntries_ThenShouldLogError()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testErrorTemplate;
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(1, loggerMock.ErrorCount);
-
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
         }
 
         [Test]
         public void GivenTemplateWithOutputPath_WhenRenderAllValidEntries_ThenShouldRenderPath()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testOutputPathTemplate;
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
+            var targetEntry = edgeCasesSettingsInstance.Entries[1];
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0]);
-
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
+            Assert.AreEqual(targetEntry.OutputAssetPath, fileMock.Contents[0],
+                "Unexpected content rendered");
         }
 
         [Test]
         public void GivenTemplateWithPathFunction_WhenRenderAllValidEntries_ThenShouldRenderResult()
         {
             // Setup
-            var originalTemplate = firstEntryMock.template;
-            firstEntryMock.template = testPathFunctionTemplate;
+            settingsProviderMock.settings = edgeCasesSettingsInstance;
+            var targetEntry = edgeCasesSettingsInstance.Entries[2];
 
             // Act
             subject.RenderAllValidEntries();
 
             // Verify
-            Assert.AreEqual(Path.GetFileNameWithoutExtension(firstEntryMock.OutputAssetPath),
-                fileMock.Contents[0]);
+            Assert.AreEqual(Path.GetFileNameWithoutExtension(targetEntry.OutputAssetPath),
+                fileMock.Contents[1], "Unexpected content rendered");
+        }
 
-            // Cleanup
-            firstEntryMock.template = originalTemplate;
+        [Test]
+        public void GivenInputChange_WhenAssetsChange_ThenProgressBarShouldBeDisplayed()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+            secondEntryMock.inputChanged = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(2, editorUtilityMock.DisplayProgressBarCount,
+                "Did not display progress bar");
+        }
+
+        [Test]
+        public void GivenInputChange_WhenAssetsChange_ThenProgressBarShouldBeCleared()
+        {
+            // Setup
+            firstEntryMock.inputChanged = true;
+            secondEntryMock.inputChanged = true;
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(1, editorUtilityMock.ClearProgressBarCount,
+                "Did not clear progress bar");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenInputDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(testTextPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedTemplate_WhenTemplateDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockTemplatePath = TestTemplatePath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(TestTemplatePath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedDirectory_WhenDirectoryDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            var directoryPath = AssetDatabase.GetAssetPath(firstEntryMock.Directory);
+            assetDatabaseMock.mockDirectoryPath = directoryPath;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(directoryPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenParentDirectoryDeleted_ThenShowNotAllowDelete()
+        {
+            // Setup
+            var parentDirectoryPath = "Assets/Directory";
+            assetDatabaseMock.mockInputPath = $"{parentDirectoryPath}/Test.txt";
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(parentDirectoryPath);
+
+            // Verify
+            Assert.IsFalse(deleteAllowed, "Should not allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenSimilarNamedAssetDeleted_ThenShowAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+            var similarPath = testTextPath.Substring(0, testTextPath.Length - 2);
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(similarPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenNonReferencedAssetDeleted_ThenShowAllowDelete()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+            var nonReferencedPath = "Assets/Any.asset";
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(nonReferencedPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+        }
+
+        [Test]
+        public void GivenExistingEntryId_WhenRenderSingleEntry_ThenShouldRenderEntry()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(ExpectedOutput, fileMock.Contents[0], "Wrong render result");
+        }
+
+        [Test]
+        public void GivenNonExistingEntryId_WhenRenderSingleEntry_ThenShouldNotRenderEntry()
+        {
+            // Setup
+            var id = "wrong-id";
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+        }
+
+        [Test]
+        public void GivenNonExistingEntryId_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            var id = "wrong-id";
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
+        }
+
+        [Test]
+        public void GivenInvalidEntry_WhenRenderSingleEntry_ThenShouldNotRenderEntry()
+        {
+            // Setup
+            firstEntryMock.valid = false;
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+        }
+
+        [Test]
+        public void GivenInvalidEntry_WhenRenderSingleEntry_ThenShouldLogError()
+        {
+            // Setup
+            firstEntryMock.valid = false;
+            var id = firstEntryMock.Id;
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Unexpected number of errors logged");
+        }
+
+        [Test]
+        public void GivenTemplateWithInclude_WhenRenderEntry_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = $"{{{{include '{testOutputPathTemplatePath}'}}}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0],
+                "Wrong render result");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        [Test]
+        public void GivenIncludeWithGUID_WhenRenderEntry_ThenShouldRenderIncludedTemplate()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var giud = AssetDatabase.AssetPathToGUID(testOutputPathTemplatePath);
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = $"{{{{include '{giud}'}}}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, fileMock.WriteAllTextCount, "Unexpected number of entries rendered");
+            Assert.AreEqual(firstEntryMock.OutputAssetPath, fileMock.Contents[0],
+                "Wrong render result");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        [Test]
+        public void GivenIncludeWithWrongPath_WhenRenderEntry_ThenShouldLogError()
+        {
+            // Setup
+            var id = firstEntryMock.Id;
+            var template = ScriptableObject.CreateInstance<ScribanAsset>();
+            var text = "{{include 'wrong/path'}}";
+            SetTemplateText(template, text);
+            SetTemplate(firstEntryMock, template);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+            Assert.AreEqual(0, fileMock.WriteAllTextCount, "Unexpected render");
+
+            // Clean
+            UnityObject.DestroyImmediate(template);
+        }
+
+        private static void SetTemplate(TemplEntry entry, ScribanAsset template)
+        {
+            var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            typeof(TemplEntry)
+                .GetField(nameof(TemplEntry.Template), flags)
+                .SetValue(entry, template);
+        }
+
+        private static void SetTemplateText(ScribanAsset template, string text)
+        {
+            var flags = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase;
+            typeof(ScribanAsset)
+                .GetField(nameof(ScribanAsset.Text), flags)
+                .SetValue(template, text);
         }
     }
 }

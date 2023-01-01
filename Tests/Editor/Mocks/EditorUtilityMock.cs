@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityObject = UnityEngine.Object;
+
 namespace Willykc.Templ.Editor.Tests.Mocks
 {
     using Abstraction;
@@ -27,6 +29,14 @@ namespace Willykc.Templ.Editor.Tests.Mocks
     {
         internal int ClearProgressBarCount { get; private set; }
         internal int DisplayProgressBarCount { get; private set; }
+        internal int DisplayDialogCount { get; private set; }
+        internal int SetDirtyCount { get; private set; }
+
+        bool IEditorUtility.DisplayDialog(string title, string message, string ok)
+        {
+            DisplayDialogCount++;
+            return true;
+        }
 
         void IEditorUtility.ClearProgressBar()
         {
@@ -36,6 +46,11 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         void IEditorUtility.DisplayProgressBar(string title, string info, float progress)
         {
             DisplayProgressBarCount++;
+        }
+
+        void IEditorUtility.SetDirty(UnityObject target)
+        {
+            SetDirtyCount++;
         }
     }
 }

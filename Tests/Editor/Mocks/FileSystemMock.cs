@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal List<string> DirectoryPath { get; } = new List<string>();
         internal List<string> Contents { get; } = new List<string>();
         internal List<string> FileExists { get; } = new List<string>();
+        internal List<string> DirectoryExists { get; } = new List<string>();
         internal int WriteAllTextCount { get; private set; }
         internal int CreateDirectoryCount { get; private set; }
         internal bool ThrowException { get; set; }
@@ -55,10 +56,6 @@ namespace Willykc.Templ.Editor.Tests.Mocks
 
         bool IFileSystem.FileExists(string path) => FileExists.Contains(path);
 
-        internal void Clear()
-        {
-            Path.Clear();
-            Contents.Clear();
-        }
+        bool IFileSystem.DirectoryExists(string path) => DirectoryExists.Contains(path);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,9 +20,11 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Scaffold
 {
@@ -39,20 +41,26 @@ namespace Willykc.Templ.Editor.Scaffold
         private const string SelectionLabel = "Selected Asset";
         private const string TargetPathLabel = "Target Path";
 
+        private static TemplScaffoldInputForm current;
+
         private ScriptableObject input;
         private TemplScaffold scaffold;
-        private Object selection;
+        private UnityObject selection;
         private Editor inputEditor;
         private Vector2 scrollPos;
         private string targetPath;
+        private CancellationToken cancellationToken;
+        private TaskCompletionSource<ScriptableObject> completionSource;
+        private bool waiting;
 
-        internal event Action<ScriptableObject> GenerateClicked;
-        internal event Action Closed;
+        private event Action Closed;
 
-        internal static TemplScaffoldInputForm Show(
+        internal static Task<ScriptableObject> ShowAsync(
             TemplScaffold scaffold,
             string targetPath,
-            Object selection)
+            UnityObject selection,
+            Action closed,
+            CancellationToken cancellationToken)
         {
             scaffold = scaffold
                 ? scaffold
@@ -67,6 +75,14 @@ namespace Willykc.Templ.Editor.Scaffold
                     $"{nameof(scaffold.DefaultInput)} instance to be able to show the input form");
             }
 
+            if (current)
+            {
+                current.Focus();
+                current.waiting = false;
+                current.completionSource = new TaskCompletionSource<ScriptableObject>();
+                return current.completionSource.Task;
+            }
+
             var window = CreateInstance<TemplScaffoldInputForm>();
             window.Center(Width, Height);
             window.scaffold = scaffold;
@@ -76,30 +92,71 @@ namespace Willykc.Templ.Editor.Scaffold
             window.input = Instantiate(scaffold.DefaultInput);
             window.input.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
             window.inputEditor = Editor.CreateEditor(window.input);
+            window.completionSource = new TaskCompletionSource<ScriptableObject>();
+            window.cancellationToken = cancellationToken;
+            window.autoRepaintOnSceneChange = true;
+            window.Closed += closed;
             window.ShowUtility();
-            return window;
+            current = window;
+            return window.completionSource.Task;
+        }
+
+        internal static void CloseCurrent()
+        {
+            if (current)
+            {
+                current.Close();
+            }
         }
 
         private void OnGUI()
         {
+
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos,
                 GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            inputEditor.OnInspectorGUI();
+
+            DrawInputInspector();
+
             EditorGUILayout.EndScrollView();
+
             DrawLine();
             DrawSelectionAndPath();
+            DrawGenerateButton();
 
-            if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
+            if (cancellationToken.IsCancellationRequested)
             {
-                GenerateClicked?.Invoke(input);
+                Close();
             }
         }
 
         private void OnDestroy()
         {
             Closed?.Invoke();
+            Closed = null;
             DestroyImmediate(input);
             DestroyImmediate(inputEditor);
+            current = null;
+            completionSource.TrySetResult(null);
+        }
+
+        private void DrawInputInspector()
+        {
+            GUI.enabled = !waiting;
+            inputEditor.OnInspectorGUI();
+            GUI.enabled = true;
+        }
+
+        private void DrawGenerateButton()
+        {
+            GUI.enabled = !waiting;
+
+            if (GUILayout.Button($"{GenerateButtonPrefix} {scaffold.name}"))
+            {
+                waiting = true;
+                completionSource.TrySetResult(input);
+            }
+
+            GUI.enabled = true;
         }
 
         private void DrawSelectionAndPath()

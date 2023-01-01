@@ -2,7 +2,7 @@
   "name": "com.willykc.templ",
   "version": "0.2.0-preview",
   "displayName": "Templ",
-  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with directories and files.\n - Extensible design allows custom inputs and template functions.",
+  "description": "Integrates Scriban template engine with Unity editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with directories and files.\n - Extensible design allows custom inputs and template functions.\n - Public API allows full control of asset generation.",
   "keywords": [
     "template",
     "code",
@@ -19,7 +19,7 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.5.0",
+    "org.nuget.scriban": "5.5.1",
     "org.nuget.sharpyaml": "2.1.0"
   },
   "unity": "2020.3",
@@ -76,6 +76,21 @@
       "displayName": "Dynamic Scaffold with Input",
       "description": "Contains sample dynamic scaffold with default input scriptable object",
       "path": "Samples~/DynamicScaffold"
+    },
+    {
+      "displayName": "Scaffold and Entry API",
+      "description": "Contains sample scaffold and templates used with public API",
+      "path": "Samples~/ScaffoldAndEntryAPI"
+    },
+    {
+      "displayName": "Multiple Selection Scaffold",
+      "description": "Contains sample scaffold for multiple selection using public API",
+      "path": "Samples~/MultipleSelectionScaffold"
+    },
+    {
+      "displayName": "Multiple Inputs Entry",
+      "description": "Contains sample custom entry for multiple inputs",
+      "path": "Samples~/MultipleInputsEntry"
     }
   ]
 }

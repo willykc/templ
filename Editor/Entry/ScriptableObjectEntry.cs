@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@ using UnityEngine;
 
 namespace Willykc.Templ.Editor.Entry
 {
-    [TemplEntryInfo(ChangeType.Import)]
-    internal sealed class ScriptableObjectEntry : TemplEntry
+    [TemplEntryInfo(changeTypes: ChangeType.Import, DisplayName = "Scriptable Object")]
+    public sealed class ScriptableObjectEntry : TemplEntry
     {
         [TemplInput]
         public ScriptableObject scriptableObject;

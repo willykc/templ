@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,12 @@
  * THE SOFTWARE.
  */
 using System;
+using System.Collections;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
+using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
 {
@@ -29,9 +33,10 @@ namespace Willykc.Templ.Editor.Tests
     {
         private const string AssetsPath = "Assets/";
         private const string MetaExtension = ".meta";
+        private const int DefaultCoroutineTimeoutMilliseconds = 5000;
 
         internal static T CreateTestAsset<T>(string path, out string testAssetPath)
-            where T : UnityEngine.Object
+            where T : UnityObject
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -59,7 +64,7 @@ namespace Willykc.Templ.Editor.Tests
             return AssetDatabase.LoadAssetAtPath<T>(testAssetPath);
         }
 
-        internal static bool DeleteTestAsset(UnityEngine.Object asset)
+        internal static bool DeleteTestAsset(UnityObject asset)
         {
             if (!asset)
             {
@@ -71,5 +76,30 @@ namespace Willykc.Templ.Editor.Tests
 
             return AssetDatabase.DeleteAsset(path) && AssetDatabase.DeleteAsset(dirPath);
         }
+
+        internal static IEnumerator ToCoroutine(
+            Task task,
+            int timeoutMilliseconds = DefaultCoroutineTimeoutMilliseconds)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (!task.IsCompleted && !task.IsCanceled)
+            {
+                if (stopwatch.ElapsedMilliseconds > timeoutMilliseconds)
+                {
+                    throw new TimeoutException();
+                }
+
+                yield return null;
+            }
+
+            if (task.IsFaulted)
+            {
+                throw task.Exception;
+            }
+        }
+
+        internal static IEnumerator ToCoroutine(Func<Task> taskDelegate,
+            int timeoutMilliseconds = DefaultCoroutineTimeoutMilliseconds) =>
+            ToCoroutine(taskDelegate.Invoke(), timeoutMilliseconds);
     }
 }

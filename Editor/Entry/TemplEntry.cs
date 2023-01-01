@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  */
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -32,39 +31,81 @@ namespace Willykc.Templ.Editor.Entry
     [Serializable]
     public abstract class TemplEntry
     {
+        internal const string NameOfTemplate = nameof(template);
+        internal const string NameOfDirectory = nameof(directory);
+        internal const string NameOfFilename = nameof(filename);
+
         private FieldInfo inputField;
         private bool? deferred;
         private ChangeType? changeTypes;
 
-        public ScribanAsset template;
-        public DefaultAsset directory;
-        public string filename;
-
         [SerializeField]
-        internal string guid = Guid.NewGuid().ToString();
+        private ScribanAsset template;
+        [SerializeField]
+        private DefaultAsset directory;
+        [SerializeField]
+        private string filename;
+        [SerializeField]
+        private string guid = Guid.NewGuid().ToString();
 
         [NonSerialized]
         internal string fullPathCache;
 
-        private ChangeType ChangeTypes => changeTypes ??= GetType()
-            .GetCustomAttribute<TemplEntryInfoAttribute>().ChangeTypes;
+        /// <summary>
+        /// Unique entry id.
+        /// </summary>
+        public string Id => guid;
 
-        private FieldInfo InputField => inputField ??= GetType()
-            .GetFields()
-            .Single(f => f.IsDefined(typeof(TemplInputAttribute)));
+        /// <summary>
+        /// Entry template.
+        /// </summary>
+        public ScribanAsset Template
+        {
+            get => template;
+            internal set => template = value;
+        }
 
-        internal bool IsValid =>
+        /// <summary>
+        /// Monitored asset.
+        /// </summary>
+        public UnityObject InputAsset
+        {
+            get => InputField?.GetValue(this) as UnityObject;
+            internal set => InputField?.SetValue(this, value);
+        }
+
+        /// <summary>
+        /// Path to the output asset.
+        /// </summary>
+        public string OutputPath => OutputAssetPath;
+
+        /// <summary>
+        /// Entry validity.
+        /// </summary>
+        public bool IsValid =>
+            !string.IsNullOrEmpty(InputFieldName) &&
+            ChangeTypes != ChangeType.None &&
             IsValidInput &&
             template &&
             !template.HasErrors &&
             directory &&
-            !string.IsNullOrWhiteSpace(filename) &&
-            filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1;
+            !directory.IsReadOnly() &&
+            filename.IsValidFileName();
+
+        internal DefaultAsset Directory
+        {
+            get => directory;
+            set => directory = value;
+        }
+
+        internal string Filename
+        {
+            get => filename;
+            set => filename = value;
+        }
 
         internal string FullPath =>
-            directory &&
-            !string.IsNullOrWhiteSpace(filename) &&
-            filename.IndexOfAny(Path.GetInvalidFileNameChars()) == -1
+            directory && filename.IsValidFileName()
             ? Path.GetFullPath(OutputAssetPath)
             : string.Empty;
 
@@ -72,30 +113,44 @@ namespace Willykc.Templ.Editor.Entry
 
         internal bool IsValidInput => IsValidInputField;
 
-        internal string InputFieldName => InputField.Name;
+        internal string InputFieldName => InputField?.Name;
 
-        internal virtual bool Deferred => deferred ??=
-            GetType().GetCustomAttribute<TemplEntryInfoAttribute>().Deferred;
+        internal string ExposedInputName =>
+            InputField?.GetCustomAttribute<TemplInputAttribute>()?.ExposedAs is { } exposedAs &&
+            !string.IsNullOrWhiteSpace(exposedAs)
+            ? exposedAs
+            : InputFieldName;
+
+        internal virtual bool Deferred => deferred ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>()?.Deferred ?? false;
 
         internal virtual string OutputAssetPath =>
             $"{AssetDatabase.GetAssetPath(directory)}/{filename.Trim()}";
+
+        internal ChangeType ChangeTypes => changeTypes ??= GetType()
+            .GetCustomAttribute<TemplEntryInfoAttribute>()?.ChangeTypes ?? ChangeType.None;
+
+        protected virtual bool IsValidInputField => InputAsset;
+
+        protected virtual object InputValue => InputAsset;
+
+        private FieldInfo InputField => inputField ??= Array.Find(GetType()
+            .GetFields(), f => f.IsDefined(typeof(TemplInputAttribute)));
+
+        internal static bool IsSubclass(object entry) =>
+            entry?.GetType().IsSubclassOf(typeof(TemplEntry)) == true;
 
         internal bool ShouldRender(AssetChange change) =>
             (IsInputChanged(change) || IsTemplateChanged(change)) &&
             change.currentPath != OutputAssetPath;
 
+        internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
+
         internal virtual bool IsTemplateChanged(AssetChange change) =>
             change.currentPath == AssetDatabase.GetAssetPath(template);
 
-        internal bool DeclaresChangeType(ChangeType type) => (ChangeTypes & type) == type;
-
         protected virtual bool IsInputChanged(AssetChange change) =>
-            InputValue is UnityObject asset &&
-            change.currentPath == AssetDatabase.GetAssetPath(asset);
-
-        protected virtual bool IsValidInputField => InputValue as UnityObject;
-
-        protected virtual object InputValue => InputField.GetValue(this);
-
+            InputAsset &&
+            change.currentPath == AssetDatabase.GetAssetPath(InputAsset);
     }
 }

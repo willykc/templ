@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Willy Alberto Kuster
+ * Copyright (c) 2023 Willy Alberto Kuster
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,27 @@ namespace Willykc.Templ.Editor.Entry
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class TemplEntryInfoAttribute : Attribute
     {
-        internal ChangeType ChangeTypes { get; }
-        internal bool Deferred { get; }
+        /// <summary>
+        /// Types of changes the entry is meant to monitor.
+        /// </summary>
+        public ChangeType ChangeTypes { get; }
+
+        /// <summary>
+        /// The display name when adding the entry in the settings. Defaults to the name of the
+        /// entry class.
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Determines if the entry should be rendered before (false) or after (true) recompilation.
+        /// Defaults to false.
+        /// </summary>
+        public bool Deferred { get; set; }
 
         public TemplEntryInfoAttribute(
-            ChangeType changeTypes,
-            bool deferred = false)
+            ChangeType changeTypes)
         {
             ChangeTypes = changeTypes;
-            Deferred = deferred;
         }
     }
 }
