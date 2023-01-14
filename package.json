@@ -91,6 +91,11 @@
       "displayName": "Multiple Inputs Entry",
       "description": "Contains sample custom entry for multiple inputs",
       "path": "Samples~/MultipleInputsEntry"
+    },
+    {
+      "displayName": "Custom JSON Entry",
+      "description": "Contains sample custom entry for JSON assets",
+      "path": "Samples~/CustomJsonEntry"
     }
   ]
 }

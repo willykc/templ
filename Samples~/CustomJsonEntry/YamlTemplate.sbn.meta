@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: e79f3976d4a5d4a47bddee0d42a24490
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ce00460b71c54c5479ccbb53f1c4d4ba, type: 3}
+  text: "name: {{json.name}}\nlist:{{if json.list | array.size == 0}} []{{end}}\n{{~ for item in json.list ~}}\n  - {{item}}\n{{~
+    end ~}}"
+  parsingErrors: []

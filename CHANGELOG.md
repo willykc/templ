@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Sample custom entry for JSON assets.
+
 ## [0.3.0-preview] - 2023-01-01
 
 ### Added

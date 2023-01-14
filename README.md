@@ -103,15 +103,15 @@ YAML is parsed using SharpYaml. The license can be found [here](https://github.c
 
 ## Reserved template keywords
 
-* **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
-* **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
-* **Selection**: Exposed to scaffold templates only, it is the selected asset when generating the scaffold.
-* **Seed**: Exposed to scaffold templates only, it is a unique GUID for the scaffold generation.
-* **RootPath**: Exposed to scaffold templates only, is is the root path of the scaffold generation.
+* `OutputAssetPath`: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
+* `Input`: Exposed to scaffold templates only, it is the scaffold generation input object.
+* `Selection`: Exposed to scaffold templates only, it is the selected asset when generating the scaffold.
+* `Seed`: Exposed to scaffold templates only, it is a new GUID shared across all templates in the scaffold.
+* `RootPath`: Exposed to scaffold templates only, it is the root path of the scaffold generation.
 
 ## Scriban
 
-The Scriban [language](https://github.com/scriban/scriban/blob/master/doc/language.md) syntax is well documented.
+The [Scriban language](https://github.com/scriban/scriban/blob/master/doc/language.md) syntax is well documented.
 
 It is recommended to use [Visual Studio Code](https://code.visualstudio.com/) and [Scriban syntax highlights](https://marketplace.visualstudio.com/items?itemName=xoofx.scriban) to write and edit templates.
 
@@ -137,6 +137,7 @@ The following output file extensions should be used when configuring live entrie
 * **AssemblyDefinition to Prefab**: *.prefab*
 * **Extensions**: *.txt*
 * **Multiple Inputs Entry**: *.txt*
+* **Custom JSON Entry**: *.yml*
 
 ## Extensibility
 
