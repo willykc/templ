@@ -64,7 +64,7 @@ namespace Willykc.Templ.Editor
         private List<TemplEntry> entries = new List<TemplEntry>();
 
         [SerializeField]
-        private List<TemplScaffold> scaffolds;
+        private List<TemplScaffold> scaffolds = new List<TemplScaffold>();
 
         internal event Action AfterReset;
 
