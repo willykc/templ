@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
@@ -27,6 +28,7 @@ namespace Willykc.Templ.Editor.Tests
     using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
+    using static TemplSettings;
 
     internal class TemplEntryCoreFunctionConflictsTests
     {
@@ -39,6 +41,8 @@ namespace Willykc.Templ.Editor.Tests
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private EditorUtilityMock editorUtilityMock;
         private TemplSettings settings;
+        private ScribanAsset testTemplate;
+        private TextAsset testText;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
 
@@ -46,7 +50,8 @@ namespace Willykc.Templ.Editor.Tests
         public void BeforeAll()
         {
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
-            firstEntryMock = settings.Entries[0] as EntryMock;
+            testTemplate = TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTemplatePath, out _);
+            testText = TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out _);
         }
 
         [SetUp]
@@ -69,6 +74,7 @@ namespace Willykc.Templ.Editor.Tests
 
             settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = UnityObject.Instantiate(settings);
+            firstEntryMock = settingsProviderMock.settings.Entries[0] as EntryMock;
         }
 
         [TearDown]
@@ -81,6 +87,8 @@ namespace Willykc.Templ.Editor.Tests
         public void AfterAll()
         {
             TemplTestUtility.DeleteTestAsset(settings);
+            TemplTestUtility.DeleteTestAsset(testTemplate);
+            TemplTestUtility.DeleteTestAsset(testText);
         }
 
         [Test]
@@ -196,6 +204,22 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFunctionNamedWithReservedKeyword_WhenAssetsChange_ThenShouldLogError()
+        {
+            // Setup
+            templateFunctionProviderMock = new TemplateFunctionProviderMock
+            {
+                FunctionNames = new[] { NameOfOutputAssetPath }
+            };
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
     }
 }

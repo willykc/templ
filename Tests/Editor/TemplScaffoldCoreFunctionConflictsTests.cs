@@ -96,5 +96,66 @@ namespace Willykc.Templ.Editor.Tests
             // Verify
             Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
         }
+
+        [Test]
+        public void GivenFunctionNamedWithReservedKeyword_WhenInstantiating_ThenShouldLogError()
+        {
+            // Setup
+            templateFunctionProviderMock = new TemplateFunctionProviderMock
+            {
+                FunctionNames = new[] { "Input" }
+            };
+
+            // Act
+            subject = new TemplScaffoldCore(
+                fileSystemMock = new FileSystemMock(),
+                loggerMock = new LoggerMock(),
+                editorUtilityMock = new EditorUtilityMock(),
+                templateFunctionProviderMock);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenFunctionNamedWithReservedKeyword_WhenValidating_ThenShouldReturnError()
+        {
+            // Setup
+            templateFunctionProviderMock = new TemplateFunctionProviderMock
+            {
+                FunctionNames = new[] { "RootPath" }
+            };
+
+            subject = new TemplScaffoldCore(
+                fileSystemMock = new FileSystemMock(),
+                loggerMock = new LoggerMock(),
+                editorUtilityMock = new EditorUtilityMock(),
+                templateFunctionProviderMock);
+
+            // Act
+            var errors = subject.ValidateScaffoldGeneration(testScaffold, TestTargetPath);
+
+            // Verify
+            Assert.IsNotEmpty(errors, "Errors expected");
+            Assert.AreEqual(TemplScaffoldErrorType.Undefined, errors[0].Type, "Wrong error type");
+            Assert.That(errors[0].Message.Contains("Found reserved keyword used as function name"),
+                "Wrong error");
+        }
+
+        [Test]
+        public void GivenFunctionNamedWithReservedKeyword_WhenGenerating_ThenShouldLogError()
+        {
+            // Setup
+            templateFunctionProviderMock = new TemplateFunctionProviderMock
+            {
+                FunctionNames = new[] { "Input" }
+            };
+
+            // Act
+            subject.GenerateScaffold(testScaffold, TestTargetPath);
+
+            // Verify
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
+        }
     }
 }

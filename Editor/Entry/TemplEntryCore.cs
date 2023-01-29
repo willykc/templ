@@ -53,6 +53,7 @@ namespace Willykc.Templ.Editor.Entry
         private readonly IEditorUtility editorUtility;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
+        private readonly string[] functionNames;
 
         internal TemplEntryCore(
             IAssetDatabase assetDatabase,
@@ -80,6 +81,7 @@ namespace Willykc.Templ.Editor.Entry
 
             functions = templateFunctionProvider.GetTemplateFunctionTypes().ToList();
             functionConflicts = templateFunctionProvider.GetDuplicateTemplateFunctionNames();
+            functionNames = templateFunctionProvider.GetTemplateFunctionNames();
 
             if (functionConflicts.Length > 0)
             {
@@ -133,7 +135,7 @@ namespace Willykc.Templ.Editor.Entry
 
         bool ITemplEntryCore.OnWillDeleteAsset(string path)
         {
-            if (!settingsProvider.SettingsExist())
+            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
                 return true;
             }
@@ -221,7 +223,7 @@ namespace Willykc.Templ.Editor.Entry
 
         private bool FunctionConflictsDetected()
         {
-            if (functionConflicts.Length > 0)
+            if (functionConflicts.Length > 0 || functionNames.Contains(NameOfOutputAssetPath))
             {
                 log.Error("Templates will not render due to function name conflicts");
                 return true;
@@ -333,6 +335,12 @@ namespace Willykc.Templ.Editor.Entry
         {
             if (!CheckOverrides(entry, inputPaths, templatePaths))
             {
+                return;
+            }
+
+            if (entry.ExposedInputName == NameOfOutputAssetPath)
+            {
+                log.Error($"Entry input name must not be reserved keyword: {NameOfOutputAssetPath}");
                 return;
             }
 

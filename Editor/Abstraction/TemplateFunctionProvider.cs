@@ -30,6 +30,7 @@ namespace Willykc.Templ.Editor.Abstraction
     {
         private Type[] functionTypeCache;
         private string[] duplicateFunctionNamesCache;
+        private string[] functionNamesCache;
 
         private static ITemplateFunctionProvider templateFunctionProvider;
 
@@ -42,14 +43,21 @@ namespace Willykc.Templ.Editor.Abstraction
             GetTemplateFunctionTypes();
 
         string[] ITemplateFunctionProvider.GetDuplicateTemplateFunctionNames() =>
-            duplicateFunctionNamesCache ??= GetTemplateFunctionTypes()
+            duplicateFunctionNamesCache ??= GetTemplateFunctionNames()
+            .GroupBy(n => n)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToArray();
+
+        string[] ITemplateFunctionProvider.GetTemplateFunctionNames() =>
+            GetTemplateFunctionNames();
+
+        private string[] GetTemplateFunctionNames() =>
+            functionNamesCache ??= GetTemplateFunctionTypes()
             .SelectMany(t => t.GetMethods())
             .Union(typeof(TemplFunctions).GetMethods())
             .Where(m => m.IsStatic)
             .Select(m => m.Name)
-            .GroupBy(n => n)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
             .ToArray();
 
         private Type[] GetTemplateFunctionTypes() =>

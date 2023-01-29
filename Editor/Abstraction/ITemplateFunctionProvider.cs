@@ -27,5 +27,6 @@ namespace Willykc.Templ.Editor.Abstraction
     {
         internal Type[] GetTemplateFunctionTypes();
         internal string[] GetDuplicateTemplateFunctionNames();
+        internal string[] GetTemplateFunctionNames();
     }
 }
