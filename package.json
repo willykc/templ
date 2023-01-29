@@ -29,7 +29,7 @@
   "samples": [
     {
       "displayName": "Scriptable Object to XML",
-      "description": "Contains sample template and scriptable object for CML output",
+      "description": "Contains sample template and scriptable object for XML output",
       "path": "Samples~/ScriptableObjectToXML"
     },
     {
@@ -39,7 +39,7 @@
     },
     {
       "displayName": "Scriptable Object to Scriptable Object",
-      "description": "Contains sample template and scriptable object for a differenct scriptable object output",
+      "description": "Contains sample template and scriptable object for a different scriptable object output",
       "path": "Samples~/ScriptableObjectToScriptableObject"
     },
     {
