@@ -35,21 +35,8 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         internal const string ScaffoldGenerationTitle = "Templ Scaffold Generation";
 
-        private const string InputName = "Input";
-        private const string SelectionName = "Selection";
-        private const string SeedName = "Seed";
-        private const string RootPathName = "RootPath";
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
-
-        private static readonly string[] ReservedKeywords = new string[]
-        {
-            InputName,
-            SelectionName,
-            SeedName,
-            RootPathName,
-            NameOfOutputAssetPath
-        };
 
         private readonly IFileSystem fileSystem;
         private readonly ILogger log;

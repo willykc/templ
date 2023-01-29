@@ -37,11 +37,23 @@ namespace Willykc.Templ.Editor
         internal const string NameOfScaffolds = nameof(scaffolds);
         internal const string NameOfOutputAssetPath = nameof(TemplEntry.OutputAssetPath);
         internal const string DefaultConfigFolder = "Assets/Editor/TemplData";
+        internal const string InputName = "Input";
+        internal const string SelectionName = "Selection";
+        internal const string SeedName = "Seed";
+        internal const string RootPathName = "RootPath";
 
         internal static readonly string[] EmptyStringArray = new string[0];
         internal static readonly AssetChange[] EmptyAssetChangeArray = new AssetChange[0];
         internal static readonly TemplScaffold[] EmptyScaffoldArray = new TemplScaffold[0];
         internal static readonly TemplEntry[] EmptyEntryArray = new TemplEntry[0];
+        internal static readonly string[] ReservedKeywords = new string[]
+        {
+            InputName,
+            SelectionName,
+            SeedName,
+            RootPathName,
+            NameOfOutputAssetPath
+        };
 
         private const string DefaultConfigObjectName = "com.willykc.templ";
         private const string DefaultConfigAssetName = "TemplSettings.asset";

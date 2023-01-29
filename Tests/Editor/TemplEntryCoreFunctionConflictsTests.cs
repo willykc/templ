@@ -32,6 +32,10 @@ namespace Willykc.Templ.Editor.Tests
 
     internal class TemplEntryCoreFunctionConflictsTests
     {
+        private const string TestKeywordConflictSettingsPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/" +
+            "TestKeywordConflictTemplSettings.asset";
+
         private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
@@ -40,6 +44,7 @@ namespace Willykc.Templ.Editor.Tests
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private EditorUtilityMock editorUtilityMock;
+        private TemplSettings keywordConflictSettings;
         private TemplSettings settings;
         private ScribanAsset testTemplate;
         private TextAsset testText;
@@ -49,6 +54,9 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeSetUp]
         public void BeforeAll()
         {
+            keywordConflictSettings = TemplTestUtility.CreateTestAsset<TemplSettings>(
+                TestKeywordConflictSettingsPath,
+                out _);
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
             testTemplate = TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTemplatePath, out _);
             testText = TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out _);
@@ -86,6 +94,7 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeTearDown]
         public void AfterAll()
         {
+            TemplTestUtility.DeleteTestAsset(keywordConflictSettings);
             TemplTestUtility.DeleteTestAsset(settings);
             TemplTestUtility.DeleteTestAsset(testTemplate);
             TemplTestUtility.DeleteTestAsset(testText);
@@ -220,6 +229,31 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenEntryInputNamedWithReservedKeyword_WhenRenderEntry_ThenShouldLogError()
+        {
+            // Setup
+            var settingsProviderMock = new SettingsProviderMock();
+            settingsProviderMock.settingsExist = true;
+            settingsProviderMock.settings = keywordConflictSettings;
+            var id = keywordConflictSettings.Entries[0].Id;
+
+            subject = new TemplEntryCore(
+                assetDatabaseMock,
+                fileSystemMock,
+                sessionStateMock,
+                loggerMock = new LoggerMock(),
+                settingsProviderMock,
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
         }
     }
 }
