@@ -351,11 +351,11 @@ namespace Willykc.Templ.Editor.Entry
                 var result = template.Render(context);
                 fileSystem.WriteAllText(entry.FullPath, result);
                 assetDatabase.ImportAsset(entry.OutputAssetPath);
-                log.Info($"Template rendered at {entry.FullPath}");
+                log.Info($"Template rendered at {entry.OutputAssetPath}");
             }
             catch (Exception e)
             {
-                log.Error($"Error while rendering template at {entry.FullPath}", e);
+                log.Error($"Error while rendering template at {entry.OutputAssetPath}", e);
             }
         }
 
@@ -364,21 +364,21 @@ namespace Willykc.Templ.Editor.Entry
             if (inputPaths.Contains(entry.OutputAssetPath))
             {
                 log.Error("Overwriting an input in settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 
             if (templatePaths.Contains(entry.OutputAssetPath))
             {
                 log.Error("Overwriting a template in settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 
             if (entry.OutputAssetPath == assetDatabase.GetAssetPath(settingsProvider.GetSettings()))
             {
                 log.Error("Overwriting settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 
