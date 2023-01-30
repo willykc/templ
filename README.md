@@ -1,18 +1,22 @@
+![Header](https://cdn.hashnode.com/res/hashnode/image/upload/v1672747572973/d4980f5c-a621-4d4a-b475-92a4b0a3713a.png)
+
 # Templ
 
 [![openupm](https://img.shields.io/npm/v/com.willykc.templ?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.willykc.templ/)
 
-Integrates [Scriban](https://github.com/scriban/scriban/) template engine with Unity editor.
+Integrates [Scriban](https://github.com/scriban/scriban/) template engine with the Unity Editor.
 
 * Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.
 * Automatic generation when input assets or templates change.
-* Generation of scaffold tree structures with directories and files.
+* Generation of scaffold tree structures with folders and files.
 * Extensible design allows custom inputs and template functions.
 * Public API allows full control of asset generation.
 
+Follow [the step-by-step guide](https://willykc.hashnode.dev/declarative-code-generation-in-unity) for a more detailed introduction to the capabilities.
+
 ## Unity version support
 
-Tested to work with Unity 2020.3 and 2021.3.
+Tested to work with Unity 2020.3, 2021.3 and 2022.2 on Windows and macOS.
 
 ## How to install
 
@@ -26,23 +30,23 @@ openupm add com.willykc.templ
 
 After installation completes, a prompt will show up in the Unity editor. When clicking on Proceed, the **TemplSettings** asset will be created under the *Assets/Editor/TemplData* directory.
 
-The **TemplSettings** asset can always be located by clicking on the *Windows/Templ/Settings* menu. In case **TemplSettings** is removed, clicking on the same menu will create a fresh copy at the default location shown above.
+**TemplSettings** can always be located by clicking on the *Windows/Templ/Settings* menu. In case **TemplSettings** is removed, clicking on the same menu will create a fresh copy at the default location shown above.
 
 Create new templates by right-clicking anywhere in the project hierarchy and selecting *Create/Templ/Scriban Template*.
 
 ## Live Entries
 
-Live entries allow automatic generation of assets whenever the *input* asset or template change.
+Live entries allow reactive generation of assets whenever the *input* asset or template change.
 
-Add and configure live entries in the **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). The default entry types are **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
+Add and configure live entries in **TemplSettings** by specifying input, template, directory and output filename (target output file extension must be included in filename). The default entry types are **ScriptableObjectEntry** and **AssemblyDefinitionEntry**.
 
 **ScriptableObjectEntry** takes as input any scriptable object. The scriptable object is exposed to templates as `scriptableObject`.
 
-**AssemblyDefinitionEntry** takes as input any assembly definition. The assembly itself (not the assembly definition asset) is exposed to templates as `assembly`.
+**AssemblyDefinitionEntry** takes as input any assembly definition. The compiled assembly (not the assembly definition asset) is exposed to templates as `assembly`.
 
 ## Scaffolds
 
-Scaffolds are tree structures representing hierarchies of directories and files that can be generated anywhere in the project hierarchy.
+Scaffolds are tree structures representing hierarchies of folders and files that can be generated anywhere in the project hierarchy on demand.
 
 Create new scaffold definitions by selecting *Create/Templ/Scaffold Definition* or *Create/Templ/Dynamic Scaffold Definition*
 
@@ -50,7 +54,7 @@ Use the toolbar in the standard scaffold inspector to create, clone or delete di
 
 Nodes can be moved by dragging and dropping them anywhere in the scaffold tree.
 
-Double-click on any node to open it for edits. Node names support Scriban statements, and will be rendered during generation. Templates can be assigned to file nodes in edit mode.
+Double-click on any node to open it for edits. Node names support Scriban statements and will be rendered during generation. Templates can be assigned to file nodes in edit mode.
 
 Every scaffold change can be undone/redone as any other operation in the Unity editor.
 
@@ -103,15 +107,15 @@ YAML is parsed using SharpYaml. The license can be found [here](https://github.c
 
 ## Reserved template keywords
 
-* **OutputAssetPath**: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
-* **Input**: Exposed to scaffold templates only, it is the scaffold generation input object.
-* **Selection**: Exposed to scaffold templates only, it is the selected asset when generating the scaffold.
-* **Seed**: Exposed to scaffold templates only, it is a unique GUID for the scaffold generation.
-* **RootPath**: Exposed to scaffold templates only, is is the root path of the scaffold generation.
+* `OutputAssetPath`: Exposed to both live entry and scaffold templates, it is the asset path of the generated asset.
+* `Input`: Exposed to scaffold templates only, it is the scaffold generation input object.
+* `Selection`: Exposed to scaffold templates only, it is the selected asset when generating the scaffold.
+* `Seed`: Exposed to scaffold templates only, it is a new GUID shared across all templates in the scaffold.
+* `RootPath`: Exposed to scaffold templates only, it is the root path of the scaffold generation.
 
 ## Scriban
 
-The Scriban [language](https://github.com/scriban/scriban/blob/master/doc/language.md) syntax is well documented.
+The [Scriban language](https://github.com/scriban/scriban/blob/master/doc/language.md) syntax is well documented.
 
 It is recommended to use [Visual Studio Code](https://code.visualstudio.com/) and [Scriban syntax highlights](https://marketplace.visualstudio.com/items?itemName=xoofx.scriban) to write and edit templates.
 
@@ -125,7 +129,7 @@ The Scriban license can be found [here](https://github.com/scriban/scriban/blob/
 
 ## Samples
 
-The included samples showcase some use cases.
+The included samples showcase some of the capabilities.
 
 The following output file extensions should be used when configuring live entries from samples:
 
@@ -137,6 +141,7 @@ The following output file extensions should be used when configuring live entrie
 * **AssemblyDefinition to Prefab**: *.prefab*
 * **Extensions**: *.txt*
 * **Multiple Inputs Entry**: *.txt*
+* **Custom JSON Entry**: *.yml*
 
 ## Extensibility
 

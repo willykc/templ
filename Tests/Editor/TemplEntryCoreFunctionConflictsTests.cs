@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using NUnit.Framework;
+using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
 namespace Willykc.Templ.Editor.Tests
@@ -27,9 +28,14 @@ namespace Willykc.Templ.Editor.Tests
     using Entry;
     using Mocks;
     using static TemplEntryCoreTests;
+    using static TemplSettings;
 
     internal class TemplEntryCoreFunctionConflictsTests
     {
+        private const string TestKeywordConflictSettingsPath =
+            "Packages/com.willykc.templ/Tests/Editor/TestAssets~/" +
+            "TestKeywordConflictTemplSettings.asset";
+
         private ITemplEntryCore subject;
         private AssetDatabaseMock assetDatabaseMock;
         private FileSystemMock fileSystemMock;
@@ -38,15 +44,22 @@ namespace Willykc.Templ.Editor.Tests
         private SettingsProviderMock settingsProviderMock;
         private TemplateFunctionProviderMock templateFunctionProviderMock;
         private EditorUtilityMock editorUtilityMock;
+        private TemplSettings keywordConflictSettings;
         private TemplSettings settings;
+        private ScribanAsset testTemplate;
+        private TextAsset testText;
         private AssetsPaths changes;
         private EntryMock firstEntryMock;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
+            keywordConflictSettings = TemplTestUtility.CreateTestAsset<TemplSettings>(
+                TestKeywordConflictSettingsPath,
+                out _);
             settings = TemplTestUtility.CreateTestAsset<TemplSettings>(TestSettingsPath, out _);
-            firstEntryMock = settings.Entries[0] as EntryMock;
+            testTemplate = TemplTestUtility.CreateTestAsset<ScribanAsset>(TestTemplatePath, out _);
+            testText = TemplTestUtility.CreateTestAsset<TextAsset>(TestTextPath, out _);
         }
 
         [SetUp]
@@ -69,6 +82,7 @@ namespace Willykc.Templ.Editor.Tests
 
             settingsProviderMock.settingsExist = true;
             settingsProviderMock.settings = UnityObject.Instantiate(settings);
+            firstEntryMock = settingsProviderMock.settings.Entries[0] as EntryMock;
         }
 
         [TearDown]
@@ -80,7 +94,10 @@ namespace Willykc.Templ.Editor.Tests
         [OneTimeTearDown]
         public void AfterAll()
         {
+            TemplTestUtility.DeleteTestAsset(keywordConflictSettings);
             TemplTestUtility.DeleteTestAsset(settings);
+            TemplTestUtility.DeleteTestAsset(testTemplate);
+            TemplTestUtility.DeleteTestAsset(testText);
         }
 
         [Test]
@@ -196,6 +213,47 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.AreEqual(0, fileSystemMock.WriteAllTextCount, "Unexpected render");
+        }
+
+        [Test]
+        public void GivenFunctionNamedWithReservedKeyword_WhenAssetsChange_ThenShouldLogError()
+        {
+            // Setup
+            templateFunctionProviderMock = new TemplateFunctionProviderMock
+            {
+                FunctionNames = new[] { NameOfOutputAssetPath }
+            };
+
+            // Act
+            subject.OnAssetsChanged(changes);
+
+            // Verify
+            Assert.AreEqual(2, loggerMock.ErrorCount, "Did not log error");
+        }
+
+        [Test]
+        public void GivenEntryInputNamedWithReservedKeyword_WhenRenderEntry_ThenShouldLogError()
+        {
+            // Setup
+            var settingsProviderMock = new SettingsProviderMock();
+            settingsProviderMock.settingsExist = true;
+            settingsProviderMock.settings = keywordConflictSettings;
+            var id = keywordConflictSettings.Entries[0].Id;
+
+            subject = new TemplEntryCore(
+                assetDatabaseMock,
+                fileSystemMock,
+                sessionStateMock,
+                loggerMock = new LoggerMock(),
+                settingsProviderMock,
+                templateFunctionProviderMock = new TemplateFunctionProviderMock(),
+                editorUtilityMock);
+
+            // Act
+            subject.RenderEntry(id);
+
+            // Verify
+            Assert.AreEqual(1, loggerMock.ErrorCount, "Did not log error");
         }
     }
 }
