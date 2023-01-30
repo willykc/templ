@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2023-01-30
+
+### Added
+
+- Sample custom entry for JSON assets.
+- Improved errors when custom template function names conflict with reserved keywords.
+- Documentation for default template functions.
+
+### Changed
+
+- Log line when rendering entries now shows output asset path instead of full path.
+
+### Fixed
+
+- Exception in Unity 2022.2 when initializing the **TemplSettings** asset.
+
 ## [0.3.0-preview] - 2023-01-01
 
 ### Added

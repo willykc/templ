@@ -1,0 +1,5 @@
+name: {{json.name}}
+list:{{if json.list | array.size == 0}} []{{end}}
+{{~ for item in json.list ~}}
+  - {{item}}
+{{~ end ~}}

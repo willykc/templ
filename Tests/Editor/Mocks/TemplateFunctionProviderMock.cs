@@ -29,10 +29,13 @@ namespace Willykc.Templ.Editor.Tests.Mocks
     {
         internal Type[] FunctionTypes { get; set; } = new Type[0];
         internal string[] DuplicateFunctionNames { get; set; } = new string[0];
+        internal string[] FunctionNames { get; set; } = new string[0];
 
         string[] ITemplateFunctionProvider.GetDuplicateTemplateFunctionNames() =>
             DuplicateFunctionNames;
 
         Type[] ITemplateFunctionProvider.GetTemplateFunctionTypes() => FunctionTypes;
+
+        string[] ITemplateFunctionProvider.GetTemplateFunctionNames() => FunctionNames;
     }
 }

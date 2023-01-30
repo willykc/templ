@@ -53,6 +53,7 @@ namespace Willykc.Templ.Editor.Entry
         private readonly IEditorUtility editorUtility;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
+        private readonly string[] functionNames;
 
         internal TemplEntryCore(
             IAssetDatabase assetDatabase,
@@ -80,6 +81,7 @@ namespace Willykc.Templ.Editor.Entry
 
             functions = templateFunctionProvider.GetTemplateFunctionTypes().ToList();
             functionConflicts = templateFunctionProvider.GetDuplicateTemplateFunctionNames();
+            functionNames = templateFunctionProvider.GetTemplateFunctionNames();
 
             if (functionConflicts.Length > 0)
             {
@@ -133,7 +135,7 @@ namespace Willykc.Templ.Editor.Entry
 
         bool ITemplEntryCore.OnWillDeleteAsset(string path)
         {
-            if (!settingsProvider.SettingsExist())
+            if (!settingsProvider.SettingsExist() || FunctionConflictsDetected())
             {
                 return true;
             }
@@ -221,7 +223,7 @@ namespace Willykc.Templ.Editor.Entry
 
         private bool FunctionConflictsDetected()
         {
-            if (functionConflicts.Length > 0)
+            if (functionConflicts.Length > 0 || functionNames.Contains(NameOfOutputAssetPath))
             {
                 log.Error("Templates will not render due to function name conflicts");
                 return true;
@@ -336,6 +338,12 @@ namespace Willykc.Templ.Editor.Entry
                 return;
             }
 
+            if (entry.ExposedInputName == NameOfOutputAssetPath)
+            {
+                log.Error($"Entry input name must not be reserved keyword: {NameOfOutputAssetPath}");
+                return;
+            }
+
             try
             {
                 var context = GetContext(entry);
@@ -343,11 +351,11 @@ namespace Willykc.Templ.Editor.Entry
                 var result = template.Render(context);
                 fileSystem.WriteAllText(entry.FullPath, result);
                 assetDatabase.ImportAsset(entry.OutputAssetPath);
-                log.Info($"Template rendered at {entry.FullPath}");
+                log.Info($"Template rendered at {entry.OutputAssetPath}");
             }
             catch (Exception e)
             {
-                log.Error($"Error while rendering template at {entry.FullPath}", e);
+                log.Error($"Error while rendering template at {entry.OutputAssetPath}", e);
             }
         }
 
@@ -356,21 +364,21 @@ namespace Willykc.Templ.Editor.Entry
             if (inputPaths.Contains(entry.OutputAssetPath))
             {
                 log.Error("Overwriting an input in settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 
             if (templatePaths.Contains(entry.OutputAssetPath))
             {
                 log.Error("Overwriting a template in settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 
             if (entry.OutputAssetPath == assetDatabase.GetAssetPath(settingsProvider.GetSettings()))
             {
                 log.Error("Overwriting settings is not allowed. " +
-                    $"Did not render template at {entry.FullPath}");
+                    $"Did not render template at {entry.OutputAssetPath}");
                 return false;
             }
 

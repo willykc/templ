@@ -19,14 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using System;
+using UnityEngine;
 
-namespace Willykc.Templ.Editor.Abstraction
+namespace Willykc.Templ.Editor.Tests.Mocks
 {
-    internal interface ITemplateFunctionProvider
+    using Entry;
+
+    [TemplEntryInfo(ChangeType.All)]
+    internal sealed class KeywordConflictEntryMock : TemplEntry
     {
-        internal Type[] GetTemplateFunctionTypes();
-        internal string[] GetDuplicateTemplateFunctionNames();
-        internal string[] GetTemplateFunctionNames();
+        [TemplInput(ExposedAs = TemplSettings.NameOfOutputAssetPath)]
+        public TextAsset text;
     }
 }

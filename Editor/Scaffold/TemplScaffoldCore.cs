@@ -35,10 +35,6 @@ namespace Willykc.Templ.Editor.Scaffold
     {
         internal const string ScaffoldGenerationTitle = "Templ Scaffold Generation";
 
-        private const string InputName = "Input";
-        private const string SelectionName = "Selection";
-        private const string SeedName = "Seed";
-        private const string RootPathName = "RootPath";
         private const string ProgressBarValidatingInfo = "Validating...";
         private const string ProgressBarGeneratingInfo = "Generating...";
 
@@ -47,6 +43,7 @@ namespace Willykc.Templ.Editor.Scaffold
         private readonly IEditorUtility editorUtility;
         private readonly List<Type> functions;
         private readonly string[] functionConflicts;
+        private readonly string[] invalidFunctionNames;
 
         internal TemplScaffoldCore(
             IFileSystem fileSystem,
@@ -65,11 +62,20 @@ namespace Willykc.Templ.Editor.Scaffold
 
             functions = templateFunctionProvider.GetTemplateFunctionTypes().ToList();
             functionConflicts = templateFunctionProvider.GetDuplicateTemplateFunctionNames();
+            invalidFunctionNames = templateFunctionProvider.GetTemplateFunctionNames()
+                .Where(fn => ReservedKeywords.Contains(fn))
+                .ToArray();
 
             if (functionConflicts.Length > 0)
             {
                 log.Error("Function name conflicts detected: " +
                     string.Join(", ", functionConflicts));
+            }
+
+            if(invalidFunctionNames.Length > 0)
+            {
+                log.Error($"Reserved keyword(s) used as function name: " +
+                    string.Join(", ", invalidFunctionNames));
             }
         }
 
@@ -137,7 +143,7 @@ namespace Willykc.Templ.Editor.Scaffold
                 errors = new List<TemplScaffoldError>()
             };
 
-            CollectDuplicateTemplateFunctionsErrors(validationContext);
+            CollectTemplateFunctionNameErrors(validationContext);
             ProcessDynamicScaffold(scaffold, validationContext);
             CheckForEmptyScaffoldTree(scaffold, validationContext);
 
@@ -172,12 +178,16 @@ namespace Willykc.Templ.Editor.Scaffold
             }
         }
 
-        private void CollectDuplicateTemplateFunctionsErrors(ValidationContext validationContext)
+        private void CollectTemplateFunctionNameErrors(ValidationContext validationContext)
         {
             var functionConflictErrors = functionConflicts
                 .Select(c => new TemplScaffoldError(TemplScaffoldErrorType.Undefined,
                 $"Found duplicate template function name: {c}"));
+            var reservedKeywordErrors = invalidFunctionNames
+                .Select(rk => new TemplScaffoldError(TemplScaffoldErrorType.Undefined,
+                $"Found reserved keyword used as function name: {rk}"));
             validationContext.errors.AddRange(functionConflictErrors);
+            validationContext.errors.AddRange(reservedKeywordErrors);
         }
 
         private void ProcessDynamicScaffold(
