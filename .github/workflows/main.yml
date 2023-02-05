@@ -1,0 +1,65 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [2020.3.44f1, 2021.3.17f1, 2022.2.5f1]
+    steps:
+      - uses: willykc/unity-package-tester@v1
+        id: test
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: ${{ matrix.version }}
+          testMode: editmode
+          artifactsPath: 'artifacts/${{ matrix.version }}'
+          scopedRegistries: |
+            {
+              "name": "openupm",
+              "url": "https://package.openupm.com",
+              "scopes": [
+                "org.nuget"
+              ]
+            }
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Willykc.Templ.Editor;pathFilters:+**/Entry/**,+**/Scaffold/**,-**/*Editor.cs,-**/*View.cs,-**/*ViewItem.cs,-**/*Menu.cs,-**/*Dialog.cs,-**/*Form.cs,-**/*Manager.cs,-**/*Processor.cs,-**/*Entry.cs'
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: 'coverage'
+          path: ${{ steps.test.outputs.coveragePath }}
+          retention-days: 1
+
+  publish-coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
+    environment:
+      name: coverage-report
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: test-package
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: coverage
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: './Report'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
