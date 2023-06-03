@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2023-06-03
+
+### Changed
+
+- Updated version of Scriban to v5.7.0.
+- Clarified a few errors messages.
+
 ## [1.0.0] - 2023-01-30
 
 ### Added
@@ -82,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial files.
 
-[Unreleased]: https://github.com/willykc/templ/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/willykc/templ/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/willykc/templ/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/willykc/templ/compare/v0.3.0-preview...v1.0.0
 [0.3.0-preview]: https://github.com/willykc/templ/compare/v0.2.0-preview...v0.3.0-preview
 [0.2.0-preview]: https://github.com/willykc/templ/compare/v0.1.1-preview...v0.2.0-preview

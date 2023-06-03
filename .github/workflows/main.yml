@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [2020.3.44f1, 2021.3.17f1, 2022.2.5f1]
+        version: [2020.3.48f1, 2021.3.26f1, 2022.3.0f1]
     steps:
       - uses: willykc/unity-package-tester@v1
         id: test
@@ -29,7 +29,23 @@ jobs:
                 "org.nuget"
               ]
             }
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Willykc.Templ.Editor;pathFilters:+**/Entry/**,+**/Scaffold/**,-**/*Editor.cs,-**/*View.cs,-**/*ViewItem.cs,-**/*Menu.cs,-**/*Dialog.cs,-**/*Form.cs,-**/*Manager.cs,-**/*Processor.cs,-**/*Entry.cs'
+          coverageOptions: >-
+            generateAdditionalMetrics;
+            generateHtmlReport;
+            generateBadgeReport;
+            assemblyFilters:+Willykc.Templ.Editor;
+            pathFilters:
+            +**/Entry/**,
+            +**/Scaffold/**,
+            -**/*Editor.cs,
+            -**/*View.cs,
+            -**/*ViewItem.cs,
+            -**/*Menu.cs,
+            -**/*Dialog.cs,
+            -**/*Form.cs,
+            -**/*Manager.cs,
+            -**/*Processor.cs,
+            -**/*Entry.cs
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:

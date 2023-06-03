@@ -95,7 +95,7 @@ namespace Willykc.Templ.Editor.Scaffold
 
             if (!assetDatabase.IsValidFolder(targetPath))
             {
-                throw new DirectoryNotFoundException($"Directory does not exist: '{targetPath}'");
+                throw new DirectoryNotFoundException($"Directory does not exist in the asset database: '{targetPath}'");
             }
 
             lock (lockHandle)
