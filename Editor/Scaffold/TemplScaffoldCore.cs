@@ -430,6 +430,13 @@ namespace Willykc.Templ.Editor.Scaffold
             scriptObject.Add(SeedName, validationContext.seed);
             scriptObject.Add(RootPathName, validationContext.rootPath);
 
+            var inputCollisions = nodeInputs.Keys.Where(scriptObject.ContainsKey).ToArray();
+            if (inputCollisions.Length > 0)
+            {
+                throw new InvalidOperationException("Found node input(s) named as reserved " +
+                    "keywords: " + string.Join(", ", inputCollisions));
+            }
+
             foreach (var nodeInput in nodeInputs)
             {
                 scriptObject.Add(nodeInput.Key, nodeInput.Value);

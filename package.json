@@ -1,6 +1,6 @@
 {
   "name": "com.willykc.templ",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Templ",
   "description": "Integrates Scriban template engine with the Unity Editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with folders and files.\n - Extensible design allows custom inputs and template functions.\n - Public API allows full control of asset generation.",
   "keywords": [
@@ -19,7 +19,7 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.5.2",
+    "org.nuget.scriban": "5.7.0",
     "org.nuget.sharpyaml": "2.1.0"
   },
   "unity": "2020.3",

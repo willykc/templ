@@ -132,7 +132,7 @@ namespace Willykc.Templ.Editor.Entry
             if (!directory || !assetDatabase.IsValidFolder(directoryPath))
             {
                 throw new DirectoryNotFoundException(
-                    $"Directory does not exist: '{directoryPath}'");
+                    $"Directory does not exist in the asset database: '{directoryPath}'");
             }
 
             var entryType = typeof(T);
@@ -245,7 +245,7 @@ namespace Willykc.Templ.Editor.Entry
                 (!directory || !assetDatabase.IsValidFolder(directoryPath)))
             {
                 throw new DirectoryNotFoundException(
-                    $"Directory does not exist: '{directoryPath}'");
+                    $"Directory does not exist in the asset database: '{directoryPath}'");
             }
 
             var entry = settings.Entries.FirstOrDefault(e => e.Id == id);
