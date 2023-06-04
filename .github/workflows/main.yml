@@ -29,7 +29,22 @@ jobs:
                 "org.nuget"
               ]
             }
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Willykc.Templ.Editor;pathFilters:+**/Entry/**,+**/Scaffold/**,-**/*Editor.cs,-**/*View.cs,-**/*ViewItem.cs,-**/*Menu.cs,-**/*Dialog.cs,-**/*Form.cs,-**/*Manager.cs,-**/*Processor.cs,-**/*Entry.cs'
+          coverageOptions: "generateAdditionalMetrics;\
+            generateHtmlReport;\
+            generateBadgeReport;\
+            assemblyFilters:+Willykc.Templ.Editor;\
+            pathFilters:\
+            +**/Entry/**,\
+            +**/Scaffold/**,\
+            -**/*Editor.cs,\
+            -**/*View.cs,\
+            -**/*ViewItem.cs,\
+            -**/*Menu.cs,\
+            -**/*Dialog.cs,\
+            -**/*Form.cs,\
+            -**/*Manager.cs,\
+            -**/*Processor.cs,\
+            -**/*Entry.cs"
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
