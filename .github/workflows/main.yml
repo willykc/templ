@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: [2020.3.48f1, 2021.3.26f1, 2022.3.0f1]
+        version: [2020.3.48f1, 2021.3.30f1, 2022.3.10f1]
     steps:
-      - uses: willykc/unity-package-tester@v1
+      - uses: willykc/unity-package-tester@v2
         id: test
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}

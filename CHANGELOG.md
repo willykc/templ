@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2023-09-24
+
+### Changed
+
+- Allow to remove Live Entries when deleting assets or directories referenced by Live Entries.
+- Updated version of Scriban to v5.9.0.
+
 ## [1.0.1] - 2023-06-03
 
 ### Changed
@@ -89,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial files.
 
-[Unreleased]: https://github.com/willykc/templ/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/willykc/templ/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/willykc/templ/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/willykc/templ/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/willykc/templ/compare/v0.3.0-preview...v1.0.0
 [0.3.0-preview]: https://github.com/willykc/templ/compare/v0.2.0-preview...v0.3.0-preview

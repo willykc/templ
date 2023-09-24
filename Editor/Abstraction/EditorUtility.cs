@@ -37,8 +37,8 @@ namespace Willykc.Templ.Editor.Abstraction
         void IEditorUtility.DisplayProgressBar(string title, string info, float progress) =>
             UnityEditor.EditorUtility.DisplayProgressBar(title, info, progress);
 
-        bool IEditorUtility.DisplayDialog(string title, string message, string ok) =>
-            UnityEditor.EditorUtility.DisplayDialog(title, message, ok);
+        bool IEditorUtility.DisplayDialog(string title, string message, string ok, string cancel) =>
+            UnityEditor.EditorUtility.DisplayDialog(title, message, ok, cancel);
 
         void IEditorUtility.SetDirty(UnityObject target) =>
             UnityEditor.EditorUtility.SetDirty(target);

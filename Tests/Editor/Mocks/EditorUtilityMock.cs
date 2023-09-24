@@ -31,11 +31,12 @@ namespace Willykc.Templ.Editor.Tests.Mocks
         internal int DisplayProgressBarCount { get; private set; }
         internal int DisplayDialogCount { get; private set; }
         internal int SetDirtyCount { get; private set; }
+        internal bool SetDisplayDialogReturn {  get; set; }
 
-        bool IEditorUtility.DisplayDialog(string title, string message, string ok)
+        bool IEditorUtility.DisplayDialog(string title, string message, string ok, string cancel)
         {
             DisplayDialogCount++;
-            return true;
+            return SetDisplayDialogReturn;
         }
 
         void IEditorUtility.ClearProgressBar()
