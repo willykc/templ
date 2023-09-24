@@ -30,7 +30,6 @@ namespace Willykc.Templ.Editor.Entry
 {
     using Abstraction;
     using static TemplSettings;
-    using static TemplSettingsEditor;
 
     internal sealed class TemplEntryCore : ITemplEntryCore
     {
@@ -38,10 +37,12 @@ namespace Willykc.Templ.Editor.Entry
         private const string ProgressBarRenderingInfo = "Rendering...";
         private const string TemplChangedKey = "templ.changed";
         private const string TemplDeferredKey = "templ.deferred";
-        private const string OkDialogText = "Continue";
-        private const string DialogMessage = "An asset currently referenced by " +
-            LiveEntriesTitle + " was about to be deleted. Please remove all references in " +
-            nameof(TemplSettings) + " (" + MenuName + ") before trying to delete again.";
+        private const string OkDialogText = "Remove Live Entries ({0})";
+        private const string CancelDialogText = "Abort";
+        private const string DialogMessage = "The '{0}' asset/directory currently referenced by " +
+            LiveEntriesTitle + " is about to be deleted. Press 'Remove Live Entries' to delete " +
+            "the corresponding " + LiveEntriesTitle + ". Press '" + CancelDialogText + "' to " +
+            "cancel the removal of both the asset and the " + LiveEntriesTitle;
 
         private const char AssetPathSeparator = '/';
 
@@ -142,10 +143,15 @@ namespace Willykc.Templ.Editor.Entry
 
             var settings = settingsProvider.GetSettings();
 
-            if (settings.Entries.Any(e => IsPathReferencedByEntry(e, path)))
+            var referencedEntries = settings.Entries
+                .Where(e => IsPathReferencedByEntry(e, path))
+                .ToList();
+
+            if (referencedEntries.Count > 0)
             {
-                editorUtility.DisplayDialog(LiveEntriesTitle, DialogMessage, OkDialogText);
-                return false;
+                var agreedToRemoveEntries = HandleRequestToRemoveLiveEntries(path, settings,
+                    referencedEntries);
+                return agreedToRemoveEntries;
             }
 
             FlagInputDeletedEntries(path);
@@ -193,6 +199,25 @@ namespace Willykc.Templ.Editor.Entry
             }
 
             RenderEntries(new[] { entry });
+        }
+
+        private bool HandleRequestToRemoveLiveEntries(string path, TemplSettings settings,
+            List<TemplEntry> referencedEntries)
+        {
+            var message = string.Format(DialogMessage, path);
+            var okText = string.Format(OkDialogText, referencedEntries.Count);
+            var agreedToRemoveEntries = editorUtility.DisplayDialog(LiveEntriesTitle, message,
+                okText, CancelDialogText);
+
+            if (agreedToRemoveEntries)
+            {
+                referencedEntries.ForEach(e => settings.Entries.Remove(e));
+
+                editorUtility.SetDirty(settings);
+                assetDatabase.SaveAssets();
+            }
+
+            return agreedToRemoveEntries;
         }
 
         private IList<TemplEntry> GetEagerDeferredEntries()
@@ -340,7 +365,8 @@ namespace Willykc.Templ.Editor.Entry
 
             if (entry.ExposedInputName == NameOfOutputAssetPath)
             {
-                log.Error($"Entry input name must not be reserved keyword: {NameOfOutputAssetPath}");
+                log.Error("Entry input name must not be reserved " +
+                    $"keyword: {NameOfOutputAssetPath}");
                 return;
             }
 

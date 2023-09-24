@@ -632,7 +632,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenReferencedInput_WhenInputDeleted_ThenShowNotAllowDelete()
+        public void GivenReferencedInput_WhenInputDeleteAborted_ThenDeleteIsCancelled()
         {
             // Setup
             assetDatabaseMock.mockInputPath = testTextPath;
@@ -642,10 +642,28 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(deleteAllowed, "Should not allow delete");
+            Assert.AreEqual(2, settingsInstance.Entries.Count,
+                "Should keep entries");
         }
 
         [Test]
-        public void GivenReferencedTemplate_WhenTemplateDeleted_ThenShowNotAllowDelete()
+        public void GivenReferencedInput_WhenInputDeleted_ThenAllowsDeleteAndRemovesEntries()
+        {
+            // Setup
+            assetDatabaseMock.mockInputPath = testTextPath;
+            editorUtilityMock.SetDisplayDialogReturn = true;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(testTextPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+            Assert.AreEqual(0, settingsInstance.Entries.Count,
+                "Should remove entries");
+        }
+
+        [Test]
+        public void GivenReferencedTemplate_WhenTemplateDeleteAborted_ThenDeleteIsCancelled()
         {
             // Setup
             assetDatabaseMock.mockTemplatePath = TestTemplatePath;
@@ -655,10 +673,28 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(deleteAllowed, "Should not allow delete");
+            Assert.AreEqual(2, settingsInstance.Entries.Count,
+                "Should keep entries");
         }
 
         [Test]
-        public void GivenReferencedDirectory_WhenDirectoryDeleted_ThenShowNotAllowDelete()
+        public void GivenReferencedTemplate_WhenTemplateDeleted_ThenProceedsAndRemovesEntries()
+        {
+            // Setup
+            assetDatabaseMock.mockTemplatePath = TestTemplatePath;
+            editorUtilityMock.SetDisplayDialogReturn = true;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(TestTemplatePath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+            Assert.AreEqual(0, settingsInstance.Entries.Count,
+                "Should remove entries");
+        }
+
+        [Test]
+        public void GivenReferencedDirectory_WhenDirectoryDeleteAborted_ThenDeleteIsCancelled()
         {
             // Setup
             var directoryPath = AssetDatabase.GetAssetPath(firstEntryMock.Directory);
@@ -669,10 +705,29 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(deleteAllowed, "Should not allow delete");
+            Assert.AreEqual(2, settingsInstance.Entries.Count,
+                "Should keep entries");
         }
 
         [Test]
-        public void GivenReferencedInput_WhenParentDirectoryDeleted_ThenShowNotAllowDelete()
+        public void GivenReferencedDirectory_WhenDirectoryDeleted_ThenProceedsAndRemovesEntries()
+        {
+            // Setup
+            var directoryPath = AssetDatabase.GetAssetPath(firstEntryMock.Directory);
+            assetDatabaseMock.mockDirectoryPath = directoryPath;
+            editorUtilityMock.SetDisplayDialogReturn = true;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(directoryPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+            Assert.AreEqual(0, settingsInstance.Entries.Count,
+                "Should remove entries");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenParentDirectoryDeleteAborted_ThenDeleteIsCancelled()
         {
             // Setup
             var parentDirectoryPath = "Assets/Directory";
@@ -683,10 +738,29 @@ namespace Willykc.Templ.Editor.Tests
 
             // Verify
             Assert.IsFalse(deleteAllowed, "Should not allow delete");
+            Assert.AreEqual(2, settingsInstance.Entries.Count,
+                "Should keep entries");
         }
 
         [Test]
-        public void GivenReferencedInput_WhenSimilarNamedAssetDeleted_ThenShowAllowDelete()
+        public void GivenReferencedInput_WhenParentDirectoryDeleted_ThenProceedsAndRemovesEntries()
+        {
+            // Setup
+            var parentDirectoryPath = "Assets/Directory";
+            assetDatabaseMock.mockInputPath = $"{parentDirectoryPath}/Test.txt";
+            editorUtilityMock.SetDisplayDialogReturn = true;
+
+            // Act
+            var deleteAllowed = subject.OnWillDeleteAsset(parentDirectoryPath);
+
+            // Verify
+            Assert.IsTrue(deleteAllowed, "Should allow delete");
+            Assert.AreEqual(0, settingsInstance.Entries.Count,
+                "Should remove entries");
+        }
+
+        [Test]
+        public void GivenReferencedInput_WhenSimilarNamedAssetDeleted_ThenAllowsDelete()
         {
             // Setup
             assetDatabaseMock.mockInputPath = testTextPath;
@@ -700,7 +774,7 @@ namespace Willykc.Templ.Editor.Tests
         }
 
         [Test]
-        public void GivenReferencedInput_WhenNonReferencedAssetDeleted_ThenShowAllowDelete()
+        public void GivenReferencedInput_WhenNonReferencedAssetDeleted_ThenAllowsDelete()
         {
             // Setup
             assetDatabaseMock.mockInputPath = testTextPath;
