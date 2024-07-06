@@ -1,8 +1,8 @@
 {
   "name": "com.willykc.templ",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "displayName": "Templ",
-  "description": "Integrates Scriban template engine with the Unity Editor.\n\n - Template based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with folders and files.\n - Extensible design allows custom inputs and template functions.\n - Public API allows full control of asset generation.",
+  "description": "Integrates the Scriban template engine with the Unity Editor.\n\n - Template-based asset generation, including scripts, prefabs, scriptable objects, or any text asset.\n - Automatic generation when input assets or templates change.\n - Generation of scaffold tree structures with folders and files.\n - Extensible design allows custom inputs and template functions.\n - Public API allows full control of asset generation.",
   "keywords": [
     "template",
     "code",
@@ -19,8 +19,8 @@
     "url": "https://github.com/willykc/templ.git"
   },
   "dependencies": {
-    "org.nuget.scriban": "5.9.0",
-    "org.nuget.sharpyaml": "2.1.0"
+    "org.nuget.scriban": "5.10.0",
+    "org.nuget.sharpyaml": "2.1.1"
   },
   "unity": "2020.3",
   "documentationUrl": "https://github.com/willykc/templ/blob/main/README.md",
@@ -29,72 +29,72 @@
   "samples": [
     {
       "displayName": "Scriptable Object to XML",
-      "description": "Contains sample template and scriptable object for XML output",
+      "description": "Contains a sample template and a scriptable object for XML output",
       "path": "Samples~/ScriptableObjectToXML"
     },
     {
       "displayName": "Scriptable Object to Code",
-      "description": "Contains sample template and scriptable object for C# output",
+      "description": "Contains a sample template and a scriptable object for C# output",
       "path": "Samples~/ScriptableObjectToCode"
     },
     {
       "displayName": "Scriptable Object to Scriptable Object",
-      "description": "Contains sample template and scriptable object for a different scriptable object output",
+      "description": "Contains a sample template and a scriptable object for a different scriptable object output",
       "path": "Samples~/ScriptableObjectToScriptableObject"
     },
     {
       "displayName": "Assembly Definition to Code",
-      "description": "Contains sample template and assembly definition for C# output",
+      "description": "Contains a sample template and an assembly definition for C# output",
       "path": "Samples~/AssemblyDefinitionToCode"
     },
     {
       "displayName": "Assembly Definition to Scriptable Object",
-      "description": "Contains sample template and assembly definition for a scriptable object output",
+      "description": "Contains a sample template and an assembly definition for a scriptable object output",
       "path": "Samples~/AssemblyDefinitionToScriptableObject"
     },
     {
       "displayName": "Assembly Definition to Prefab",
-      "description": "Contains sample template and assembly definition for a prefab output",
+      "description": "Contains a sample template and an assembly definition for a prefab output",
       "path": "Samples~/AssemblyDefinitionToPrefab"
     },
     {
       "displayName": "Extensions",
-      "description": "Contains sample custom entry and custom functions for a text template",
+      "description": "Contains a sample custom entry and custom functions for a text template",
       "path": "Samples~/Extensions"
     },
     {
       "displayName": "Scaffold with Input",
-      "description": "Contains sample scaffold with default input scriptable object",
+      "description": "Contains a sample scaffold with a default input scriptable object",
       "path": "Samples~/ScaffoldWithInput"
     },
     {
       "displayName": "Scaffold with Selection",
-      "description": "Contains sample scaffold to generate prefabs for selected image",
+      "description": "Contains a sample scaffold to generate prefabs for the selected image",
       "path": "Samples~/ScaffoldWithSelection"
     },
     {
       "displayName": "Dynamic Scaffold with Input",
-      "description": "Contains sample dynamic scaffold with default input scriptable object",
+      "description": "Contains a sample dynamic scaffold with a default input scriptable object",
       "path": "Samples~/DynamicScaffold"
     },
     {
       "displayName": "Scaffold and Entry API",
-      "description": "Contains sample scaffold and templates used with public API",
+      "description": "Contains a sample scaffold and templates used with public API",
       "path": "Samples~/ScaffoldAndEntryAPI"
     },
     {
       "displayName": "Multiple Selection Scaffold",
-      "description": "Contains sample scaffold for multiple selection using public API",
+      "description": "Contains a sample scaffold for multiple selection using public API",
       "path": "Samples~/MultipleSelectionScaffold"
     },
     {
       "displayName": "Multiple Inputs Entry",
-      "description": "Contains sample custom entry for multiple inputs",
+      "description": "Contains a sample custom entry for multiple inputs",
       "path": "Samples~/MultipleInputsEntry"
     },
     {
       "displayName": "Custom JSON Entry",
-      "description": "Contains sample custom entry for JSON assets",
+      "description": "Contains a sample custom entry for JSON assets",
       "path": "Samples~/CustomJsonEntry"
     }
   ]
