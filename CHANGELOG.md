@@ -7,18 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-07-06
+
+### Changed
+
+- Updated version of Scriban to `v5.10.0`.
+- Updated version of SharpYAML to `v2.1.1`.
+- Updated License.
+
 ## [1.1.0] - 2023-09-24
 
 ### Changed
 
 - Allow to remove Live Entries when deleting assets or directories referenced by Live Entries.
-- Updated version of Scriban to v5.9.0.
+- Updated version of Scriban to `v5.9.0`.
 
 ## [1.0.1] - 2023-06-03
 
 ### Changed
 
-- Updated version of Scriban to v5.7.0.
+- Updated version of Scriban to `v5.7.0`.
 - Clarified a few errors messages.
 
 ## [1.0.0] - 2023-01-30
@@ -96,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial files.
 
-[Unreleased]: https://github.com/willykc/templ/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/willykc/templ/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/willykc/templ/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/willykc/templ/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/willykc/templ/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/willykc/templ/compare/v0.3.0-preview...v1.0.0

@@ -18,7 +18,7 @@ Follow [the step-by-step guide](https://willykc.hashnode.dev/declarative-code-ge
 
 ## Unity version support
 
-Tested to work with Unity 2020.3, 2021.3 and 2022.3 on Windows and macOS.
+Tested to work with Unity 2020.3, 2021.3, 2022.3 and 6000.0 on Windows and macOS.
 
 ## How to install
 
